@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+  ServerName drupal
+  ServerAlias drupal
+  DocumentRoot /home/vagrant/drupal
+
+  Alias /assets /var/www/assets
+  <Directory /var/www/assets/>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  <Directory /home/vagrant/drupal>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  ErrorLog /var/log/apache2/drupal.error.log
+  CustomLog /var/log/apache2/drupal.custom.log combined
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+</VirtualHost>
