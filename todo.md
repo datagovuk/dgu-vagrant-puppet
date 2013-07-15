@@ -1,27 +1,3 @@
-# Users
-
-    sudo usermod -a -G www-data $USER
-
-# Filesystem
-
-    # CKAN temp folders 
-    FOLDER_DATA=/home/$USER/ckan_data
-    FOLDER_SSTORE=/home/$USER/ckan_sstore
-    CKAN_INI=/home/$USER/ckan.ini
-    mkdir -p {$FOLDER_DATA,$FOLDER_SSTORE}
-    chmod g+w {$FOLDER_DATA,$FOLDER_SSTORE}
-    sudo chgrp www-data {$FOLDER_DATA,$FOLDER_SSTORE}
-
-    # Generate CKAN.ini file
-    /vagrant/scripts/create_ckan_files.sh $FOLDER_DATA $FOLDER_SSTORE
-
-    # CKAN logging
-    sudo mkdir -p /var/log/ckan
-    sudo touch /var/log/ckan/ckan.log
-    sudo chown -R $USER /var/log/ckan
-    sudo chmod -R g+w /var/log/ckan
-    sudo chgrp -R www-data /var/log/ckan
-
 # PostgreSQL
 
     libpq-dev  \

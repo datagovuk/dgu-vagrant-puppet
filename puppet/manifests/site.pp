@@ -1,4 +1,11 @@
+Exec {
+  path => "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
+}
 node default {
+  user { "vagrant":
+    groups => ["www-data"],
+  }
+
   file { '/etc/fqdn':
     content => $::fqdn
   }
@@ -25,9 +32,7 @@ node /^ckan/ inherits default {
   file { "/etc/nodetype":
     content => "ckan",
   }
-  class { "frontend_ckan":
-
-  }
+  include dgu_ckan
 }
 node /^drupal/ inherits default {
   file { "/etc/nodetype":
