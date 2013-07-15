@@ -1,3 +1,11 @@
+# Keys
+
+    ssh_authorized_key { "Richard's VM":
+        ensure => present,
+        key => "AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ",
+        type => "ssh-rsa",
+        user => "rcrowley",
+    }
 
 # Users
 
@@ -39,14 +47,6 @@
 
 # Python
 
-    python-dev \
-    python-virtualenv  \
-    python-psycopg2  \
-    python-pastescript \
-    Create virtualenv
-      # Install all packages from this zipped environment
-      ZIPFILE=virtualenv_2013-06-08.tar.gz
-      wget https://s3-eu-west-1.amazonaws.com/dgu-large-files/$ZIPFILE
       pip install -e /vagrant/src/ckan
       pip install -e /vagrant/src/ckanext-dgu
       pip install -e /vagrant/src/ckanext-os
