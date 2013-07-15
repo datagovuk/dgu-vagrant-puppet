@@ -1,12 +1,3 @@
-# Keys
-
-    ssh_authorized_key { "Richard's VM":
-        ensure => present,
-        key => "AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ",
-        type => "ssh-rsa",
-        user => "rcrowley",
-    }
-
 # Users
 
     sudo usermod -a -G www-data $USER
@@ -30,32 +21,6 @@
     sudo chown -R $USER /var/log/ckan
     sudo chmod -R g+w /var/log/ckan
     sudo chgrp -R www-data /var/log/ckan
-
-# Packages
-
-### Defunct?
-
-    #subversion \
-    #mercurial \
-    #build-essential  \
-
-### General
-
-    daemon \
-    libxslt1-dev  \
-    libapache2-mod-wsgi \
-
-# Python
-
-      pip install -e /vagrant/src/ckan
-      pip install -e /vagrant/src/ckanext-dgu
-      pip install -e /vagrant/src/ckanext-os
-      pip install -e /vagrant/src/ckanext-qa
-      pip install -e /vagrant/src/ckanext-spatial
-      pip install -e /vagrant/src/ckanext-harvest
-      pip install -e /vagrant/src/ckanext-archiver
-      pip install -e /vagrant/src/ckanext-ga-report
-      pip install -e /vagrant/src/ckanext-datapreview
 
 # PostgreSQL
 
@@ -93,16 +58,13 @@
       paster --plugin=ckan sysadmin add admin --config=$CKAN_INI
 
 
-# JDK
-
-    sudo apt get openjdk-6-jre-headless ?
-
 # Apache
 
     # Create CKAN configuration based on /etc/apache/ckan
 
 # Solr
 
+    sudo apt get openjdk-6-jre-headless ?
     Install Solr 3.3.0 ?
     # Generate SOLR core
     sudo mv /usr/local/solr/example/solr/conf/schema.xml{,.orig}
