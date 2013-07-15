@@ -89,6 +89,11 @@ class frontend_ckan {
     'xlrd==0.9.2',
     'zope.interface==3.5.3',
   ]
+  python::pip { $python_packages:
+    virtualenv => '/home/vagrant/ckan',
+    ensure => present,
+    owner => 'vagrant',
+  }
 
   python::virtualenv { '/home/vagrant/ckan':
     ensure => present,
@@ -96,11 +101,24 @@ class frontend_ckan {
     owner => 'vagrant',
     group => 'vagrant',
   }
-  python::pip { $python_packages:
+
+  $ckan_source = [
+      '-e /vagrant/src/ckan',
+      '-e /vagrant/src/ckanext-dgu',
+      '-e /vagrant/src/ckanext-os',
+      '-e /vagrant/src/ckanext-qa',
+      '-e /vagrant/src/ckanext-spatial',
+      '-e /vagrant/src/ckanext-harvest',
+      '-e /vagrant/src/ckanext-archiver',
+      '-e /vagrant/src/ckanext-ga-report',
+      '-e /vagrant/src/ckanext-datapreview',
+  ]
+  python::pip { $ckan_source:
     virtualenv => '/home/vagrant/ckan',
     ensure => present,
     owner => 'vagrant',
   }
+
   apache::vhost {'localhost':
     port    => 80,
     docroot => '/var/www/',
