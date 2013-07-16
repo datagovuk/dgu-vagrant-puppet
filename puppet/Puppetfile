@@ -1,4 +1,4 @@
-# Configuration for librarian-puppet. For example:
+# Configuration for librarian-puppet lists the modules we depend upon.
 # 
 forge "http://forge.puppetlabs.com"
 
@@ -7,10 +7,5 @@ mod "puppetlabs/apache"
 mod "python",
    :git => "https://github.com/stankevich/puppet-python"
 
-# TODO surely this is on the puppet path?
 mod "dgu_ckan",
    :path => "/vagrant/puppet/modules/dgu_ckan"
-
-# 
-# mod "stdlib",
-#   :git => "git://github.com/puppetlabs/puppetlabs-stdlib.git"
