@@ -133,8 +133,6 @@ class dgu_ckan {
     pip_freeze => "/home/vagrant/pip_freeze.txt",
     owner      => 'vagrant',
     local      => true,
-    debug      => $name,
-    debug2     => $title,
   }
 
 
@@ -146,19 +144,15 @@ class dgu_ckan {
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
   $ckan_who_ini = "${ckan_root}/who.ini"
-  $ckan_folders = [$ckan_root, "${ckan_root}/data","${ckan_root}/sstore"]
   $ckan_log_root = "/var/log/ckan"
   $ckan_log_file = "${ckan_log_root}/ckan.log"
-  file {$ckan_log_root:
-    ensure => "directory"
-  }
   file {$ckan_log_file:
     ensure => "exists",
     owner  => "www-data",
     group  => "www-data",
     mode   => 0664,
   }
-  file { $ckan_folders:
+  file { [$ckan_log_root, $ckan_root, "${ckan_root}/data","${ckan_root}/sstore"]:
     ensure => "directory",
     owner  => "www-data",
     group  => "www-data",

@@ -1,6 +1,6 @@
 # Install a Pip package inside CKAN's VirtualEnv.
 # Unless that package appears in the output of "pip_freeze".
-define dgu_ckan::pip_package ($ensure = present, $virtualenv, $pip_freeze, $owner, $local, $debug='', $debug2='') {
+define dgu_ckan::pip_package ($ensure = present, $virtualenv, $pip_freeze, $owner, $local) {
   if $local {
     $url = "-e /vagrant/src/${name}"
     $grep_for = "${name}@"
