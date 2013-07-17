@@ -42,7 +42,7 @@ class dgu_ckan {
   }
 
   # Pip install everything
-  dgu_ckan::python_remote_package { [
+  dgu_ckan::pip_package { [
     'Babel==0.9.4',
     'Beaker==1.6.3',
     'ConcurrentLogHandler==0.8.4',
@@ -109,12 +109,14 @@ class dgu_ckan {
     'xlrd==0.9.2',
     'zope.interface==3.5.3',
   ]: 
-    virtualenv => $ckan_virtualenv,
-    pip_freeze => "/home/vagrant/pip_freeze.txt",
     require    => Exec['pip_freeze'],
+    virtualenv => $ckan_virtualenv,
+    ensure     => present,
+    pip_freeze => "/home/vagrant/pip_freeze.txt",
     owner      => 'vagrant',
+    local      => false,
   }
-  python_local_package { [
+  dgu_ckan::pip_package { [
     'ckan',
     'ckanext-dgu',
     'ckanext-os',
@@ -125,10 +127,14 @@ class dgu_ckan {
     'ckanext-ga-report',
     'ckanext-datapreview',
   ]: 
-    virtualenv => $ckan_virtualenv,
-    pip_freeze => "/home/vagrant/pip_freeze.txt",
     require    => Exec['pip_freeze'],
+    virtualenv => $ckan_virtualenv,
+    ensure     => present,
+    pip_freeze => "/home/vagrant/pip_freeze.txt",
     owner      => 'vagrant',
+    local      => true,
+    debug      => $name,
+    debug2     => $title,
   }
 
 
