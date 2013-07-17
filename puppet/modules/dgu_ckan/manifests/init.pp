@@ -1,6 +1,4 @@
 class dgu_ckan {
-  import "python_pip_dgu"
-
   $ckan_virtualenv = '/home/vagrant/ckan'
 
   class {  'apache':
@@ -44,7 +42,7 @@ class dgu_ckan {
   }
 
   # Pip install everything
-  python::pip_dgu_pypi { [
+  dgu_ckan::python_remote_package { [
     'Babel==0.9.4',
     'Beaker==1.6.3',
     'ConcurrentLogHandler==0.8.4',
@@ -116,7 +114,7 @@ class dgu_ckan {
     require    => Exec['pip_freeze'],
     owner      => 'vagrant',
   }
-  python::pip_dgu_local { [
+  python_local_package { [
     'ckan',
     'ckanext-dgu',
     'ckanext-os',
@@ -162,14 +160,14 @@ class dgu_ckan {
   }
   file { $ckan_ini:
     require => File[$ckan_root],
-    content => template('/vagrant/puppet/modules/dgu_ckan/templates/ckan.ini.erb'),
+    content => template('dgu_ckan/ckan.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
     mode    => "0664",
   }
   file { $ckan_who_ini:
     require => File[$ckan_root],
-    content => template('/vagrant/puppet/modules/dgu_ckan/templates/who.ini.erb'),
+    content => template('dgu_ckan/who.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
     mode    => "0664",

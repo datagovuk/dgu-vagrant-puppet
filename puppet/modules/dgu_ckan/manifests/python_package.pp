@@ -2,33 +2,7 @@
 # Based on python_puppet's class python::pip.
 # Modified to allow us to override the "unless" parameter with arbitrary bash commands.
 # 
-
-# Wrapper class
-define python::pip_dgu_pypi (
-  $virtualenv = 'system',
-  $pip_freeze = '',
-  $owner      = 'root'
-) { 
-  python::pip_dgu { "pip-$name": 
-    virtualenv  => $virtualenv,
-    url         => $name,
-    unless      => "/bin/grep -i \"${name}\" $pip_freeze",
-    owner       => $owner,
-  }
-}
-define python::pip_dgu_local (
-  $virtualenv = 'system',
-  $pip_freeze = '',
-  $owner      = 'root'
-) { 
-  python::pip_dgu { "pip-$name":
-    virtualenv  => $virtualenv,
-    url        => "-e /vagrant/src/${name}",
-    unless      => "/bin/grep -i \"${name}\" $pip_freeze",
-    owner       => $owner,
-  }
-}
-define python::pip_dgu (
+define dgu_ckan::python_package (
   $ensure      = present,
   $virtualenv  = 'system',
   $url         = false,
@@ -91,5 +65,4 @@ define python::pip_dgu (
       }
     }
   }
-
 }

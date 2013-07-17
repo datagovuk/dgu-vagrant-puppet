@@ -29,14 +29,8 @@ node default {
   }
 }
 node /^ckan/ inherits default {
-  file { "/etc/nodetype":
-    content => "ckan",
-  }
   include dgu_ckan
 }
 node /^drupal/ inherits default {
-  file { "/etc/nodetype":
-    content => "drupal",
-  }
 }
 
