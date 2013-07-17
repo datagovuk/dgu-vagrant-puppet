@@ -165,14 +165,12 @@ class dgu_ckan {
     mode   => "0664",
   }
   file { $ckan_ini:
-    require => File[$ckan_root],
     content => template('dgu_ckan/ckan.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
     mode    => "0664",
   }
   file { $ckan_who_ini:
-    require => File[$ckan_root],
     content => template('dgu_ckan/who.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
