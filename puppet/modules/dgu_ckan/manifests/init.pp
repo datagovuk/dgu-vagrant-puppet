@@ -161,4 +161,70 @@ class dgu_ckan {
     group   => "www-data",
     mode    => "0664",
   }
+
+
+  # -----------
+  # Postgres DB
+  # -----------
+  $pg_superuser_pass = 'pass'
+  $ckan_db = 'ckan'
+  $ckan_db_user = 'dgu'
+  $ckan_db_pass = 'pass'
+  $postgis_version = "9.1"
+
+  class { "postgresql::server":
+    config_hash => {
+      'listen_addresses'           => '*',
+      'postgres_password'          => $pg_superuser_pass,
+    },
+  }
+  package {"postgresql-${postgis_version}-postgis":
+    ensure => present,
+    require => Class['postgresql::server'],
+  }
+
+  postgresql::role { "root":
+    password_hash => postgresql_password("root",$pg_superuser_pass),
+    createdb      => true,
+    createrole    => true,
+    login         => true,
+    superuser     => true,
+  }
+  postgresql::role { $ckan_db_user:
+    password_hash => postgresql_password($ckan_db_user,$ckan_db_pass),
+    login         => true,
+  }
+
+  # if only puppetlabs/postgresql allowed me to specify a template...
+  exec {"createdb ${ckan_db}":
+    command => "createdb -O ${ckan_db_user} ckan --template template_postgis",
+    unless  => "psql -l|grep ckan",
+    path    => "/usr/bin:/bin",
+    user    => postgres,
+    require => [
+      Exec["createdb postgis_template"],
+      Postgresql::Role[$ckan_db_user],
+      Class["postgresql::server"],
+    ],
+  }
+  # Build template database
+  file { "/tmp/create_postgis_template.sh":
+    source => "puppet:///modules/dgu_ckan/create_postgis_template.sh",
+    mode   => 0755,
+  }
+  exec {"createdb postgis_template":
+  command => "/tmp/create_postgis_template.sh",
+  unless  => "psql -l |grep template_postgis",
+    path    => "/usr/bin:/bin",
+    user    => root,
+    require => [
+      File["/tmp/create_postgis_template.sh"],
+      Package["postgresql-${postgis_version}-postgis"],
+      Postgresql::Role["root"],
+    ]
+  }
+
+
+
+
 }
