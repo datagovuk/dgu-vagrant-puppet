@@ -198,7 +198,7 @@ class dgu_ckan {
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db}":
     command => "createdb -O ${ckan_db_user} ckan --template template_postgis",
-    unless  => "psql -l|grep ckan",
+    unless  => "psql -l|grep ${ckan_db}",
     path    => "/usr/bin:/bin",
     user    => postgres,
     require => [
@@ -213,8 +213,8 @@ class dgu_ckan {
     mode   => 0755,
   }
   exec {"createdb postgis_template":
-  command => "/tmp/create_postgis_template.sh",
-  unless  => "psql -l |grep template_postgis",
+    command => "/tmp/create_postgis_template.sh",
+    unless  => "psql -l |grep template_postgis",
     path    => "/usr/bin:/bin",
     user    => root,
     require => [
@@ -223,6 +223,10 @@ class dgu_ckan {
       Postgresql::Role["root"],
     ]
   }
+
+  # -----------
+  # Apache Solr
+  # -----------
 
 
 

@@ -12,7 +12,6 @@ define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
     $grep = $name
   }
 
-
   case $ensure {
     present: {
       if !($grep in $ckan_pip_freeze) {
