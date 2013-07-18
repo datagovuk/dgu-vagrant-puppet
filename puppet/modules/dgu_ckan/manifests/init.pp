@@ -1,5 +1,6 @@
 class dgu_ckan {
-  $ckan_virtualenv = '/home/vagrant/ckan'
+  # Uses custom fact: 
+  #  $ckan_virtualenv
 
   class {  'apache':
     default_vhost => false,
@@ -33,12 +34,6 @@ class dgu_ckan {
     version => 'system',
     owner => 'vagrant',
     group => 'vagrant',
-  }
-  # List the currently installed packages. This is slow, so cache the result.
-  exec { "pip_freeze":
-    command     => "/home/vagrant/ckan/bin/pip freeze --local > /home/vagrant/pip_freeze.txt",
-    user        => 'vagrant',
-    require     => Python::Virtualenv['/home/vagrant/ckan'],
   }
 
   # Pip install everything
@@ -109,10 +104,8 @@ class dgu_ckan {
     'xlrd==0.9.2',
     'zope.interface==3.5.3',
   ]: 
-    require    => Exec['pip_freeze'],
-    virtualenv => $ckan_virtualenv,
+    require => Python::Virtualenv[$ckan_virtualenv],
     ensure     => present,
-    pip_freeze => "/home/vagrant/pip_freeze.txt",
     owner      => 'vagrant',
     local      => false,
   }
@@ -127,12 +120,10 @@ class dgu_ckan {
     'ckanext-ga-report',
     'ckanext-datapreview',
   ]: 
-    require    => Exec['pip_freeze'],
-    virtualenv => $ckan_virtualenv,
-    ensure     => present,
-    pip_freeze => "/home/vagrant/pip_freeze.txt",
-    owner      => 'vagrant',
-    local      => true,
+    require => Python::Virtualenv[$ckan_virtualenv],
+    ensure  => present,
+    owner   => 'vagrant',
+    local   => true,
   }
 
 
