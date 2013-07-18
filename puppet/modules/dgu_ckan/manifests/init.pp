@@ -183,8 +183,8 @@ class dgu_ckan {
     require => Class['postgresql::server'],
   }
 
-  postgresql::role { "root":
-    password_hash => postgresql_password("root",$pg_superuser_pass),
+  postgresql::role { "vagrant":
+    password_hash => postgresql_password("vagrant",$pg_superuser_pass),
     createdb      => true,
     createrole    => true,
     login         => true,
@@ -216,19 +216,32 @@ class dgu_ckan {
     command => "/tmp/create_postgis_template.sh",
     unless  => "psql -l |grep template_postgis",
     path    => "/usr/bin:/bin",
-    user    => root,
+    user    => vagrant,
     require => [
       File["/tmp/create_postgis_template.sh"],
       Package["postgresql-${postgis_version}-postgis"],
-      Postgresql::Role["root"],
+      Postgresql::Role["vagrant"],
     ]
   }
 
   # -----------
   # Apache Solr
   # -----------
-
-
-
+  package {'solr-jetty':
+    ensure => installed,
+    before  => Service['jetty'],
+  }
+  package {'openjdk-7-jdk':
+    ensure => installed,
+    before  => Service['jetty'],
+  }
+  file {'/etc/default/jetty':
+    content => template('dgu_ckan/jetty.erb'),
+    notify  => Service['jetty'],
+  }
+  service {'jetty':
+    ensure => running,
+    enable => true,
+  }
 
 }

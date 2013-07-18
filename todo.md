@@ -1,4 +1,8 @@
 
+# Java
+
+    We use a hardcoded path to the JVM, which is rubbish, use ${::architecture}
+
 # PostgreSQL
 
     # TODO required? `apt-get postgresql-contrib`
