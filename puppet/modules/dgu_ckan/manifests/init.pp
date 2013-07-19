@@ -131,7 +131,6 @@ class dgu_ckan {
   # ------------
   # CKAN folders
   # ------------
-  $pg_password = "pass"
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
   $ckan_who_ini = "${ckan_root}/who.ini"
@@ -227,21 +226,67 @@ class dgu_ckan {
   # -----------
   # Apache Solr
   # -----------
-  package {'solr-jetty':
-    ensure => installed,
-    before  => Service['jetty'],
+
+  $solr_home = "/usr/share/solr"
+  $solr_logs = "/var/log/solr"
+  $jetty_home = "${solr_home}/solr-4.3.1/example"
+  $java_home = "/usr/lib/jvm/java-7-openjdk-${::architecture}"
+
+  user { "solr":
+    ensure => present,
   }
-  package {'openjdk-7-jdk':
+  file {['/etc/solr','/etc/solr/conf']:
+    ensure => directory,
+  }
+  package {'openjdk-7-jre-headless':
     ensure => installed,
-    before  => Service['jetty'],
+  }
+  file {'/etc/init.d/jetty':
+    mode   => 0755,
+    source => 'puppet:///modules/dgu_ckan/jetty.sh',
   }
   file {'/etc/default/jetty':
-    content => template('dgu_ckan/jetty.erb'),
-    notify  => Service['jetty'],
+    content => template('dgu_ckan/jetty_config.erb'),
   }
-  service {'jetty':
-    ensure => running,
-    enable => true,
+  file {$solr_logs:
+    require => User['solr'],
+    ensure  => directory,
+    owner   => "solr",
+    group   => "solr",
   }
+
+  class {'solr':
+    require             => [ File['/etc/solr/conf'], User['solr'] ],
+    notify              => Exec['setup_solr_core'],
+    install             => 'source',
+    install_source     => "http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.3.1/solr-4.3.1.tgz",
+    #install_source      => "http://localhost/solr-4.3.1.tgz",
+    install_destination => $solr_home,
+  }
+
+  exec {'setup_solr_core':
+    subscribe => Class['solr'],
+    command   => "chown -R solr ${jetty_home} && chgrp -R solr ${jetty_home}",
+    user      => "root",
+    path      => "/usr/bin:/bin:/usr/sbin",
+  }
+  file { "solr_schema_xml":
+    subscribe => Class['solr'],
+    path      => "${jetty_home}/solr/collection1/conf/schema.xml",
+    source    => "/vagrant/src/ckanext-dgu/config/solr/schema-1.5-dgu.xml",
+    owner     => "solr",
+    group     => "solr",
+    mode      => 0644,
+  }
+  service {"jetty":
+    enable    => true,
+    ensure    => running,
+    subscribe => [
+      File["solr_schema_xml"],
+      File["/etc/default/jetty"],
+      File["/etc/init.d/jetty"],
+    ],
+  }
+
 
 }

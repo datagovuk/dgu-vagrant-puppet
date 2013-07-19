@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
       puppet.manifest_file  = "site.pp"
       puppet.facter = {
         "motd" => "Built by Vagrant using librarian-puppet.",
-        "fqdn" => "ckan.home",
+        #"fqdn" => "ckan.home",
         "pgpasswd" => "pass",
       }
   end

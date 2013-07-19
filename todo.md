@@ -1,8 +1,4 @@
 
-# Java
-
-    We use a hardcoded path to the JVM, which is rubbish, use ${::architecture}
-
 # PostgreSQL
 
     # TODO required? `apt-get postgresql-contrib`
@@ -22,12 +18,4 @@
 # Apache
 
     # Create CKAN configuration based on /etc/apache/ckan
-
-# Solr
-
-    sudo apt get openjdk-6-jre-headless ?
-    Install Solr 3.3.0 ?
-    # Generate SOLR core
-    sudo mv /usr/local/solr/example/solr/conf/schema.xml{,.orig}
-    sudo ln -fs /vagrant/src/ckanext-dgu/config/solr/schema-1.4-dgu.xml /usr/local/solr/example/solr/conf/schema.xml
 
