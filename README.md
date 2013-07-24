@@ -6,19 +6,12 @@ Install Vagrant. Switch to this directory and launch a fully provisioned Virtual
 
 To provision an existing machine, execute:
 
+    sudo hostname ckan
+    sudo vim /etc/hosts
+    # ^ add "127.0.0.1  ckan" to hosts...
     sudo puppet apply site.pp
 
 # CKAN Database setup
-
-On a fresh machine, CKAN needs to fil out the database.  Initialise CKAN table structure:
-
-    paster --plugin=ckan db init --config=$CKAN_INI 
-
-Install ckanext-ga-report plugin
-
-    cd /vagrant/src/ckanext-ga-report 
-    paster initdb --config=$CKAN_INI
-    cd -
 
 Populate with test data (**unless** you're installing a production database):
 
