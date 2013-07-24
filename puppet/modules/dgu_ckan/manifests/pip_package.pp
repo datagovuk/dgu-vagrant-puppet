@@ -16,8 +16,9 @@ define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
     present: {
       if !($grep in $ckan_pip_freeze) {
         exec { "pip_install_${name}":
-          command     => "${ckan_virtualenv}/bin/pip --log-file ${ckan_virtualenv}/pip.log install ${url}",
+          command     => "${ckan_virtualenv}/bin/pip install --no-index --find-links=file:///vagrant/pypi --log-file ${ckan_virtualenv}/pip.log ${url}",
           user        => $owner,
+          logoutput   => "on_failure",
         }
       }
     }
@@ -27,6 +28,7 @@ define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
         exec { "pip_uninstall_${name}":
           command     => "/bin/echo y | ${ckan_virtualenv}/bin/pip uninstall ${name}",
           user        => $owner,
+          logoutput   => "on_failure",
         }
       }
     }

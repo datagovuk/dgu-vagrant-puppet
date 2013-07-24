@@ -2,15 +2,6 @@ class dgu_ckan {
   # Uses custom fact: 
   #  $ckan_virtualenv
 
-  class {  'apache':
-    default_vhost => false,
-    mpm_module => 'prefork',
-  }
-  apache::vhost {'localhost':
-    port    => 80,
-    docroot => '/var/www/',
-    options => 'Indexes MultiViews',
-  }
   class { 'python':
     version    => 'system',
     dev        => true,
@@ -21,7 +12,6 @@ class dgu_ckan {
   $python_requirements = [
     'libxslt1-dev',
     'libpq-dev',
-    'libapache2-mod-wsgi',
     'python-psycopg2',
     'python-pastescript',
   ]
@@ -37,7 +27,7 @@ class dgu_ckan {
   }
 
   # Pip install everything
-  dgu_ckan::pip_package { [
+  $pip_pkgs_remote = [
     'Babel==0.9.4',
     'Beaker==1.6.3',
     'ConcurrentLogHandler==0.8.4',
@@ -103,13 +93,14 @@ class dgu_ckan {
     'vdm==0.11',
     'xlrd==0.9.2',
     'zope.interface==3.5.3',
-  ]: 
+  ]
+  dgu_ckan::pip_package { $pip_pkgs_remote:
     require => Python::Virtualenv[$ckan_virtualenv],
     ensure     => present,
     owner      => 'vagrant',
     local      => false,
   }
-  dgu_ckan::pip_package { [
+  $pip_pkgs_local = [
     'ckan',
     'ckanext-dgu',
     'ckanext-os',
@@ -119,13 +110,20 @@ class dgu_ckan {
     'ckanext-archiver',
     'ckanext-ga-report',
     'ckanext-datapreview',
-  ]: 
+  ]
+  dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
     ensure  => present,
     owner   => 'vagrant',
     local   => true,
   }
-
+  notify { "virtualenv_ready":
+    require => [
+      Dgu_ckan::Pip_package[$pip_pkgs_remote],
+      Dgu_ckan::Pip_package[$pip_pkgs_local],
+    ],
+    message => "All Pip packages are installed. VirtualEnv is ready.",
+  }
 
 
   # ------------
@@ -133,32 +131,34 @@ class dgu_ckan {
   # ------------
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
+  $ckan_db_user = 'dgu'
+  $ckan_db_pass = 'pass'
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
   $ckan_log_file = "${ckan_log_root}/ckan.log"
   file {$ckan_log_file:
-    ensure => "exists",
+    ensure => file,
     owner  => "www-data",
     group  => "www-data",
-    mode   => 0664,
+    mode   => 664,
   }
   file { [$ckan_log_root, $ckan_root, "${ckan_root}/data","${ckan_root}/sstore"]:
     ensure => "directory",
     owner  => "www-data",
     group  => "www-data",
-    mode   => "0664",
+    mode   => 664,
   }
   file { $ckan_ini:
     content => template('dgu_ckan/ckan.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
-    mode    => "0664",
+    mode    => 664,
   }
   file { $ckan_who_ini:
     content => template('dgu_ckan/who.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
-    mode    => "0664",
+    mode    => 664,
   }
 
 
@@ -167,8 +167,6 @@ class dgu_ckan {
   # -----------
   $pg_superuser_pass = 'pass'
   $ckan_db = 'ckan'
-  $ckan_db_user = 'dgu'
-  $ckan_db_pass = 'pass'
   $postgis_version = "9.1"
 
   class { "postgresql::server":
@@ -196,15 +194,37 @@ class dgu_ckan {
 
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db}":
-    command => "createdb -O ${ckan_db_user} ckan --template template_postgis",
-    unless  => "psql -l|grep ${ckan_db}",
-    path    => "/usr/bin:/bin",
-    user    => postgres,
-    require => [
+    command   => "createdb -O ${ckan_db_user} ckan --template template_postgis",
+    unless    => "psql -l|grep ${ckan_db}",
+    path      => "/usr/bin:/bin",
+    user      => postgres,
+    logoutput => true,
+    require   => [
       Exec["createdb postgis_template"],
       Postgresql::Role[$ckan_db_user],
       Class["postgresql::server"],
     ],
+  }
+  exec {"paster db init":
+    subscribe => [
+      Exec["createdb ${ckan_db}"],
+      File[$ckan_ini],
+      Notify['virtualenv_ready'],
+    ],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d ckan -c \"\\dt\" | grep package",
+    logoutput => true,
+  }
+  exec {"paster ga_reports init":
+    subscribe => Exec["paster db init"],
+    cwd       => "/vagrant/src/ckanext-ga-report",
+    command   => "${ckan_virtualenv}/bin/paster initdb --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d ckan -c \"\\dt\" | grep ga_url",
+    logoutput => true,
   }
   # Build template database
   file { "/tmp/create_postgis_template.sh":
@@ -289,4 +309,36 @@ class dgu_ckan {
   }
 
 
+  # ---------
+  # Webserver
+  # ---------
+
+  $ckan_apache_errorlog = "${ckan_log_root}/ckan-apache.error.log"
+  $ckan_apache_customlog = "${ckan_log_root}/ckan-apache.custom.log"
+  $ckan_wsgi_script = "${ckan_root}/wsgi_app.py"
+  class {  'apache':
+    default_vhost => false,
+    mpm_module => 'prefork',
+  }
+  apache::mod {'wsgi':}
+  apache::listen {'80':}
+  file {[$ckan_apache_errorlog, $ckan_apache_customlog]:
+    ensure => file,
+    owner  => 'www-data',
+    group  => 'www-data',
+    mode   => 664,
+  }
+  file {'apache_ckan_conf':
+    path      => '/etc/apache2/sites-available/ckan.conf',
+    content   => template('dgu_ckan/apache-ckan.erb'),
+  }
+  exec {'a2ensite ckan.conf':
+    subscribe => File['apache_ckan_conf'],
+    command   => 'a2ensite ckan.conf',
+    path      => '/usr/bin:/bin:/usr/sbin',
+    logoutput => 'on_failure',
+  }
+  file {$ckan_wsgi_script:
+    content => template('dgu_ckan/wsgi_app.py.erb'),
+  }
 }

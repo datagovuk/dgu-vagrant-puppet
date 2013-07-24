@@ -32,7 +32,7 @@ test -e $PG_POSTGIS || exit 1
 test -e $PG_SPATIAL_REF || exit 1
 
 cat << EOF | psql -d postgres -q
-CREATE DATABASE $TMPL_NAME WITH template = template1;
+CREATE DATABASE $TMPL_NAME WITH template = template0 ENCODING='UTF8';
 UPDATE pg_database SET datistemplate = TRUE WHERE datname = '$TMPL_NAME';
 EOF
 

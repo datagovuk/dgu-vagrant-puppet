@@ -1,0 +1,19 @@
+# Avoid 'unable to determine server name'
+ServerName localhost
+
+<VirtualHost *:80>
+  WSGIScriptAlias / <%= @ckan_wsgi_script %>
+
+  # Used for debug mode: Force single-threaded execution
+  WSGIDaemonProcess singlethreaded
+  WSGIProcessGroup singlethreaded
+
+  # pass authorization info on (needed for rest api)
+  WSGIPassAuthorization On
+  ErrorLog <%= @ckan_apache_errorlog %>
+  CustomLog <%= @ckan_apache_customlog %> combined
+
+  # Possible values include: debug, info, notice, warn, error, crit,
+  # alert, emerg.
+  LogLevel warn
+</VirtualHost>
