@@ -143,22 +143,34 @@ class dgu_ckan {
     mode   => 664,
   }
   file { [$ckan_log_root, $ckan_root, "${ckan_root}/data","${ckan_root}/sstore"]:
-    ensure => "directory",
+    ensure => directory,
     owner  => "www-data",
     group  => "www-data",
     mode   => 664,
   }
   file { $ckan_ini:
+    ensure  => file,
     content => template('dgu_ckan/ckan.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
     mode    => 664,
   }
   file { $ckan_who_ini:
+    ensure  => file,
     content => template('dgu_ckan/who.ini.erb'),
     owner   => "www-data",
     group   => "www-data",
     mode    => 664,
+  }
+  notify {'ckan_fs_ready':
+    require => [
+      File[$ckan_log_file],
+      File["${ckan_root}/data"],
+      File["${ckan_root}/sstore"],
+      File[$ckan_ini],
+      File[$ckan_who_ini],
+    ],
+    message => "CKAN's filesystem is ready.",
   }
 
 
@@ -210,6 +222,7 @@ class dgu_ckan {
       Exec["createdb ${ckan_db}"],
       File[$ckan_ini],
       Notify['virtualenv_ready'],
+      Notify['ckan_fs_ready'],
     ],
     command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${ckan_ini}",
     path      => "/usr/bin:/bin:/usr/sbin",
@@ -225,9 +238,14 @@ class dgu_ckan {
     user      => root,
     unless    => "sudo -u postgres psql -d ckan -c \"\\dt\" | grep ga_url",
     logoutput => true,
+    notify    => Notify['db_ready'],
+  }
+  notify {"db_ready":
+    message => "PostgreSQL database is ready.",
   }
   # Build template database
   file { "/tmp/create_postgis_template.sh":
+    ensure => file,
     source => "puppet:///modules/dgu_ckan/create_postgis_template.sh",
     mode   => 0755,
   }
@@ -262,10 +280,12 @@ class dgu_ckan {
     ensure => installed,
   }
   file {'/etc/init.d/jetty':
+    ensure => file,
     mode   => 0755,
     source => 'puppet:///modules/dgu_ckan/jetty.sh',
   }
   file {'/etc/default/jetty':
+    ensure => file,
     content => template('dgu_ckan/jetty_config.erb'),
   }
   file {$solr_logs:
@@ -292,6 +312,7 @@ class dgu_ckan {
   }
   file { "solr_schema_xml":
     subscribe => Class['solr'],
+    ensure    => file,
     path      => "${jetty_home}/solr/collection1/conf/schema.xml",
     source    => "/vagrant/src/ckanext-dgu/config/solr/schema-1.5-dgu.xml",
     owner     => "solr",
@@ -329,16 +350,27 @@ class dgu_ckan {
     mode   => 664,
   }
   file {'apache_ckan_conf':
-    path      => '/etc/apache2/sites-available/ckan.conf',
-    content   => template('dgu_ckan/apache-ckan.erb'),
-  }
-  exec {'a2ensite ckan.conf':
-    subscribe => File['apache_ckan_conf'],
-    command   => 'a2ensite ckan.conf',
-    path      => '/usr/bin:/bin:/usr/sbin',
-    logoutput => 'on_failure',
+    ensure  => file,
+    path    => '/etc/apache2/sites-available/ckan.conf',
+    content => template('dgu_ckan/apache-ckan.erb'),
+    notify  => Exec['a2ensite ckan.conf'],
   }
   file {$ckan_wsgi_script:
     content => template('dgu_ckan/wsgi_app.py.erb'),
+  }
+  exec {'a2ensite ckan.conf':
+    require   => [
+      Class['apache'],
+      Apache::Mod['wsgi'],
+      Apache::Listen['80'],
+      File[$ckan_apache_errorlog],
+      File[$ckan_apache_customlog],
+      File[$ckan_wsgi_script],
+      Service['jetty'],
+      Notify['db_ready'],
+    ],
+    command   => 'a2ensite ckan.conf && service apache2 reload',
+    path      => '/usr/bin:/bin:/usr/sbin',
+    logoutput => 'on_failure',
   }
 }
