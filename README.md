@@ -9,7 +9,7 @@ To provision an existing machine, execute:
     sudo hostname ckan
     sudo vim /etc/hosts
     # ^ add "127.0.0.1  ckan" to hosts...
-    sudo puppet apply site.pp
+    sudo puppet apply $THIS_REPO/puppet/manifests/site.pp
 
 # CKAN Database setup
 
