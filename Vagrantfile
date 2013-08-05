@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.provision :shell, :path => "shell/main.sh"
+  config.vm.provision :shell, :path => "puppet/install_puppet_dependancies.sh"
 
   config.vm.provision :puppet do |puppet|
       puppet.manifests_path = "puppet/manifests"
