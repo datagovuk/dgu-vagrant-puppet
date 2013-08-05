@@ -1,0 +1,24 @@
+#### TODO turn this into a README.md or something
+
+# For a Drupal dump restore
+scp co@46.43.41.25:/var/jenkins_backups/drupal/dgu_current.sql.gz .
+mkdir -p shared
+# 2.5G download of static files
+rsync -r --progress co@co-dev1.dh.bytemark.co.uk:/var/www/shared/ shared/
+
+# DB name: drupald6
+gunzip dgu_current.sql.gz
+
+mysql -e "DROP DATABASE drupald6;" -u root -ppass
+mysql -e "CREATE DATABASE drupald6;" -u root -ppass
+pv /vagrant/db_backup/dgu_current.sql | mysql -u co drupald6 -ppass 
+
+sudo ln -fs /vagrant/db_backup/shared /var/www/shared
+
+# Migrate from CLI
+drush mi --group=user
+drush mi --group=taxonomy
+drush mi --group=files
+drush mi --group=nodes
+drush mi --group=comments
+
