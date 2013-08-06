@@ -52,3 +52,10 @@ git clone	git@github.com:datagovuk/ckanext-spatial
 cd ckanext-spatial
 git checkout dgu
 cd -
+
+git clone	git@github.com:datagovuk/dgu-joint-assets
+cd dgu-joint-assets
+git checkout master
+cd -
+
+
