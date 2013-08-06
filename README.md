@@ -37,7 +37,8 @@ On the host machine:
 
     export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump
     export URL=co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/$CKAN_DUMP_FILE.gz
-    cd $THIS_REPO/db_backup
+    cd $THIS_REPO
+    mkdir -p db_backup && cd db_backup
     rsync --progress $URL $CKAN_DUMP_FILE.gz
     gunzip $CKAN_DUMP_FILE.gz
 
