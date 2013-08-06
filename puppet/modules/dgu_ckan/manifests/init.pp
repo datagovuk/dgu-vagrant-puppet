@@ -299,7 +299,7 @@ class dgu_ckan {
     require             => [ File['/etc/solr/conf'], User['solr'] ],
     notify              => Exec['setup_solr_core'],
     install             => 'source',
-    install_source     => "http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/4.3.1/solr-4.3.1.tgz",
+    install_source     => "http://archive.apache.org/dist/lucene/solr/4.3.1/solr-4.3.1.tgz",
     #install_source      => "http://localhost/solr-4.3.1.tgz",
     install_destination => $solr_home,
   }
