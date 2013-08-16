@@ -117,6 +117,16 @@ class dgu_ckan {
     owner   => 'vagrant',
     local   => true,
   }
+  # Not all Pip packages come with a global read permission
+  exec {'setup_virtualenv_permissions':
+    subscribe => [
+      Dgu_ckan::Pip_package[$pip_pkgs_remote],
+      Dgu_ckan::Pip_package[$pip_pkgs_local],
+    ],
+    command   => "chmod -R a+r $ckan_virtualenv/lib",
+    user      => "root",
+    path      => "/usr/bin:/bin:/usr/sbin",
+  }
   notify { "virtualenv_ready":
     require => [
       Dgu_ckan::Pip_package[$pip_pkgs_remote],
