@@ -35,20 +35,19 @@ And setup a useful environment variable...
 
 On the host machine: 
 
-    export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump
-    export URL=co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/$CKAN_DUMP_FILE.gz
+    export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump.gz
+    export URL=co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/$CKAN_DUMP_FILE
     cd $THIS_REPO
     mkdir -p db_backup && cd db_backup
-    rsync --progress $URL $CKAN_DUMP_FILE.gz
-    gunzip $CKAN_DUMP_FILE.gz
+    rsync --progress $URL $CKAN_DUMP_FILE
 
 On the VM:
 
-    export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump
+    export CKAN_DUMP_FILE=`ls /vagrant/db_backup/ -t |head -n 1` && echo $CKAN_DUMP_FILE
     sudo apachectl stop
     dropdb ckan
     createdb -O dgu ckan --template template_postgis
-    pv /vagrant/db_backup/$CKAN_DUMP_FILE \
+    pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan 
     sudo apachectl start
     paster --plugin=ckan db upgrade --config=$CKAN_INI

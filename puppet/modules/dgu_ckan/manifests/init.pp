@@ -28,32 +28,32 @@ class dgu_ckan {
 
   # Pip install everything
   $pip_pkgs_remote = [
-    'Babel==0.9.4',
+    'Babel==0.9.6',
     'Beaker==1.6.3',
     'ConcurrentLogHandler==0.8.4',
     'Flask==0.8',
-    'FormAlchemy==1.4.1',
+    'FormAlchemy==1.4.2',
     'FormEncode==1.2.4',
     'Genshi==0.6',
     'GeoAlchemy==0.7.2',
     'Jinja2==2.7',
     'Mako==0.8.1',
-    'MarkupSafe==0.9.2',
+    'MarkupSafe==0.15',
     'OWSLib==0.7.2',
     'Pairtree==0.7.1-T',
-    'Paste==1.7.2',
+    'Paste==1.7.5.1',
     'PasteDeploy==1.5.0',
     'PasteScript==1.7.5',
     'Pygments==1.6',
     'Pylons==0.9.7',
-    'Routes==1.11',
-    'SQLAlchemy==0.7.3',
+    'Routes==1.13',
+    'SQLAlchemy==0.7.8',
     'Shapely==1.2.17',
-    'Tempita==0.4',
+    'Tempita==0.5.1',
     'WebError==0.10.3',
-    'WebHelpers==1.2',
+    'WebHelpers==1.3',
     'WebOb==1.0.8',
-    'WebTest==1.2',
+    'WebTest==1.4.3',
     'Werkzeug==0.8.3',
     'amqplib==1.0.2',
     'anyjson==0.3.3',
@@ -64,6 +64,7 @@ class dgu_ckan {
     'chardet==2.1.1',
     'ckanclient==0.10',
     'decorator==3.3.2',
+    'fanstatic==0.12',
     'flup==1.0.2',
     'gdata==2.0.17',
     'google-api-python-client==1.1',
@@ -76,7 +77,7 @@ class dgu_ckan {
     'nose==1.3.0',
     'ofs==0.4.1',
     'openpyxl==1.5.7',
-    'psycopg2==2.4.2',
+    'psycopg2==2.4.5',
     'python-dateutil==1.5',
     'python-gflags==2.0',
     'python-magic==0.4.3',
@@ -86,13 +87,13 @@ class dgu_ckan {
     'repoze.who==1.0.19',
     'repoze.who-friendlyform==1.0.8',
     'repoze.who.plugins.openid==0.5.3',
-    'requests==0.14.0',
+    'requests==1.1',
     'simplejson==2.6.2',
-    'solrpy==0.9.4',
-    'sqlalchemy-migrate==0.7.1',
+    'solrpy==0.9.5',
+    'sqlalchemy-migrate==0.7.2',
     'vdm==0.11',
     'xlrd==0.9.2',
-    'zope.interface==3.5.3',
+    'zope.interface==4.0.1',
   ]
   dgu_ckan::pip_package { $pip_pkgs_remote:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -141,7 +142,10 @@ class dgu_ckan {
   # ------------
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
+  $development_ini = "${ckan_root}/development.ini"
   $ckan_db_user = 'dgu'
+  $ckan_db_name = 'ckan'
+  $ckan_test_db_name = 'ckantest'
   $ckan_db_pass = 'pass'
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
@@ -158,12 +162,26 @@ class dgu_ckan {
     group  => "www-data",
     mode   => 664,
   }
-  file { $ckan_ini:
-    ensure  => file,
-    content => template('dgu_ckan/ckan.ini.erb'),
-    owner   => "www-data",
-    group   => "www-data",
-    mode    => 664,
+  define ckan_config_file( 
+    $path = $title,
+    $ckan_db,
+  ) {
+    file { $path :
+      ensure  => file,
+      content => template('dgu_ckan/ckan.ini.erb'),
+      owner   => "www-data",
+      group   => "www-data",
+      mode    => 664,
+    }
+  }
+  notify{"HELLO ************ $ckan_db_name":}
+  ckan_config_file { 'main_ini_file':
+    path => '/var/ckan/ckan.ini',
+    ckan_db => "1$ckan_db_name",
+  }
+  ckan_config_file { 'test_ini_file':
+    path => '/var/ckan/development.ini',
+    ckan_db => "$ckan_test_db_name",
   }
   file { $ckan_who_ini:
     ensure  => file,
@@ -188,7 +206,6 @@ class dgu_ckan {
   # Postgres DB
   # -----------
   $pg_superuser_pass = 'pass'
-  $ckan_db = 'ckan'
   $postgis_version = "9.1"
 
   class { "postgresql::server":
@@ -215,9 +232,9 @@ class dgu_ckan {
   }
 
   # if only puppetlabs/postgresql allowed me to specify a template...
-  exec {"createdb ${ckan_db}":
-    command   => "createdb -O ${ckan_db_user} ckan --template template_postgis",
-    unless    => "psql -l|grep ${ckan_db}",
+  exec {"createdb ${ckan_db_name}":
+    command   => "createdb -O ${ckan_db_user} ${ckan_db_name} --template template_postgis",
+    unless    => "psql -l|grep ${ckan_db_name}",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
@@ -227,9 +244,21 @@ class dgu_ckan {
       Class["postgresql::server"],
     ],
   }
+  exec {"createdb ${ckan_test_db_name}":
+    command   => "createdb -O ${ckan_db_user} ${ckan_test_db_name} --template template_postgis",
+    unless    => "psql -l|grep ${ckan_test_db_name}",
+    path      => "/usr/bin:/bin",
+    user      => postgres,
+    logoutput => true,
+    require   => [
+      Exec["createdb postgis_template"],
+      Postgresql::Role[$ckan_db_user],
+      Class["postgresql::server"],
+    ],
+  } 
   exec {"paster db init":
     subscribe => [
-      Exec["createdb ${ckan_db}"],
+      Exec["createdb ${ckan_db_name}"],
       File[$ckan_ini],
       Notify['virtualenv_ready'],
       Notify['ckan_fs_ready'],
@@ -324,7 +353,7 @@ class dgu_ckan {
     subscribe => Class['solr'],
     ensure    => file,
     path      => "${jetty_home}/solr/collection1/conf/schema.xml",
-    source    => "/vagrant/src/ckanext-dgu/config/solr/schema-1.5-dgu.xml",
+    source    => "/vagrant/src/ckanext-dgu/config/solr/schema-2.0-dgu.xml",
     owner     => "solr",
     group     => "solr",
     mode      => 0644,

@@ -27,6 +27,9 @@ node default {
   package { "pv":
     ensure => "installed"
   }
+  package { "unzip":
+    ensure => "installed"
+  }
 }
 node /^ckan/ inherits default {
   include dgu_ckan

@@ -17,9 +17,11 @@ Vagrant.configure("2") do |config|
 
   # Allow local machines to view the VM
   #config.vm.network :public_network
-  config.vm.network :forwarded_port, host: 4567, guest: 80
-  config.vm.network :forwarded_port, host: 8983, guest: 8983
-  config.vm.network :forwarded_port, host: 5432, guest: 5433
+  config.vm.network :forwarded_port, host: 2008, guest: 80
+  config.vm.network :forwarded_port, host: 2983, guest: 8983
+  config.vm.network :forwarded_port, host: 2432, guest: 5433
+  # for paster testing
+  config.vm.network :forwarded_port, host: 2050, guest: 5000
 
   config.vm.provider :virtualbox do |vb|
     config.vm.box = "precise64"
@@ -28,10 +30,10 @@ Vagrant.configure("2") do |config|
     # which is something librarian-puppet needs to be able to do. This might
     # be enabled by default depending on what version of VirtualBox is used.
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
-    # don't boot with headless mode
+    # boot headless (or make true to get a display)
     vb.gui = false
     # Virtualbox Custom CPU count:
-    vb.customize ["modifyvm", :id, "--name", "dgu_vm"]
+    vb.customize ["modifyvm", :id, "--name", "dgu2_vm"]
     vb.customize ["modifyvm", :id, "--memory", "8192"]
     vb.customize ["modifyvm", :id, "--cpus", "8"]
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
@@ -43,7 +45,7 @@ Vagrant.configure("2") do |config|
     # 4GB RAM and 4 (hyperthreaded virtual) CPU cores
     vmware.vmx["memsize"] = "8192"
     vmware.vmx["numvcpus"] = "8"
-    vmware.vmx["displayName"] = "dgu_vm2"
-    vmware.vmx["annotation"] = "Virtualised data.gov.uk environment"
+    vmware.vmx["displayName"] = "dgu2_vm2"
+    vmware.vmx["annotation"] = "Virtualised data.gov.uk 2 environment"
   end 
 end

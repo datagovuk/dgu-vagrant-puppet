@@ -5,7 +5,7 @@
 
 git clone	git@github.com:datagovuk/ckan 
 cd ckan
-git checkout release-v1.7.1-dgu
+git checkout release-v2.0.1-dgu
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-archiver 
@@ -20,7 +20,7 @@ cd -
 
 git clone	git@github.com:datagovuk/ckanext-dgu 
 cd ckanext-dgu
-git checkout master
+git checkout 2.0
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-ga-report 
@@ -30,7 +30,7 @@ cd -
 
 git clone	git@github.com:datagovuk/ckanext-harvest 
 cd ckanext-harvest
-git checkout dgu
+git checkout 2.0
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-os 
@@ -40,12 +40,7 @@ cd -
 
 git clone	git@github.com:datagovuk/ckanext-qa 
 cd ckanext-qa
-git checkout temp_working
-cd -
-
-git clone	git@github.com:okfn/ckanext-social 
-cd ckanext-social
-git checkout master
+git checkout 2.0
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-spatial 

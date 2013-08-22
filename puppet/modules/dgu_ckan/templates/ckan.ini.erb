@@ -12,7 +12,7 @@ error_email_from = paste@localhost
 test_smtp_server = localhost
 test_smtp_server_port = 1025
 
-search.facets = groups tags res_format license resource-type UKLP all_themes theme-primary
+search.facets = groups tags res_format license resource-type UKLP license_id-is-ogl publisher openness_score all_themes theme-primary
 
 [server:main]
 use = egg:Paste#http
@@ -67,7 +67,7 @@ ckan.cache_url_root = http://localhost:5000/data/resource_cache/
 
 
 ckan.spatial.srid = 4258
-sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost/ckan
+sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost/<%= @ckan_db %>
 
 # repoze.who config
 who.config_file = <%= @ckan_who_ini %>
