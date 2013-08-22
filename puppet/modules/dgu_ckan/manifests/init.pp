@@ -174,10 +174,9 @@ class dgu_ckan {
       mode    => 664,
     }
   }
-  notify{"HELLO ************ $ckan_db_name":}
   ckan_config_file { 'main_ini_file':
     path => '/var/ckan/ckan.ini',
-    ckan_db => "1$ckan_db_name",
+    ckan_db => "$ckan_db_name",
   }
   ckan_config_file { 'test_ini_file':
     path => '/var/ckan/development.ini',
@@ -266,7 +265,20 @@ class dgu_ckan {
     command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${ckan_ini}",
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
-    unless    => "sudo -u postgres psql -d ckan -c \"\\dt\" | grep package",
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep package",
+    logoutput => true,
+  }
+  exec {"paster db init (test)":
+    subscribe => [
+      Exec["createdb ${ckan_test_db_name}"],
+      File[$development_ini],
+      Notify['virtualenv_ready'],
+      Notify['ckan_fs_ready'],
+    ],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${development_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep package",
     logoutput => true,
   }
   exec {"paster ga_reports init":
@@ -275,9 +287,18 @@ class dgu_ckan {
     command   => "${ckan_virtualenv}/bin/paster initdb --config=${ckan_ini}",
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
-    unless    => "sudo -u postgres psql -d ckan -c \"\\dt\" | grep ga_url",
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
     logoutput => true,
     notify    => Notify['db_ready'],
+  }
+  exec {"paster ga_reports init (test)":
+    subscribe => Exec["paster db init (test)"],
+    cwd       => "/vagrant/src/ckanext-ga-report",
+    command   => "${ckan_virtualenv}/bin/paster initdb --config=${development_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep ga_url",
+    logoutput => true,
   }
   notify {"db_ready":
     message => "PostgreSQL database is ready.",
