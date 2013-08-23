@@ -91,6 +91,7 @@ class dgu_ckan {
     'simplejson==2.6.2',
     'solrpy==0.9.5',
     'sqlalchemy-migrate==0.7.2',
+    'unicodecsv==0.9.0',
     'vdm==0.11',
     'xlrd==0.9.2',
     'zope.interface==4.0.1',
@@ -103,14 +104,15 @@ class dgu_ckan {
   }
   $pip_pkgs_local = [
     'ckan',
-    'ckanext-dgu',
-    'ckanext-os',
-    'ckanext-qa',
-    'ckanext-spatial',
-    'ckanext-harvest',
-    'ckanext-archiver',
-    'ckanext-ga-report',
-    'ckanext-datapreview',
+    'ckanext-hierarchy',
+    # 'ckanext-dgu',
+    # 'ckanext-os',
+    # 'ckanext-qa',
+    # 'ckanext-spatial',
+    # 'ckanext-harvest',
+    # 'ckanext-archiver',
+    # 'ckanext-ga-report',
+    # 'ckanext-datapreview',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -168,7 +170,7 @@ class dgu_ckan {
   ) {
     file { $path :
       ensure  => file,
-      content => template('dgu_ckan/ckan.ini.erb'),
+      content => template('dgu_ckan/ckan-okf.ini.erb'),
       owner   => "www-data",
       group   => "www-data",
       mode    => 664,
@@ -232,8 +234,9 @@ class dgu_ckan {
 
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db_name}":
+    notify    => Notify['db_ready'],
     command   => "createdb -O ${ckan_db_user} ${ckan_db_name} --template template_postgis",
-    unless    => "psql -l|grep ${ckan_db_name}",
+    unless    => "psql -l|grep '${ckan_db_name}\s'",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
@@ -267,6 +270,7 @@ class dgu_ckan {
     user      => root,
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep package",
     logoutput => true,
+    notify    => Notify['db_ready'],
   }
   exec {"paster db init (test)":
     subscribe => [
@@ -281,25 +285,25 @@ class dgu_ckan {
     unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep package",
     logoutput => true,
   }
-  exec {"paster ga_reports init":
-    subscribe => Exec["paster db init"],
-    cwd       => "/vagrant/src/ckanext-ga-report",
-    command   => "${ckan_virtualenv}/bin/paster initdb --config=${ckan_ini}",
-    path      => "/usr/bin:/bin:/usr/sbin",
-    user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
-    logoutput => true,
-    notify    => Notify['db_ready'],
-  }
-  exec {"paster ga_reports init (test)":
-    subscribe => Exec["paster db init (test)"],
-    cwd       => "/vagrant/src/ckanext-ga-report",
-    command   => "${ckan_virtualenv}/bin/paster initdb --config=${development_ini}",
-    path      => "/usr/bin:/bin:/usr/sbin",
-    user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep ga_url",
-    logoutput => true,
-  }
+  # exec {"paster ga_reports init":
+  #   subscribe => Exec["paster db init"],
+  #   cwd       => "/vagrant/src/ckanext-ga-report",
+  #   command   => "${ckan_virtualenv}/bin/paster initdb --config=${ckan_ini}",
+  #   path      => "/usr/bin:/bin:/usr/sbin",
+  #   user      => root,
+  #   unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
+  #   logoutput => true,
+  #   notify    => Notify['db_ready'],
+  # }
+  # exec {"paster ga_reports init (test)":
+  #   subscribe => Exec["paster db init (test)"],
+  #   cwd       => "/vagrant/src/ckanext-ga-report",
+  #   command   => "${ckan_virtualenv}/bin/paster initdb --config=${development_ini}",
+  #   path      => "/usr/bin:/bin:/usr/sbin",
+  #   user      => root,
+  #   unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep ga_url",
+  #   logoutput => true,
+  # }
   notify {"db_ready":
     message => "PostgreSQL database is ready.",
   }
@@ -374,7 +378,7 @@ class dgu_ckan {
     subscribe => Class['solr'],
     ensure    => file,
     path      => "${jetty_home}/solr/collection1/conf/schema.xml",
-    source    => "/vagrant/src/ckanext-dgu/config/solr/schema-2.0-dgu.xml",
+    source    => "/vagrant/src/ckan/ckan/config/solr/schema-2.0.xml",
     owner     => "solr",
     group     => "solr",
     mode      => 0644,
