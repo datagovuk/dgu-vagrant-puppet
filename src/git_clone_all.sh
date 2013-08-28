@@ -3,15 +3,15 @@
 # git clone steps
 # ---------------
 
-git clone	git@github.com:datagovuk/ckan 
+git clone	git@github.com:okfn/ckan 
 cd ckan
-git checkout 1038-organization-hierarchy
-cd -
-
-git clone	git@github.com:datagovuk/ckanext-hierarchy 
-cd ckanext-hierarchy
 git checkout master
 cd -
+
+#git clone	git@github.com:datagovuk/ckanext-hierarchy 
+#cd ckanext-hierarchy
+#git checkout master
+#cd -
 
 ##git clone	git@github.com:datagovuk/ckanext-archiver 
 #cd ckanext-archiver

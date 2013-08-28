@@ -4,15 +4,10 @@
 # The %(here)s variable will be replaced with the parent directory of this file
 #
 [DEFAULT]
-#debug = false
 debug = true
 email_to = you@yourdomain.com
 smtp_server = localhost
 error_email_from = paste@localhost
-test_smtp_server = localhost
-test_smtp_server_port = 1025
-
-search.facets = groups tags res_format license resource-type UKLP license_id-is-ogl publisher openness_score all_themes theme-primary
 
 [server:main]
 use = egg:Paste#http
@@ -27,29 +22,11 @@ beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
 
-ckanext-os.geoserver.apikey = 0822e7b98adf11e1a66e183da21c99ac
-ckanext-os.geoserver.host = osinspiremappingprod.ordnancesurvey.co.uk
-ckanext-os.gazetteer.host = osinspiremappingprod.ordnancesurvey.co.uk
-ckanext-os.libraries.host = osinspiremappingprod.ordnancesurvey.co.uk
+# List the names of CKAN extensions to activate.
+# # Note: This line is required to be here for packaging, even if it is empty.
+# ckan.plugins = stats synchronous_search
 
-ckan.spatial.dataset_extent_map.routes = ckanext.dgu.controllers.package:PackageController/read
-ckan.spatial.dataset_extent_map.map_type = os
-
-# SPATIAL DISABLED
-#ckan.plugins = dgu_publisher_form dgu_publishers  dgu_auth_api dgu_form dgu_theme cswserver harvest inspire_api qa synchronous_search dgu_search dgu_dataset_form os_search os_preview archiver dgu_api dgu_dataset_extent_map datapreview ga-report
-# SPATIAL ENABLEd
-ckan.plugins = dgu_publisher_form dgu_publishers  dgu_auth_api dgu_form dgu_theme cswserver harvest spatial_query qa synchronous_search dgu_search dgu_dataset_form spatial_metadata os_search os_preview archiver dgu_api ga-report datapreview 
-# removed:
-#   inspire_api 
-
-dgu.xmlrpc_domain = drupal.libre.gov.fr:80
-dgu.xmlrpc_username = ckan
-dgu.xmlrpc_password = letmein
-dgu.resource_formats = CSV CSV/Zip XLS ODS RDF RDF/XML HTML+RDFa PPT ODP SHP KML TXT DOC JSON iCal SQL SQL/Zip PDF HTML
-
-dgu.use_raw_js = true
-
-ckan.legacy_templates = true
+# ckan.legacy_templates = true
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -62,11 +39,9 @@ ckan.legacy_templates = true
 # execute malicious code after an exception is raised.
 # set debug = false
 
-ckanext-archiver.archive_dir = /tmp/resource_cache
-ckan.cache_url_root = http://localhost:5000/data/resource_cache/
-
-
-ckan.spatial.srid = 4258
+# Specify the database for SQLAlchemy to use:
+# # * Postgres is currently required for a production CKAN deployment
+# # * Sqlite (memory or file) can be used as a quick alternative for testing
 sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost/<%= @ckan_db %>
 
 # repoze.who config
@@ -81,8 +56,7 @@ who.log_file = %(cache_dir)s/who_log.ini
 #licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
 
 # Dataset form to use
-#package_form = standard
-package_form = package_gov3
+package_form = standard
 
 # Hide certain extras fields from dataset read form:
 # package_hide_extras = for_search_index_only
@@ -100,17 +74,6 @@ package_form = package_gov3
 # Dataset form integration
 #package_edit_return_url = http://another.frontend/dataset/<NAME>
 #package_new_return_url = http://another.frontend/dataset/<NAME>
-
-ckan.datapreview.limit = 2000000
-
-googleanalytics.account = data.gov.uk
-googleanalytics.id = UA-10855508-1
-# 7
-googleanalytics.username = zephod@gmail.com
-#googleanalytics.password = 
-ga-report.period = monthly
-ga-report.bounce_url = /
-googleanalytics.token.filepath = /Users/zephod/code/dgu/src/ckanext-ga-report/token.dat
 
 # Turn on messaging with carrot, default to false
 #ckan.async_notifier = true
@@ -135,7 +98,7 @@ ckan.site_description =
 
 ## Used in creating some absolute urls (such as rss feeds, css files) and
 ## dump filenames
-ckan.site_url = http://localhost:5000/
+ckan.site_url = 
 
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = /images/icons/ckan.ico

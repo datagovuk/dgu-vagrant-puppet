@@ -95,6 +95,8 @@ class dgu_ckan {
     'vdm==0.11',
     'xlrd==0.9.2',
     'zope.interface==4.0.1',
+    # from dev-requirements.txt
+    'pep8==1.4.6',
   ]
   dgu_ckan::pip_package { $pip_pkgs_remote:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -104,7 +106,7 @@ class dgu_ckan {
   }
   $pip_pkgs_local = [
     'ckan',
-    'ckanext-hierarchy',
+    # 'ckanext-hierarchy',
     # 'ckanext-dgu',
     # 'ckanext-os',
     # 'ckanext-qa',
@@ -145,9 +147,9 @@ class dgu_ckan {
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
   $development_ini = "${ckan_root}/development.ini"
-  $ckan_db_user = 'dgu'
+  $ckan_db_user = 'ckan_default'
   $ckan_db_name = 'ckan'
-  $ckan_test_db_name = 'ckantest'
+  $ckan_test_db_name = 'ckan_test'
   $ckan_db_pass = 'pass'
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
@@ -183,6 +185,10 @@ class dgu_ckan {
   ckan_config_file { 'test_ini_file':
     path => '/var/ckan/development.ini',
     ckan_db => "$ckan_test_db_name",
+  }
+  file { '/vagrant/src/ckan/development.ini':
+   ensure => 'link',
+   target => '/var/ckan/development.ini',
   }
   file { $ckan_who_ini:
     ensure  => file,
@@ -235,25 +241,25 @@ class dgu_ckan {
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db_name}":
     notify    => Notify['db_ready'],
-    command   => "createdb -O ${ckan_db_user} ${ckan_db_name} --template template_postgis",
+    command   => "createdb -O ${ckan_db_user} ${ckan_db_name} --template template_utf8",
     unless    => "psql -l|grep '${ckan_db_name}\s'",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
     require   => [
-      Exec["createdb postgis_template"],
+      Exec["createdb utf8_template"],
       Postgresql::Role[$ckan_db_user],
       Class["postgresql::server"],
     ],
   }
   exec {"createdb ${ckan_test_db_name}":
-    command   => "createdb -O ${ckan_db_user} ${ckan_test_db_name} --template template_postgis",
+    command   => "createdb -O ${ckan_db_user} ${ckan_test_db_name} --template template_utf8",
     unless    => "psql -l|grep ${ckan_test_db_name}",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
     require   => [
-      Exec["createdb postgis_template"],
+      Exec["createdb utf8_template"],
       Postgresql::Role[$ckan_db_user],
       Class["postgresql::server"],
     ],
@@ -308,22 +314,23 @@ class dgu_ckan {
     message => "PostgreSQL database is ready.",
   }
   # Build template database
-  file { "/tmp/create_postgis_template.sh":
+  file { "/tmp/create_utf8_template.sh":
     ensure => file,
-    source => "puppet:///modules/dgu_ckan/create_postgis_template.sh",
+    source => "puppet:///modules/dgu_ckan/create_utf8_template.sh",
     mode   => 0755,
   }
-  exec {"createdb postgis_template":
-    command => "/tmp/create_postgis_template.sh",
-    unless  => "psql -l |grep template_postgis",
+  exec {"createdb utf8_template":
+    command => "/tmp/create_utf8_template.sh",
+    unless  => "psql -l |grep utf8_postgis",
     path    => "/usr/bin:/bin",
     user    => vagrant,
     require => [
-      File["/tmp/create_postgis_template.sh"],
+      File["/tmp/create_utf8_template.sh"],
       Package["postgresql-${postgis_version}-postgis"],
       Postgresql::Role["vagrant"],
     ]
   }
+
 
   # -----------
   # Apache Solr
