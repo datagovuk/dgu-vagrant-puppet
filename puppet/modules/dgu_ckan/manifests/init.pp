@@ -95,6 +95,8 @@ class dgu_ckan {
     'vdm==0.11',
     'xlrd==0.9.2',
     'zope.interface==4.0.1',
+    # from dev-requirements.txt
+    'pep8==1.4.6',
   ]
   dgu_ckan::pip_package { $pip_pkgs_remote:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -147,7 +149,9 @@ class dgu_ckan {
   $development_ini = "${ckan_root}/development.ini"
   $ckan_db_user = 'dgu'
   $ckan_db_name = 'ckan'
-  $ckan_test_db_name = 'ckantest'
+  $ckan_test_db_user = 'ckan_default' # because it is in test-core.ini
+  $ckan_test_db_name = 'ckan_test'
+  $ckan_dev_db_name = 'ckan_dev'
   $ckan_db_pass = 'pass'
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
@@ -176,13 +180,21 @@ class dgu_ckan {
       mode    => 664,
     }
   }
-  ckan_config_file { 'main_ini_file':
-    path => '/var/ckan/ckan.ini',
+  ckan_config_file { 'ckan_ini_file':
+    path => $ckan_ini,
     ckan_db => "$ckan_db_name",
   }
-  ckan_config_file { 'test_ini_file':
-    path => '/var/ckan/development.ini',
-    ckan_db => "$ckan_test_db_name",
+  ckan_config_file { 'dev_ini_file':
+    path => $development_ini,
+    ckan_db => "$ckan_dev_db_name",
+  }
+  file { '/vagrant/src/ckan/ckan.ini':
+   ensure => 'link',
+   target => $ckan_ini,
+  }
+  file { '/vagrant/src/ckan/development.ini':
+   ensure => 'link',
+   target => $development_ini,
   }
   file { $ckan_who_ini:
     ensure  => file,
@@ -231,6 +243,10 @@ class dgu_ckan {
     password_hash => postgresql_password($ckan_db_user,$ckan_db_pass),
     login         => true,
   }
+  postgresql::role { $ckan_test_db_user:
+    password_hash => postgresql_password($ckan_test_db_user,$ckan_db_pass),
+    login         => true,
+  }
 
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db_name}":
@@ -246,9 +262,24 @@ class dgu_ckan {
       Class["postgresql::server"],
     ],
   }
+  # The testing process deletes all tables, which doesn't work if there are the Postgis
+  # ones there owned by the vagrant user and no deletable. Reconsider this when testing
+  # ckanext-spatial.
   exec {"createdb ${ckan_test_db_name}":
-    command   => "createdb -O ${ckan_db_user} ${ckan_test_db_name} --template template_postgis",
+    command   => "createdb -O ${ckan_test_db_user} ${ckan_test_db_name} --template template_utf8",
     unless    => "psql -l|grep ${ckan_test_db_name}",
+    path      => "/usr/bin:/bin",
+    user      => postgres,
+    logoutput => true,
+    require   => [
+      Exec["createdb utf8_template"],
+      Postgresql::Role[$ckan_test_db_user],
+      Class["postgresql::server"],
+    ],
+  } 
+  exec {"createdb ${ckan_dev_db_name}":
+    command   => "createdb -O ${ckan_db_user} ${ckan_dev_db_name} --template template_postgis",
+    unless    => "psql -l|grep ${ckan_dev_db_name}",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
@@ -272,9 +303,9 @@ class dgu_ckan {
     logoutput => true,
     notify    => Notify['db_ready'],
   }
-  exec {"paster db init (test)":
+  exec {"paster db init (dev)":
     subscribe => [
-      Exec["createdb ${ckan_test_db_name}"],
+      Exec["createdb ${ckan_dev_db_name}"],
       File[$development_ini],
       Notify['virtualenv_ready'],
       Notify['ckan_fs_ready'],
@@ -282,7 +313,7 @@ class dgu_ckan {
     command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${development_ini}",
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep package",
+    unless    => "sudo -u postgres psql -d $ckan_dev_db_name -c \"\\dt\" | grep package",
     logoutput => true,
   }
   # exec {"paster ga_reports init":
@@ -307,10 +338,15 @@ class dgu_ckan {
   notify {"db_ready":
     message => "PostgreSQL database is ready.",
   }
-  # Build template database
+  # Build template databases
   file { "/tmp/create_postgis_template.sh":
     ensure => file,
     source => "puppet:///modules/dgu_ckan/create_postgis_template.sh",
+    mode   => 0755,
+  }
+  file { "/tmp/create_utf8_template.sh":
+    ensure => file,
+    source => "puppet:///modules/dgu_ckan/create_utf8_template.sh",
     mode   => 0755,
   }
   exec {"createdb postgis_template":
@@ -321,6 +357,16 @@ class dgu_ckan {
     require => [
       File["/tmp/create_postgis_template.sh"],
       Package["postgresql-${postgis_version}-postgis"],
+      Postgresql::Role["vagrant"],
+    ]
+  }
+  exec {"createdb utf8_template":
+    command => "/tmp/create_utf8_template.sh",
+    unless  => "psql -l |grep utf8_postgis",
+    path    => "/usr/bin:/bin",
+    user    => vagrant,
+    require => [
+      File["/tmp/create_utf8_template.sh"],
       Postgresql::Role["vagrant"],
     ]
   }
