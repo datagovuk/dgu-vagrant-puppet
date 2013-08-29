@@ -2,3 +2,5 @@ db_backup
 .vagrant
 *~
 *.swp
+src/ckanext*
+scripts/*
