@@ -479,4 +479,14 @@ class dgu_ckan {
     path      => '/usr/bin:/bin:/usr/sbin',
     logoutput => 'on_failure',
   }
+
+# ---------
+# Dev tools
+# ---------
+  file { "/home/vagrant/.noserc":
+    ensure => file,
+    source => "puppet:///modules/dgu_ckan/noserc_template",
+    mode   => 644,
+  }
 }
+
