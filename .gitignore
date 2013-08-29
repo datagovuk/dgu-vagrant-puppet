@@ -3,4 +3,4 @@ db_backup
 *~
 *.swp
 src/ckanext*
-
+scripts/*
