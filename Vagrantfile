@@ -20,6 +20,7 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, host: 4567, guest: 80
   config.vm.network :forwarded_port, host: 8983, guest: 8983
   config.vm.network :forwarded_port, host: 5432, guest: 5433
+  config.vm.network :forwarded_port, host: 5050, guest: 5000
 
   config.vm.provider :virtualbox do |vb|
     config.vm.box = "precise64"
