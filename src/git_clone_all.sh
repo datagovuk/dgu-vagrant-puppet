@@ -21,6 +21,7 @@ cd -
 git clone	git@github.com:datagovuk/ckanext-dgu 
 cd ckanext-dgu
 git checkout 2.0
+ln -s ../commit-msg.githook ./.git/hooks/commit-msg
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-ga-report 
@@ -48,9 +49,13 @@ cd ckanext-spatial
 git checkout dgu
 cd -
 
+git clone	git@github.com:okfn/ckanext-importlib
+cd ckanext-importlib
+git checkout master
+cd -
+
 git clone	git@github.com:datagovuk/dgu-joint-assets
 cd dgu-joint-assets
 git checkout master
 cd -
-
 

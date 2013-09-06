@@ -12,7 +12,7 @@ error_email_from = paste@localhost
 test_smtp_server = localhost
 test_smtp_server_port = 1025
 
-search.facets = groups tags res_format license resource-type UKLP license_id-is-ogl publisher openness_score all_themes theme-primary
+search.facets = groups tags res_format license resource-type UKLP license_id-is-ogl publisher openness_score spatial-data-service-type all_themes theme-primary unpublished
 
 [server:main]
 use = egg:Paste#http
@@ -22,7 +22,7 @@ port = 5000
 [app:main]
 use = egg:ckan
 full_stack = true
-cache_dir = <%= @ckan_root %>/data
+cache_dir = <%= @ckan_data_root %>/data
 beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
@@ -135,7 +135,7 @@ ckan.site_description =
 
 ## Used in creating some absolute urls (such as rss feeds, css files) and
 ## dump filenames
-ckan.site_url = http://localhost:5000/
+ckan.site_url = http://localhost:<%= @ckan_site_port %>
 
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = /images/icons/ckan.ico

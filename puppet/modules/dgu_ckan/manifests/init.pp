@@ -46,6 +46,7 @@ class dgu_ckan {
     'PasteScript==1.7.5',
     'Pygments==1.6',
     'Pylons==0.9.7',
+    'PyMollom==0.1',
     'Routes==1.13',
     'SQLAlchemy==0.7.8',
     'Shapely==1.2.17',
@@ -63,6 +64,7 @@ class dgu_ckan {
     'celery==2.4.2',
     'chardet==2.1.1',
     'ckanclient==0.10',
+    'datautil==0.4',
     'decorator==3.3.2',
     'fanstatic==0.12',
     'flup==1.0.2',
@@ -113,6 +115,7 @@ class dgu_ckan {
     'ckanext-archiver',
     'ckanext-ga-report',
     'ckanext-datapreview',
+    'ckanext-importlib',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -154,6 +157,7 @@ class dgu_ckan {
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
   $ckan_log_file = "${ckan_log_root}/ckan.log"
+  $ckan_dev_data_root = "/tmp"
   file {$ckan_log_file:
     ensure => file,
     owner  => "www-data",
@@ -166,9 +170,17 @@ class dgu_ckan {
     group  => "www-data",
     mode   => 664,
   }
+  file { ["${ckan_dev_data_root}/data","${ckan_dev_data_root}/sstore"]:
+    ensure => directory,
+    owner  => "vagrant",
+    group  => "vagrant",
+    mode   => 664,
+  }
   define ckan_config_file( 
     $path = $title,
     $ckan_db,
+    $ckan_site_port = 80,
+    $ckan_data_root,
   ) {
     file { $path :
       ensure  => file,
@@ -181,10 +193,13 @@ class dgu_ckan {
   ckan_config_file { 'ckan_ini_file':
     path => $ckan_ini,
     ckan_db => "$ckan_db_name",
+    ckan_data_root => "$ckan_root",
   }
   ckan_config_file { 'dev_ini_file':
     path => $development_ini,
     ckan_db => "$ckan_dev_db_name",
+    ckan_site_port => "5000",
+    ckan_data_root => "$ckan_dev_data_root"
   }
   file { '/vagrant/src/ckan/ckan.ini':
    ensure => 'link',
