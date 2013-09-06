@@ -64,3 +64,7 @@ cd dgu-joint-assets
 git checkout master
 cd -
 
+git clone	git@github.com:datagovuk/shared_dguk_assets
+cd shared_dguk_assets
+git checkout master
+cd -
