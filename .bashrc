@@ -105,3 +105,12 @@ fi
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
+
+# Handy inclusion of scripts dir in the path, for developers to use
+# if they wish
+export PATH=$PATH:/vagrant/scripts
+
+# Handy enabling of CKAN pyenv
+export CKAN_INI=/var/ckan/ckan.ini
+export DEV_INI=/var/ckan/development.ini
+source ~/ckan/bin/activate && cd /vagrant/src/ckan
