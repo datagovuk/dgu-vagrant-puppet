@@ -147,17 +147,14 @@ class dgu_ckan {
   # ------------
   $ckan_root = "/var/ckan"
   $ckan_ini = "${ckan_root}/ckan.ini"
-  $development_ini = "${ckan_root}/development.ini"
   $ckan_db_user = 'dgu'
   $ckan_db_name = 'ckan'
   $ckan_test_db_user = 'ckan_default' # because it is in test-core.ini
   $ckan_test_db_name = 'ckan_test'
-  $ckan_dev_db_name = 'ckan_dev'
   $ckan_db_pass = 'pass'
   $ckan_who_ini = "${ckan_root}/who.ini"
   $ckan_log_root = "/var/log/ckan"
   $ckan_log_file = "${ckan_log_root}/ckan.log"
-  $ckan_dev_data_root = "/tmp"
   file {$ckan_log_file:
     ensure => file,
     owner  => "www-data",
@@ -170,17 +167,10 @@ class dgu_ckan {
     group  => "www-data",
     mode   => 664,
   }
-  file { ["${ckan_dev_data_root}/data","${ckan_dev_data_root}/sstore"]:
-    ensure => directory,
-    owner  => "vagrant",
-    group  => "vagrant",
-    mode   => 664,
-  }
   define ckan_config_file( 
     $path = $title,
     $ckan_db,
     $ckan_site_port = 80,
-    $ckan_data_root,
   ) {
     file { $path :
       ensure  => file,
@@ -193,21 +183,10 @@ class dgu_ckan {
   ckan_config_file { 'ckan_ini_file':
     path => $ckan_ini,
     ckan_db => "$ckan_db_name",
-    ckan_data_root => "$ckan_root",
-  }
-  ckan_config_file { 'dev_ini_file':
-    path => $development_ini,
-    ckan_db => "$ckan_dev_db_name",
-    ckan_site_port => "5000",
-    ckan_data_root => "$ckan_dev_data_root"
   }
   file { '/vagrant/src/ckan/ckan.ini':
    ensure => 'link',
    target => $ckan_ini,
-  }
-  file { '/vagrant/src/ckan/development.ini':
-   ensure => 'link',
-   target => $development_ini,
   }
   file { $ckan_who_ini:
     ensure  => file,
@@ -292,18 +271,6 @@ class dgu_ckan {
       Class["postgresql::server"],
     ],
   } 
-  exec {"createdb ${ckan_dev_db_name}":
-    command   => "createdb -O ${ckan_db_user} ${ckan_dev_db_name} --template template_postgis",
-    unless    => "psql -l|grep ${ckan_dev_db_name}",
-    path      => "/usr/bin:/bin",
-    user      => postgres,
-    logoutput => true,
-    require   => [
-      Exec["createdb postgis_template"],
-      Postgresql::Role[$ckan_db_user],
-      Class["postgresql::server"],
-    ],
-  } 
   exec {"paster db init":
     subscribe => [
       Exec["createdb ${ckan_db_name}"],
@@ -315,19 +282,6 @@ class dgu_ckan {
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep package",
-    logoutput => true,
-  }
-  exec {"paster db init (dev)":
-    subscribe => [
-      Exec["createdb ${ckan_dev_db_name}"],
-      File[$development_ini],
-      Notify['virtualenv_ready'],
-      Notify['ckan_fs_ready'],
-    ],
-    command   => "${ckan_virtualenv}/bin/paster --plugin=ckan db init --config=${development_ini}",
-    path      => "/usr/bin:/bin:/usr/sbin",
-    user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_dev_db_name -c \"\\dt\" | grep package",
     logoutput => true,
   }
   exec {"paster ga_reports init":
