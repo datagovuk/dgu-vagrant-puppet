@@ -4,6 +4,8 @@ ServerName localhost
 <VirtualHost *:80>
   WSGIScriptAlias / <%= @ckan_wsgi_script %>
 
+  Alias /assets /vagrant/src/shared_dguk_assets/assets
+
   # Used for debug mode: Force single-threaded execution
   WSGIDaemonProcess singlethreaded
   WSGIProcessGroup singlethreaded
