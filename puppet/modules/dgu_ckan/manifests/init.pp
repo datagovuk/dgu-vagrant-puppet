@@ -227,14 +227,17 @@ class dgu_ckan {
     createrole    => true,
     login         => true,
     superuser     => true,
+    require       => Class["postgresql::server"],
   }
   postgresql::role { $ckan_db_user:
     password_hash => postgresql_password($ckan_db_user,$ckan_db_pass),
     login         => true,
+    require       => Class["postgresql::server"],
   }
   postgresql::role { $ckan_test_db_user:
     password_hash => postgresql_password($ckan_test_db_user,$ckan_db_pass),
     login         => true,
+    require       => Class["postgresql::server"],
   }
 
   # if only puppetlabs/postgresql allowed me to specify a template...
@@ -318,7 +321,7 @@ class dgu_ckan {
   }
   exec {"createdb utf8_template":
     command => "/tmp/create_utf8_template.sh",
-    unless  => "psql -l |grep utf8_postgis",
+    unless  => "psql -l |grep template_utf8",
     path    => "/usr/bin:/bin",
     user    => vagrant,
     require => [
