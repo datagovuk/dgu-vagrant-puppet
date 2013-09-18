@@ -40,8 +40,14 @@ createlang plpgsql $TMPL_NAME
 psql -q -d $TMPL_NAME -f $PG_POSTGIS || exit 1
 psql -q -d $TMPL_NAME -f $PG_SPATIAL_REF || exit 1
 
+# change ownership of the postgis tables from the home user
+# to the user used by the database. This is needed for
+# 'paster db clean' to work and the tests.
 cat << EOF | psql -d $TMPL_NAME
 GRANT ALL ON geometry_columns TO PUBLIC;
 GRANT SELECT ON spatial_ref_sys TO PUBLIC;
+ALTER TABLE geometry_columns OWNER TO $1;
+ALTER TABLE spatial_ref_sys OWNER TO $1;
+ALTER VIEW geography_columns OWNER TO $1;
 VACUUM FREEZE;
 EOF

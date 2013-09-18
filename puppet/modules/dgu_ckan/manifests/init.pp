@@ -353,7 +353,7 @@ class dgu_ckan {
     mode   => 0755,
   }
   exec {"createdb postgis_template":
-    command => "/tmp/create_postgis_template.sh",
+    command => "/tmp/create_postgis_template.sh $ckan_test_db_user",
     unless  => "psql -l |grep template_postgis",
     path    => "/usr/bin:/bin",
     user    => vagrant,
