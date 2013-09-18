@@ -28,6 +28,8 @@ And setup a useful environment variable...
 
 #### Option 1: Use test data
 
+    createdb -O dgu ckan --template template_postgis
+    paster --plugin=ckanext-ga-report initdb --config=$CKAN_INI
     paster --plugin=ckanext-dgu create-test-data --config=$CKAN_INI
     paster --plugin=ckan search-index rebuild --config=$CKAN_INI
 
@@ -57,5 +59,5 @@ On the VM:
 ### Give yourself a CKAN user for debug:
 
     paster --plugin=ckan user remove admin --config=$CKAN_INI
-    paster --plugin=ckan user add admin password=pass --config=$CKAN_INI
+    paster --plugin=ckan user add admin email=admin@ckan password=pass --config=$CKAN_INI
     paster --plugin=ckan sysadmin add admin --config=$CKAN_INI
