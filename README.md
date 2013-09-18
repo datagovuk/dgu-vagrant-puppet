@@ -44,6 +44,7 @@ On the host machine:
 On the VM:
 
     export CKAN_DUMP_FILE=`ls /vagrant/db_backup/ -t |head -n 1` && echo $CKAN_DUMP_FILE
+    sudo apachectl stop
     dropdb ckan
     createdb -O dgu ckan --template template_postgis
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
