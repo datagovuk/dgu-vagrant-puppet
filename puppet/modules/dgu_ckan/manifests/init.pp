@@ -246,7 +246,7 @@ class dgu_ckan {
   # if only puppetlabs/postgresql allowed me to specify a template...
   exec {"createdb ${ckan_db_name}":
     command   => "createdb -O ${ckan_db_user} ${ckan_db_name} --template template_postgis",
-    unless    => "psql -l|grep ${ckan_db_name}",
+    unless    => "psql -l|grep '${ckan_db_name}\s'",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
@@ -293,15 +293,6 @@ class dgu_ckan {
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
     logoutput => true,
     notify    => Notify['db_ready'],
-  }
-  exec {"paster ga_reports init (test)":
-    subscribe => Exec["paster db init (test)"],
-    cwd       => "/vagrant/src/ckanext-ga-report",
-    command   => "${ckan_virtualenv}/bin/paster initdb --config=${development_ini}",
-    path      => "/usr/bin:/bin:/usr/sbin",
-    user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_test_db_name -c \"\\dt\" | grep ga_url",
-    logoutput => true,
   }
   notify {"db_ready":
     message => "PostgreSQL database is ready.",
