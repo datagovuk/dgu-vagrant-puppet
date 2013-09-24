@@ -54,6 +54,11 @@ cd ckanext-importlib
 git checkout master
 cd -
 
+git clone	git@github.com:datagovuk/ckanext-hierarchy
+cd ckanext-hierarchy
+git checkout master
+cd -
+
 git clone	git@github.com:datagovuk/dgu-joint-assets
 cd dgu-joint-assets
 git checkout master
