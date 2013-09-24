@@ -408,10 +408,22 @@ class dgu_ckan {
   $ckan_wsgi_script = "${ckan_root}/wsgi_app.py"
   class {  'apache':
     default_vhost => false,
-    mpm_module => 'prefork',
   }
   apache::mod {'wsgi':}
   apache::listen {'80':}
+  # TODO you can configure the vhost in here
+  #apache::vhost { 'wsgi.example.com':
+  #    port                        => '80',
+  #    docroot                     => '/var/www/pythonapp',
+  #    wsgi_daemon_process         => 'wsgi',
+  #    wsgi_daemon_process_options => { 
+  #        processes => '2',
+  #        threads => '15',
+  #        display-name => '%{GROUP}'
+  #    },
+  #    wsgi_process_group          => 'wsgi',
+  #    wsgi_script_aliases         => { '/' => '/var/www/demo.wsgi' },
+  #}
   file {[$ckan_apache_errorlog, $ckan_apache_customlog]:
     ensure => file,
     owner  => 'www-data',
@@ -419,6 +431,7 @@ class dgu_ckan {
     mode   => 664,
   }
   file {'apache_ckan_conf':
+    # TODO this can be handled by the apache puppet code
     ensure  => file,
     path    => '/etc/apache2/sites-available/ckan.conf',
     content => template('dgu_ckan/apache-ckan.erb'),
@@ -428,6 +441,7 @@ class dgu_ckan {
     content => template('dgu_ckan/wsgi_app.py.erb'),
   }
   exec {'a2ensite ckan.conf':
+    # TODO again this can go!
     require   => [
       Class['apache'],
       Apache::Mod['wsgi'],
