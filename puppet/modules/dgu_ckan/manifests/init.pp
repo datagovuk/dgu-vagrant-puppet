@@ -116,6 +116,7 @@ class dgu_ckan {
     'ckanext-ga-report',
     'ckanext-datapreview',
     'ckanext-importlib',
+    'ckanext-hierarchy',
     'logreporter',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:

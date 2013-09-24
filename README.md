@@ -50,10 +50,12 @@ On the VM:
     dropdb ckan
     createdb -O dgu ckan --template template_postgis
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
-      | PGPASSWORD=pass psql -h localhost -U dgu -d ckan 
+      | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
     paster --plugin=ckan db upgrade --config=$CKAN_INI
-    paster --plugin=ckanext-ga-report initdb --config=$CKAN_INI
+       # is it just me that gets a benign failure on upgrade in init_const_data?
+    # If the database is pre-CKAN 2 then run the manual migrations in the pad:
+    # http://etherpad.co-dev1.dh.bytemark.co.uk/p/ckan2
     paster --plugin=ckan search-index rebuild --config=$CKAN_INI
 
 ### Give yourself a CKAN user for debug:
@@ -61,3 +63,32 @@ On the VM:
     paster --plugin=ckan user remove admin --config=$CKAN_INI
     paster --plugin=ckan user add admin email=admin@ckan password=pass --config=$CKAN_INI
     paster --plugin=ckan sysadmin add admin --config=$CKAN_INI
+
+### Paster commands
+
+The VM opens in the ckan directory with the virtualenv activated and there is a symlink to the ckan.ini there, making it easy to run paster commands. 
+
+Warning: Since apache runs as www-data user, reading and writing log and session files, you may get problems if you run paster as vagrant user. To avoid issue, run paster commands ``sudo -u www-data paster``. However, most of the time you can get away with it.
+
+Examples::
+
+    paster create-test-data --config=ckan.ini
+    paster search-index rebuild --config=ckan.ini
+    paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
+
+### Testing
+
+Examples::
+
+    nosetests --ckan --with-pylons=test-core.ini ckan/tests/
+    nosetests --ckan --with-pylons=../ckanext-spatial/test-core.ini ../ckanext-spatial/ckanext/spatial/tests
+
+### Common errors
+
+* `multiple values encountered for non multiValued field groups: [david, roger]`
+
+SOLR complains of this when running core ckan tests with the DGU schema. Ideally we'd have SOLR multicore to have the default CKAN schema running. But we don't have this in vagrant yet, so use the dgu-vagrant-puppet branch for non-DGU ckan to test this code.
+
+* `sqlalchemy.exc.OperationalError: (OperationalError) no such table: user`
+
+This is caused by running the ckan tests with SQLite, rather than Postgres. Ensure you use `--with-pylons=test-core.ini` rather than the default `test.ini`. It would be good to fix up SQLite soon - it is an issue with it dropping all tables before tests spuriously.
