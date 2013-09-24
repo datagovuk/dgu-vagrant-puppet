@@ -389,14 +389,6 @@ class dgu_ckan {
     group     => "solr",
     mode      => 0644,
   }
-  file {'/etc/solr/conf/solrconfig.xml':
-    subscribe => Class['solr'],
-    ensure => file,
-    content => template('dgu_ckan/solrconfig.xml.erb'),
-    owner     => "solr",
-    group     => "solr",
-    mode      => 0644,
-  }
   service {"jetty":
     enable    => true,
     ensure    => running,
