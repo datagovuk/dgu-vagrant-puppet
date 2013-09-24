@@ -35,9 +35,13 @@ ckanext-os.libraries.host = osinspiremappingprod.ordnancesurvey.co.uk
 ckan.spatial.dataset_extent_map.routes = ckanext.dgu.controllers.package:PackageController/read
 ckan.spatial.dataset_extent_map.map_type = os
 
-ckan.plugins = dgu_publisher_form dgu_publishers dgu_auth_api dgu_form dgu_theme cswserver harvest spatial_query qa synchronous_search dgu_search dgu_dataset_form spatial_metadata os_search os_preview archiver dgu_api ga-report datapreview dgu_inventory hierarchy_display
+# SPATIAL DISABLED
+#ckan.plugins = dgu_publisher_form dgu_publishers  dgu_auth_api dgu_form dgu_theme cswserver harvest inspire_api qa synchronous_search dgu_search dgu_dataset_form os_search os_preview archiver dgu_api dgu_dataset_extent_map datapreview ga-report
+# SPATIAL ENABLEd
+ckan.plugins = dgu_publisher_form dgu_publishers  dgu_auth_api dgu_form dgu_theme cswserver harvest gemini_csw_harvester gemini_doc_harvester gemini_waf_harvester spatial_harvest_metadata_api spatial_query qa synchronous_search dgu_search dgu_dataset_form spatial_metadata os_search os_preview archiver dgu_api ga-report datapreview dgu_inventory hierarchy_display
+
 # removed:
-#   inspire_api 
+#   inspire_api
 
 dgu.xmlrpc_domain = drupal.libre.gov.fr:80
 dgu.xmlrpc_username = ckan
@@ -103,7 +107,7 @@ googleanalytics.account = data.gov.uk
 googleanalytics.id = UA-10855508-1
 # 7
 googleanalytics.username = zephod@gmail.com
-#googleanalytics.password = 
+#googleanalytics.password =
 ga-report.period = monthly
 ga-report.bounce_url = /
 googleanalytics.token.filepath = /Users/zephod/code/dgu/src/ckanext-ga-report/token.dat

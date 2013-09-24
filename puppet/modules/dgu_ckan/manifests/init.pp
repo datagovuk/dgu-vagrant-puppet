@@ -366,8 +366,15 @@ class dgu_ckan {
     group   => "solr",
   }
 
+
+  file {'/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml':
+    ensure  => file,
+    path    => '/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml',
+    content => template('dgu_ckan/solrconfig.xml.erb'),
+  }
+
   class {'solr':
-    require             => [ File['/etc/solr/conf'], User['solr'] ],
+    require             => [ File['/etc/solr/conf'], User['solr'], File['/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml'] ],
     notify              => Exec['setup_solr_core'],
     install             => 'source',
     install_source     => "http://archive.apache.org/dist/lucene/solr/4.3.1/solr-4.3.1.tgz",
