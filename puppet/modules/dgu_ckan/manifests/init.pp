@@ -1,5 +1,5 @@
 class dgu_ckan {
-  # Uses custom fact: 
+  # Uses custom fact:
   #  $ckan_virtualenv
 
   class { 'python':
@@ -117,6 +117,7 @@ class dgu_ckan {
     'ckanext-datapreview',
     'ckanext-importlib',
     'ckanext-hierarchy',
+    'logreporter',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -168,7 +169,7 @@ class dgu_ckan {
     group  => "www-data",
     mode   => 664,
   }
-  define ckan_config_file( 
+  define ckan_config_file(
     $path = $title,
     $ckan_db,
     $ckan_site_port = 80,
@@ -271,7 +272,7 @@ class dgu_ckan {
       Postgresql::Role[$ckan_test_db_user],
       Class["postgresql::server"],
     ],
-  } 
+  }
   exec {"paster db init":
     subscribe => [
       Exec["createdb ${ckan_db_name}"],

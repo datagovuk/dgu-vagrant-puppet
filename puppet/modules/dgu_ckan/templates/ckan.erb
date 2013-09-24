@@ -1,0 +1,37 @@
+# CKAN cron jobs
+# --------------
+# m h  dom mon dow  user  command
+
+# Run any created harvest jobs (created by refreshing a harvest source)
+*/10 *  * * *   co   /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/home/co/ckan/dgu_as_co_user.ini
+
+# Nightly backup (now done in the gov_daily)
+## 0 23 *  * * *  root  /home/co/ckan/bin/paster --plugin=ckan db dump /var/backups/ckan/dgu-`date +"\%Y-\%m-\%d"`.pg_dump --config=/home/co/ckan/dgu.ini && gzip /var/backups/ckan/dgu-`date +"\%Y-\%m-\%d"`.pg_dump
+
+# Gov_daily script
+0 23  * * *  root  /home/co/ckan/bin/python /home/co/ckan/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /home/co/ckan/dgu_as_root_user.ini
+
+# Archive resources (every Friday night)
+0 22 * * 5  co  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/home/co/ckan/dgu_as_co_user.ini
+
+# Openness scores (every Saturday morning)
+0 4 * * 6  co  /home/co/ckan/bin/paster --plugin=ckanext-qa qa update --config=/home/co/ckan/dgu_as_co_user.ini
+
+# MI Reports (weekly)
+41 6 * * 7  root  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /home/co/ckan/reports/mi/ -z --config=/home/co/ckan/dgu_as_root_user.ini
+
+# Runs scrapers that we may have installed at 3AM every day.
+0 3 * * *   co  /home/co/ckan/bin/paster --plugin=ckanext-dgu scrape_resources --config=/home/co/ckan/dgu_as_co_user.ini
+
+# ONS import (daily at 9.40 and 12.00 and on 1st of the month)
+40 9 * * *   co   /home/co/ckan/bin/ons_loader -d 7 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /home/co/ckan/logs/ons_loader.log
+0 12 * * *   co   /home/co/ckan/bin/ons_loader -d 1 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /home/co/ckan/logs/ons_loader.log
+0 1 1 * *   co   /home/co/ckan/bin/ons_loader --months-since 2012-01 -f -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /home/co/ckan/logs/ons_loader.log
+
+# Log reporting emails
+10 0 * * *   root  /home/co/ckan/bin/python /home/co/ckan/src/logreporter/src/logreporter.py --logs "/home/co/ckan/gather_consumer.log,/home/co/ckan/fetch_consumer.log,/var/log/ckan/dgu-www.log,/var/log/ckan/dgu-root.log,/var/log/ckan/celeryd.log,/home/co/ckan/logs/dgu-co.log,/var/log/apache2/dgu.error.log" --recipients "david.read@hackneyworkshop.com,ross@servercode.co.uk" --hours 24 --server "localhost:25"
+
+
+# NB When you edit this file, you have to alert cron to the change at the
+# end of the symbolic link, so recreate the link:
+# sudo rm /etc/cron.d/ckan && sudo ln -s /home/co/dgu/build/system/etc/cron.d/ckan /etc/cron.d/ckan
