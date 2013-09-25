@@ -1,4 +1,9 @@
 class dgu_ckan {
+
+  class { 'memcached':
+      install_dev => true
+  }
+
   # Uses custom fact:
   #  $ckan_virtualenv
 
@@ -80,6 +85,7 @@ class dgu_ckan {
     'ofs==0.4.1',
     'openpyxl==1.5.7',
     'psycopg2==2.4.5',
+    'pylibmc',
     'python-dateutil==1.5',
     'python-gflags==2.0',
     'python-magic==0.4.3',
