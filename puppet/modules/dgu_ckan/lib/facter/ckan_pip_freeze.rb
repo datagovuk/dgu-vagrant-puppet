@@ -1,5 +1,5 @@
 
-ckan_virtualenv = "/home/vagrant/ckan"
+ckan_virtualenv = "/home/co/ckan"
 
 Facter.add("ckan_virtualenv") do
   setcode do

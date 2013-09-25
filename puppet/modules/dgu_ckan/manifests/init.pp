@@ -1,5 +1,13 @@
 class dgu_ckan {
 
+  file {'/home/co/.ssh/':
+    ensure => directory,
+  }
+  file {'/home/co/.ssh/authorized_keys':
+    ensure => file,
+    source => "puppet:///modules/dgu_ckan/authorized_keys",
+    mode   => 0755,
+  }
   class { 'memcached':
       install_dev => true
   }
@@ -27,8 +35,8 @@ class dgu_ckan {
   python::virtualenv { $ckan_virtualenv:
     ensure => present,
     version => 'system',
-    owner => 'vagrant',
-    group => 'vagrant',
+    owner => 'co',
+    group => 'co',
   }
 
   # Pip install everything
@@ -86,7 +94,6 @@ class dgu_ckan {
     'openpyxl==1.5.7',
     'psycopg2==2.4.5',
     'pylibmc',
-    'PyMollom==0.1',
     'python-dateutil==1.5',
     'python-gflags==2.0',
     'python-magic==0.4.3',
@@ -109,7 +116,7 @@ class dgu_ckan {
   dgu_ckan::pip_package { $pip_pkgs_remote:
     require => Python::Virtualenv[$ckan_virtualenv],
     ensure     => present,
-    owner      => 'vagrant',
+    owner      => 'co',
     local      => false,
   }
   $pip_pkgs_local = [
@@ -129,7 +136,7 @@ class dgu_ckan {
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
     ensure  => present,
-    owner   => 'vagrant',
+    owner   => 'co',
     local   => true,
   }
   # Not all Pip packages come with a global read permission
@@ -233,8 +240,8 @@ class dgu_ckan {
     require => Class['postgresql::server'],
   }
 
-  postgresql::role { "vagrant":
-    password_hash => postgresql_password("vagrant",$pg_superuser_pass),
+  postgresql::role { "co":
+    password_hash => postgresql_password("co",$pg_superuser_pass),
     createdb      => true,
     createrole    => true,
     login         => true,
@@ -266,7 +273,7 @@ class dgu_ckan {
     ],
   }
   # The testing process deletes all tables, which doesn't work if there are the Postgis
-  # ones there owned by the vagrant user and no deletable. Reconsider this when testing
+  # ones there owned by the co user and no deletable. Reconsider this when testing
   # ckanext-spatial.
   exec {"createdb ${ckan_test_db_name}":
     command   => "createdb -O ${ckan_test_db_user} ${ckan_test_db_name} --template template_utf8",
@@ -332,21 +339,21 @@ class dgu_ckan {
     command => "/tmp/create_postgis_template.sh $ckan_test_db_user",
     unless  => "psql -l |grep template_postgis",
     path    => "/usr/bin:/bin",
-    user    => vagrant,
+    user    => co,
     require => [
       File["/tmp/create_postgis_template.sh"],
       Package["postgresql-${postgis_version}-postgis"],
-      Postgresql::Role["vagrant"],
+      Postgresql::Role["co"],
     ]
   }
   exec {"createdb utf8_template":
     command => "/tmp/create_utf8_template.sh",
     unless  => "psql -l |grep template_utf8",
     path    => "/usr/bin:/bin",
-    user    => vagrant,
+    user    => co,
     require => [
       File["/tmp/create_utf8_template.sh"],
-      Postgresql::Role["vagrant"],
+      Postgresql::Role["co"],
     ]
   }
 
@@ -389,14 +396,15 @@ class dgu_ckan {
     ensure  => file,
     path    => '/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml',
     content => template('dgu_ckan/solrconfig.xml.erb'),
+    require => Class['solr'],
   }
 
   class {'solr':
-    require             => [ File['/etc/solr/conf'], User['solr'], File['/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml'] ],
+    require             => User['solr'],
     notify              => Exec['setup_solr_core'],
     install             => 'source',
-    install_source     => "http://archive.apache.org/dist/lucene/solr/4.3.1/solr-4.3.1.tgz",
-    #install_source      => "http://localhost/solr-4.3.1.tgz",
+    install_source      => "http://archive.apache.org/dist/lucene/solr/4.3.1/solr-4.3.1.tgz",
+    #install_source     => "http://localhost/solr-4.3.1.tgz",
     install_destination => $solr_home,
   }
 
@@ -407,7 +415,7 @@ class dgu_ckan {
     path      => "/usr/bin:/bin:/usr/sbin",
   }
   file { "solr_schema_xml":
-    subscribe => Class['solr'],
+    require   => Class['solr'],
     ensure    => file,
     path      => "${jetty_home}/solr/collection1/conf/schema.xml",
     source    => "/vagrant/src/ckanext-dgu/config/solr/schema-2.0-dgu.xml",
@@ -422,6 +430,8 @@ class dgu_ckan {
       File["solr_schema_xml"],
       File["/etc/default/jetty"],
       File["/etc/init.d/jetty"],
+      File['/etc/solr/conf'], 
+      File['/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml'],
     ],
   }
 
@@ -473,7 +483,7 @@ class dgu_ckan {
 # ---------
 # Dev tools
 # ---------
-  file { "/home/vagrant/.noserc":
+  file { "/home/co/.noserc":
     ensure => file,
     source => "puppet:///modules/dgu_ckan/noserc_template",
     mode   => 644,
