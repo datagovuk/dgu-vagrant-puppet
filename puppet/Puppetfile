@@ -5,7 +5,7 @@ forge "http://forge.puppetlabs.com"
 mod "puppetlabs/apache"
 
 mod "puppetlabs/postgresql"
-
+mod "saz/memcached"
 mod "example42/puppi"
 mod "example42/monitor"
 mod "solr",
