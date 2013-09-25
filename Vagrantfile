@@ -17,10 +17,11 @@ Vagrant.configure("2") do |config|
 
   # Allow local machines to view the VM
   #config.vm.network :public_network
-  config.vm.network :forwarded_port, host: 4567, guest: 80
-  config.vm.network :forwarded_port, host: 8984, guest: 8983
-  #config.vm.network :forwarded_port, host: 5432, guest: 5433
-  #config.vm.network :forwarded_port, host: 5050, guest: 5000
+  config.vm.network :forwarded_port, host: 2008, guest: 80
+  config.vm.network :forwarded_port, host: 2983, guest: 8983
+  config.vm.network :forwarded_port, host: 2432, guest: 5433
+  # for paster testing
+  config.vm.network :forwarded_port, host: 2050, guest: 5000
 
   config.vm.provider :virtualbox do |vb|
     config.vm.box = "precise64"
@@ -32,9 +33,9 @@ Vagrant.configure("2") do |config|
     # boot headless (or make true to get a display)
     vb.gui = false
     # Virtualbox Custom CPU count:
-    vb.customize ["modifyvm", :id, "--name", "dgu_vm"]
-    vb.customize ["modifyvm", :id, "--memory", "4096"]
-    vb.customize ["modifyvm", :id, "--cpus", "4"]
+    vb.customize ["modifyvm", :id, "--name", "dgu2_vm"]
+    vb.customize ["modifyvm", :id, "--memory", "8192"]
+    vb.customize ["modifyvm", :id, "--cpus", "8"]
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
