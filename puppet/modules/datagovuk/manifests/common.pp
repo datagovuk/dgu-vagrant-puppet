@@ -54,4 +54,8 @@ class datagovuk::common {
     owner   => root,
     group   => root,
   }
+  file { '/tmp/txt':
+    ensure  => file,
+    content => '~~~~~~~~~~~~~~~~~~~~',
+  }
 }

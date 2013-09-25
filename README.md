@@ -1,3 +1,27 @@
+# Create a PuppetMaster
+
+Clone this repository to the server. Then start the daemon:
+
+    sudo apt-get update
+    sudo apt-get -y install puppet
+    sudo rm -rf /etc/puppet
+    sudo ln -s $THIS_REPOSITORY/puppet /etc/
+    sudo puppet master --mkusers
+
+## Applying manifests locally
+
+Run a one-shot puppet agent:
+
+    sudo puppet agent --test
+
+## Applying manifests on a remote machine.
+
+Install the puppet-agent daemon. No need to clone this repo.
+
+* Edit /etc/default/puppet to have `START=yes`
+* Edit /etc/puppet/puppet.conf to point at the puppet master.
+* `sudo /etc/init.d/puppet start`
+
 # Setup
 
 Clone this repo. Switch to `$THIS_REPO/src` and clone all the CKAN source repos ready for development work.
