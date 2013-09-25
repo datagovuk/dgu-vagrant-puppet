@@ -2,11 +2,15 @@ class dgu_ckan {
 
   file {'/home/co/.ssh/':
     ensure => directory,
+    owner  => 'co',
+    group  => 'co',
   }
   file {'/home/co/.ssh/authorized_keys':
     ensure => file,
     source => "puppet:///modules/dgu_ckan/authorized_keys",
     mode   => 0755,
+    owner  => 'co',
+    group  => 'co',
   }
   class { 'memcached':
       install_dev => true
