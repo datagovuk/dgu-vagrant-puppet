@@ -3,17 +3,17 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.provision :shell, :path => "puppet/install_puppet_dependancies.sh"
+  #config.vm.provision :shell, :path => "puppet/install_puppet_dependancies.sh"
 
-  config.vm.provision :puppet do |puppet|
-      puppet.manifests_path = "puppet/manifests"
-      puppet.manifest_file  = "site.pp"
-      puppet.facter = {
-        "motd" => "Built by Vagrant using librarian-puppet.",
-        "fqdn" => "ckan.home",
-        "pgpasswd" => "pass",
-      }
-  end
+  #config.vm.provision :puppet do |puppet|
+  #    puppet.manifests_path = "puppet/manifests"
+  #    puppet.manifest_file  = "site.pp"
+  #    puppet.facter = {
+  #      "motd" => "Built by Vagrant using librarian-puppet.",
+  #      "fqdn" => "ckan.home",
+  #      "pgpasswd" => "pass",
+  #    }
+  #end
 
   # Allow local machines to view the VM
   #config.vm.network :public_network
@@ -39,13 +39,14 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
-  config.vm.provider :vmware_fusion do |vmware, override|
-    override.vm.box = "precise64_vmware"
-    override.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
-    # 4GB RAM and 4 (hyperthreaded virtual) CPU cores
-    vmware.vmx["memsize"] = "8192"
-    vmware.vmx["numvcpus"] = "8"
-    vmware.vmx["displayName"] = "dgu2_vm2"
-    vmware.vmx["annotation"] = "Virtualised data.gov.uk 2 environment"
-  end 
+  #
+  #config.vm.provider :vmware_fusion do |vmware, override|
+  #  override.vm.box = "precise64_vmware"
+  #  override.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
+  #  # 4GB RAM and 4 (hyperthreaded virtual) CPU cores
+  #  vmware.vmx["memsize"] = "8192"
+  #  vmware.vmx["numvcpus"] = "8"
+  #  vmware.vmx["displayName"] = "dgu2_vm2"
+  #  vmware.vmx["annotation"] = "Virtualised data.gov.uk 2 environment"
+  #end 
 end

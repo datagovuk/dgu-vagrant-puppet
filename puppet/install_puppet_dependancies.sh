@@ -2,6 +2,9 @@
 
 # SOURCE: https://github.com/purple52/librarian-puppet-vagrant
 
+mkdir ~/.puppet
+ln -s /vagrant/puppet/modules ~/.puppet
+
 # Directory in which librarian-puppet should manage its modules directory
 PUPPET_DIR=/etc/puppet/
 

@@ -1,0 +1,27 @@
+# /etc/sudoers
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the man page for details on how to write a sudoers file.
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+
+# Defaults
+
+Defaults	!lecture,tty_tickets,!fqdn
+
+# CO options - for sudo over rsync
+Defaults visiblepw
+Defaults !tty_tickets
+
+# User privilege specification
+root	ALL=(ALL) ALL
+bytemark ALL = (ALL) ALL
+co ALL = (ALL) ALL
+jenkins-build  ALL=(ALL) NOPASSWD: ALL
+
+# vagrant user only exists on dev machines
+vagrant ALL = (ALL) NOPASSWD: ALL
