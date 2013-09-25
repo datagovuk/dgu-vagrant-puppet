@@ -92,3 +92,13 @@ SOLR complains of this when running core ckan tests with the DGU schema. Ideally
 * `sqlalchemy.exc.OperationalError: (OperationalError) no such table: user`
 
 This is caused by running the ckan tests with SQLite, rather than Postgres. Ensure you use `--with-pylons=test-core.ini` rather than the default `test.ini`. It would be good to fix up SQLite soon - it is an issue with it dropping all tables before tests spuriously.
+
+
+# Changing Python requirements
+
+1. Add new requirement (eg. `PyMollom==0.1` to init.pp).
+2. Add the archive to this repository.
+
+    cd pypi
+    pip install --download_cache="." "PyMollom==0.01"
+

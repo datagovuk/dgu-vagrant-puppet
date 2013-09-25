@@ -86,6 +86,7 @@ class dgu_ckan {
     'openpyxl==1.5.7',
     'psycopg2==2.4.5',
     'pylibmc',
+    'PyMollom==0.1',
     'python-dateutil==1.5',
     'python-gflags==2.0',
     'python-magic==0.4.3',
@@ -269,7 +270,7 @@ class dgu_ckan {
   # ckanext-spatial.
   exec {"createdb ${ckan_test_db_name}":
     command   => "createdb -O ${ckan_test_db_user} ${ckan_test_db_name} --template template_utf8",
-    unless    => "psql -l|grep ${ckan_test_db_name}",
+    unless    => "psql -l | grep \" ${ckan_test_db_name} \"",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
@@ -300,10 +301,21 @@ class dgu_ckan {
     user      => root,
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
     logoutput => true,
-    notify    => Notify['db_ready'],
+  }
+  exec {"paster inventory init":
+    subscribe => Exec["paster db init"],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckanext-dgu inventory_init --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
+    logoutput => true,
   }
   notify {"db_ready":
-    message => "PostgreSQL database is ready.",
+    subscribe => [
+      Exec['paster inventory init'],
+      Exec['paster ga_reports init'],
+    ],
+    message   => "PostgreSQL database is ready.",
   }
   # Build template databases
   file { "/tmp/create_postgis_template.sh":
