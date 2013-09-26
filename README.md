@@ -1,26 +1,28 @@
 # Setup
 
-Get a safe, stable version of puppet.
-    sudo apt-get update
-    sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
+* Boot the vm with `vagrant up`.
+* Get a safe, stable version of puppet.
 
-Boot a VM.
-    vagrant up
+```bash
+sudo apt-get update
+sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
+```
+* Option 1: Configure against the live Puppet Master.
 
-##### Option 1: Configure against the live Puppet Master.
+```
+# /etc/hosts
+46.43.41.25 puppet
+```
+```bash
+sudo ln -fs /vagrant/puppet/puppet.conf /etc/puppet/puppet.conf
+export FACTER_CKAN=true
+export FACTER_CKAN=false
+sudo -E puppet agent --test
+```
 
-    sudo ln -fs /vagrant/puppet/tmp.conf /etc/puppet/tmp.conf
-    
-    # /etc/hosts
-    46.43.41.25 puppet
+* Option 2: Run a local Puppet Master.
 
-    export FACTER_CKAN=true
-    export FACTER_CKAN=false
-    sudo -E puppet agent --test
-
-##### Option 2: Run a local Puppet Master.
-
-    See [puppet/README.md].
+    See [puppet/README.md](puppet/README.md).
 
 
 # Migration (TODO rewrite)
@@ -99,13 +101,3 @@ SOLR complains of this when running core ckan tests with the DGU schema. Ideally
 * `sqlalchemy.exc.OperationalError: (OperationalError) no such table: user`
 
 This is caused by running the ckan tests with SQLite, rather than Postgres. Ensure you use `--with-pylons=test-core.ini` rather than the default `test.ini`. It would be good to fix up SQLite soon - it is an issue with it dropping all tables before tests spuriously.
-
-
-# Changing Python requirements
-
-1. Add new requirement (eg. `PyMollom==0.1` to init.pp).
-2. Add the archive to this repository.
-
-    cd pypi
-    pip install --download_cache="." "PyMollom==0.01"
-
