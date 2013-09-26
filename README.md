@@ -1,31 +1,30 @@
-# Setup
+# Datagovuk: Vagrant box & Puppet Master
 
-* Boot the vm with `vagrant up`.
-* Get a safe, stable version of puppet.
+## Setup
 
-```bash
-sudo apt-get update
-sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
-```
-* Option 1: Configure against the live Puppet Master.
+Boot the vm with `vagrant up`. Get a safe, stable version of puppet:
+
+    sudo apt-get update
+    sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
+
+**Option 1:** Configure against the live Puppet Master.
 
 ```
 # /etc/hosts
 46.43.41.25 puppet
 ```
-```bash
-sudo ln -fs /vagrant/puppet/puppet.conf /etc/puppet/puppet.conf
-export FACTER_CKAN=true
-export FACTER_CKAN=false
-sudo -E puppet agent --test
-```
+    sudo ln -fs /vagrant/puppet/puppet.conf /etc/puppet/puppet.conf
+    export FACTER_CKAN=true
+    export FACTER_CKAN=false
+    sudo -E puppet agent --test
 
-* Option 2: Run a local Puppet Master.
+**Option 2:** Run a local Puppet Master.
 
-    See [puppet/README.md](puppet/README.md).
+See [puppet/README.md](puppet/README.md).
 
+---
 
-# Migration (TODO rewrite)
+## CKAN Database Migration
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -35,16 +34,14 @@ And setup a useful environment variable...
 
     export CKAN_INI=/var/ckan/ckan.ini
 
-#### Option 1: Use test data
+#### **Option 1:** Use test data:
 
     createdb -O dgu ckan --template template_postgis
     paster --plugin=ckanext-ga-report initdb --config=$CKAN_INI
     paster --plugin=ckanext-dgu create-test-data --config=$CKAN_INI
     paster --plugin=ckan search-index rebuild --config=$CKAN_INI
 
-#### Option 2: Download a production database
-
-On the host machine: 
+#### **Option 2:** Download a production database. On the host machine: 
 
     export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump.gz
     export URL=co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/$CKAN_DUMP_FILE
@@ -73,7 +70,9 @@ On the VM:
     paster --plugin=ckan user add admin email=admin@ckan password=pass --config=$CKAN_INI
     paster --plugin=ckan sysadmin add admin --config=$CKAN_INI
 
-### Paster commands
+---
+
+## Paster commands
 
 The VM opens in the ckan directory with the virtualenv activated and there is a symlink to the ckan.ini there, making it easy to run paster commands. 
 
@@ -85,14 +84,14 @@ Examples::
     paster search-index rebuild --config=ckan.ini
     paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
 
-### Testing
+#### Testing
 
 Examples::
 
     nosetests --ckan --with-pylons=test-core.ini ckan/tests/
     nosetests --ckan --with-pylons=../ckanext-spatial/test-core.ini ../ckanext-spatial/ckanext/spatial/tests
 
-### Common errors
+#### Common errors
 
 * `multiple values encountered for non multiValued field groups: [david, roger]`
 
