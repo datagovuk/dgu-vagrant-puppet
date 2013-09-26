@@ -29,6 +29,7 @@ class datagovuk::common {
     'screen',
     'vim',
     'pv',
+    'git',
     'unzip']
   package { $useful_packages:
     ensure => "installed"
@@ -53,9 +54,5 @@ class datagovuk::common {
     content => template('datagovuk/sudoers'),
     owner   => root,
     group   => root,
-  }
-  file { '/tmp/txt':
-    ensure  => file,
-    content => '~~~~~~~~~~~~~~~~~~~~',
   }
 }

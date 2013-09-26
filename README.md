@@ -1,20 +1,42 @@
-# Create a PuppetMaster
+# Installation
 
-Clone this repository to the server. Then start the daemon:
+### Install a recent puppet
 
+    wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+    sudo dpkg -i puppetlabs-release-precise.deb
     sudo apt-get update
-    sudo apt-get -y install puppet
+
+### Create a PuppetMaster
+
+Clone this repository to the server. 
+
+    git clone $THIS_REPOSITORY
     sudo rm -rf /etc/puppet
     sudo ln -s $THIS_REPOSITORY/puppet /etc/
+
+Then start the daemon:
+
     sudo puppet master --mkusers
 
-## Applying manifests locally
+#### Applying manifests locally
+
+Configure /etc/hosts
+
+    # /etc/hosts
+    127.0.0.1 puppet
 
 Run a one-shot puppet agent:
 
-    sudo puppet agent --test
+    export FACTER_ckan=true     # if you want ckan
+    export FACTER_drupal=true   # if you want drupal
+    sudo -E puppet agent --test
 
-## Applying manifests on a remote machine.
+#### Applying manifests on a remote machine.
+
+Configure /etc/hosts
+
+    # /etc/hosts
+    $PUPPET_MASTER_IP puppet
 
 Install the puppet-agent daemon. No need to clone this repo.
 
@@ -22,25 +44,7 @@ Install the puppet-agent daemon. No need to clone this repo.
 * Edit /etc/puppet/puppet.conf to point at the puppet master.
 * `sudo /etc/init.d/puppet start`
 
-# Setup
-
-Clone this repo. Switch to `$THIS_REPO/src` and clone all the CKAN source repos ready for development work.
-
-    cd $THIS_REPO/src
-    ./git_clone_all.sh
-
-Install Vagrant. Switch to this directory and launch a fully provisioned Virtual Machine:
-
-    vagrant up
-
-To provision an existing machine, rename it to "ckan" and execute the manifest. Inside the VM:
-
-    sudo hostname ckan
-    sudo vim /etc/hosts
-    # ^ add "127.0.0.1  ckan" to hosts...
-    sudo puppet apply /vagrant/puppet/manifests/site.pp
-
-# CKAN Database setup
+# Migration (TODO rewrite)
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
