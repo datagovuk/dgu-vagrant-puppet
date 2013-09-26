@@ -8,6 +8,12 @@ Overwrite `/etc/puppet` with this folder.
     sudo mv /etc/puppet{,.old}
     sudo ln -s $THIS_REPO/puppet /etc/
 
+Install vendor modules.
+
+    sudo gem install librarian-puppet
+    cd /etc/puppet
+    sudo librarian-puppet install --verbose
+
 Start the puppet master.
 
     sudo puppet master --mkusers

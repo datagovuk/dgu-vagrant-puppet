@@ -4,8 +4,10 @@
 
 Boot the vm with `vagrant up`. Get a safe, stable version of puppet:
 
+    wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+    sudo dpkg -i puppetlabs-release-precise.deb
     sudo apt-get update
-    sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
+    sudo apt-get install puppet-common=2.7.23-1puppetlabs1 puppet=2.7.23-1puppetlabs1
 
 **Option 1:** Configure against the live Puppet Master.
 
