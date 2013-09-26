@@ -1,0 +1,12 @@
+# Ignore all the modules included by the puppet file.
+apache/
+apt/
+concat/
+firewall/
+memcached/
+monitor/
+postgresql/
+puppi/
+python/
+solr/
+stdlib/
