@@ -1,48 +1,27 @@
-# Installation
+# Setup
 
-### Install a recent puppet
-
-    wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
-    sudo dpkg -i puppetlabs-release-precise.deb
+Get a safe, stable version of puppet.
     sudo apt-get update
+    sudo apt-get install sudo apt-get install puppet=2.7.11-1ubuntu2.4
 
-### Create a PuppetMaster
+Boot a VM.
+    vagrant up
 
-Clone this repository to the server. 
+##### Option 1: Configure against the live Puppet Master.
 
-    git clone $THIS_REPOSITORY
-    sudo rm -rf /etc/puppet
-    sudo ln -s $THIS_REPOSITORY/puppet /etc/
-
-Then start the daemon:
-
-    sudo puppet master --mkusers
-
-#### Applying manifests locally
-
-Configure /etc/hosts
-
+    sudo ln -fs /vagrant/puppet/tmp.conf /etc/puppet/tmp.conf
+    
     # /etc/hosts
-    127.0.0.1 puppet
+    46.43.41.25 puppet
 
-Run a one-shot puppet agent:
-
-    export FACTER_ckan=true     # if you want ckan
-    export FACTER_drupal=true   # if you want drupal
+    export FACTER_CKAN=true
+    export FACTER_CKAN=false
     sudo -E puppet agent --test
 
-#### Applying manifests on a remote machine.
+##### Option 2: Run a local Puppet Master.
 
-Configure /etc/hosts
+    See [puppet/README.md].
 
-    # /etc/hosts
-    $PUPPET_MASTER_IP puppet
-
-Install the puppet-agent daemon. No need to clone this repo.
-
-* Edit /etc/default/puppet to have `START=yes`
-* Edit /etc/puppet/puppet.conf to point at the puppet master.
-* `sudo /etc/init.d/puppet start`
 
 # Migration (TODO rewrite)
 
