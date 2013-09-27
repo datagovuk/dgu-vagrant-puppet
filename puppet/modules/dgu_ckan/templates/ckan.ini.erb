@@ -172,12 +172,6 @@ ckan.dump_dir = %(here)s/dump
 # Directory for SQL database backups
 ckan.backup_dir = %(here)s/backup
 
-# Default authorizations for new domain objects
-#ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
-#ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
-#ckan.default_roles.System = {"visitor": ["anon_editor"], "logged_in": ["editor"]}
-#ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
-
 ## Ckan public and private recaptcha keys [localhost]
 #ckan.recaptcha.publickey =
 #ckan.recaptcha.privatekey =
@@ -226,6 +220,16 @@ ckan.feeds.author_link =
 ## Webstore
 ## Uncommment to enable datastore
 # ckan.datastore.enabled = 1
+
+ckan.auth.anon_create_dataset = false
+ckan.auth.create_dataset_if_not_in_organization = false
+ckan.auth.create_unowned_dataset = false
+ckan.auth.user_create_organizations = false
+ckan.auth.user_create_groups = false
+ckan.auth.user_delete_groups = false
+ckan.auth.user_delete_organizations = false
+ckan.auth.create_user_via_api = false
+ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 ## ===================================
 ## Extensions
