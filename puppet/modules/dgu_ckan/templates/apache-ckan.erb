@@ -1,7 +1,7 @@
 # Avoid 'unable to determine server name'
 ServerName localhost
 
-<VirtualHost *:8010>
+<VirtualHost *:80>
   WSGIScriptAlias / <%= @ckan_wsgi_script %>
 
   # Used for debug mode: Force single-threaded execution
