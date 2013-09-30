@@ -19,6 +19,7 @@ user { "co":
   shell      => "/bin/bash",
   home       => "/home/co",
   groups     => ["sudo","adm","www-data"],
+  password   => '$6$0GdtHw6P$Zd7KquceLtpQn5CWtN24yA6mGy0XYgrPz7XHe4PSnbSfYHutAW3RRXQWMgw3Q56F5FzpXzuZ6R9mBpNF/58Gb.',
 }
 
 file { '/etc/fqdn':
