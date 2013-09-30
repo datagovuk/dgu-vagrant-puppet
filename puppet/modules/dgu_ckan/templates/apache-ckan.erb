@@ -2,7 +2,7 @@
 ServerName localhost
 
 <VirtualHost *:80>
-  WSGIScriptAlias / /var/ckan/wsgi_app.py
+  WSGIScriptAlias / <%= @ckan_wsgi_script %>
 
   # Used for debug mode: Force single-threaded execution
   WSGIDaemonProcess singlethreaded
@@ -10,100 +10,8 @@ ServerName localhost
 
   # pass authorization info on (needed for rest api)
   WSGIPassAuthorization On
-  ErrorLog /var/log/ckan/ckan-apache.error.log
-  CustomLog /var/log/ckan/ckan-apache.custom.log combined
-
-  Alias /data/dumps /mnt/shared/ckan_dumps/
-  <Directory /mnt/shared/ckan_dumps/>
-    FileETag MTime Size
-    Options Indexes FollowSymLinks MultiViews
-    AllowOverride All
-    Order allow,deny
-    allow from all
-  </Directory>
-
-  # CKAN Database analysis
-  Alias /data/dump_analysis /mnt/shared/ckan_dump_analysis/
-  <Directory /mnt/shared/ckan_dump_analysis/>
-          FileETag MTime Size
-          Options Indexes FollowSymLinks MultiViews
-          AllowOverride All
-          Order allow,deny
-          allow from all
-  </Directory>
-
-
-
-
-      Alias /data/reports/mi /mnt/shared/mi_reports/
-    <Directory /mnt/shared/mi_reports>
-            IndexOptions FancyIndexing HTMLTable
-            Options Indexes MultiViews FollowSymLinks
-            IndexIgnore *.log
-            IndexIgnore *.csv
-            AllowOverride None
-            Order deny,allow
-    </Directory>
-
-            # CKAN Cached resources
-    Alias /assets /vagrant/src/dgu-joint-assets/assets/
-    <Directory /vagrant/src/dgu-joint-assets/assets>
-            FileETag MTime Size
-            Options FollowSymLinks MultiViews
-            AllowOverride All
-            Order allow,deny
-            allow from all
-    </Directory>
-
-      # CKAN Resource Store
-    Alias /data/resource /mnt/shared/ckan_resource_store/
-    <Directory /mnt/shared/ckan_resource_store/>
-            FileETag MTime Size
-            Options FollowSymLinks MultiViews
-            AllowOverride All
-            Order allow,deny
-            allow from all
-    </Directory>
-
-    # Inventory setup
-    Alias /inventory/template /var/www/inventory-template
-    <Directory /var/www/inventory-template>
-        FileETag MTime Size
-        Options FollowSymLinks MultiViews
-        AllowOverride All
-        Order allow,deny
-        allow from all
-        SetEnv CKAN_CONFIG_FILE /home/co/pyenv_dgu/common.ini
-    </Directory>
-
-    # The trailing slash on the next two items is important
-    WSGIScriptAlias /unpublished/ /var/ckan/wsgi_app.py/
-    WSGIScriptAlias /inventory/ /var/ckan/wsgi_app.py/
-    WSGIScriptAlias /data /var/ckan/wsgi_app.py
-    WSGIScriptAlias /dataset /var/ckan/wsgi_app.py
-    WSGIScriptAlias /publisher /var/ckan/wsgi_app.py
-    #Alias /css /home/co/pyenv_dgu/src/ckanext-dgu/ckanext/dgu/theme/public/css
-    #Alias /images /home/co/pyenv_dgu/src/ckanext-dgu/ckanext/dgu/theme/public/images
-    #Alias /scripts /home/co/pyenv_dgu/src/ckanext-dgu/ckanext/dgu/theme/public/scripts
-    WSGIScriptAlias /css /var/ckan/wsgi_app.py
-    WSGIScriptAlias /images /var/ckan/wsgi_app.py
-    WSGIScriptAlias /scripts /var/ckan/wsgi_app.py
-    WSGIScriptAlias /api /var/ckan/wsgi_app.py
-    WSGIScriptAlias /geoserver /var/ckan/wsgi_app.py
-    WSGIScriptAlias /harvest /var/ckan/wsgi_app.py
-    WSGIScriptAlias /ckanext /var/ckan/wsgi_app.py
-    WSGIScriptAlias /ckan-admin /var/ckan/wsgi_app.py
-    WSGIScriptAlias /qa /var/ckan/wsgi_app.py
-    WSGIScriptAlias /revision /var/ckan/wsgi_app.py
-    WSGIScriptAlias /feeds /var/ckan/wsgi_app.py
-    WSGIScriptAlias /img /var/ckan/wsgi_app.py
-    WSGIScriptAlias /csw /var/ckan/wsgi_app.py
-    WSGIScriptAlias /font /var/ckan/wsgi_app.py
-    # NB Before you add one, check with Pawel it isn't used by Drupal
-
-     # CKAN / OS Widget map tile proxy
-    ProxyPass /geoserver/ http://osinspiremappingprod.ordnancesurvey.co.uk/geoserver/
-    ProxyPassReverse /geoserver/ http://osinspiremappingprod.ordnancesurvey.co.uk/geoserver/
+  ErrorLog <%= @ckan_apache_errorlog %>
+  CustomLog <%= @ckan_apache_customlog %> combined
 
   # Possible values include: debug, info, notice, warn, error, crit,
   # alert, emerg.
