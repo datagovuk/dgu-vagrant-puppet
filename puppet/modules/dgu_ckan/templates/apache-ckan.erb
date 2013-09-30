@@ -2,7 +2,7 @@
 ServerName localhost
 
 <VirtualHost *:80>
-  #WSGIScriptAlias / /var/ckan/wsgi_app.py
+  WSGIScriptAlias / /var/ckan/wsgi_app.py
 
   # Used for debug mode: Force single-threaded execution
   WSGIDaemonProcess singlethreaded

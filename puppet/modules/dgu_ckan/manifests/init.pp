@@ -16,8 +16,7 @@ class dgu_ckan {
       install_dev => true
   }
 
-  # Uses custom fact:
-  #  $ckan_virtualenv
+  $ckan_virtualenv = '/home/co/ckan'
 
   class { 'python':
     version    => 'system',
@@ -104,6 +103,7 @@ class dgu_ckan {
     'python-openid==2.2.5',
     'pytz==2012j',
     'pyutilib.component.core==4.6',
+    'redis==2.8.0',
     'repoze.who==1.0.19',
     'repoze.who-friendlyform==1.0.8',
     'repoze.who.plugins.openid==0.5.3',
@@ -118,46 +118,107 @@ class dgu_ckan {
     'pep8==1.4.6',
   ]
   dgu_ckan::pip_package { $pip_pkgs_remote:
-    require => Python::Virtualenv[$ckan_virtualenv],
-    ensure     => present,
-    owner      => 'co',
-    local      => false,
+    require         => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
   }
-  $pip_pkgs_local = [
-    'ckan',
-    'ckanext-dgu',
-    'ckanext-os',
-    'ckanext-qa',
-    'ckanext-spatial',
-    'ckanext-harvest',
-    'ckanext-archiver',
-    'ckanext-ga-report',
-    'ckanext-datapreview',
-    'ckanext-importlib',
-    'ckanext-hierarchy',
-    'logreporter',
-  ]
-  dgu_ckan::pip_package { $pip_pkgs_local:
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckan@release-v2.0.1-dgu#egg=ckan':
     require => Python::Virtualenv[$ckan_virtualenv],
-    ensure  => present,
-    owner   => 'co',
-    local   => true,
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => "datagovuk/ckan@",
   }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-archiver@master#egg=ckanext-archiver':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-archiver@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-datapreview@master#egg=ckanext-datapreview':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-datapreview@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-dgu@2.0#egg=ckanext-dgu':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-dgu@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-ga-report@master#egg=ckanext-ga-report':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-ga-report@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-harvest@2.0#egg=ckanext-harvest':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-harvest@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-os@master#egg=ckanext-os':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-os@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-qa@2.0#egg=ckanext-qa':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-qa@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-spatial@dgu#egg=ckanext-spatial':
+    require         => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-spatial@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/okfn/ckanext-importlib@master#egg=ckanext-importlib':
+    require         => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'okfn/ckanext-importlib@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/ckanext-hierarchy@master#egg=ckanext-hierarchy':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/ckanext-hierarchy@',
+  }
+  dgu_ckan::pip_package { '-e git+git://github.com/datagovuk/logreporter.git@master#egg=logreporter.git':
+    require         => [ 
+      Python::Virtualenv[$ckan_virtualenv],
+      Dgu_ckan::Pip_package['pytz==2012j'],
+    ],
+    notify          => Exec['setup_virtualenv_permissions'],
+    owner           => 'co',
+    virtualenv_root => $ckan_virtualenv,
+    grep            => 'datagovuk/logreporter.git@',
+  }
+
   # Not all Pip packages come with a global read permission
   exec {'setup_virtualenv_permissions':
-    subscribe => [
-      Dgu_ckan::Pip_package[$pip_pkgs_remote],
-      Dgu_ckan::Pip_package[$pip_pkgs_local],
-    ],
-    command   => "chmod -R a+r $ckan_virtualenv/lib",
-    user      => "root",
-    path      => "/usr/bin:/bin:/usr/sbin",
+    notify  => Notify['virtualenv_ready'],
+    command => "chmod -R a+r $ckan_virtualenv/lib",
+    user    => "root",
+    path    => "/usr/bin:/bin:/usr/sbin",
   }
   notify { "virtualenv_ready":
-    require => [
-      Dgu_ckan::Pip_package[$pip_pkgs_remote],
-      Dgu_ckan::Pip_package[$pip_pkgs_local],
-    ],
     message => "All Pip packages are installed. VirtualEnv is ready.",
   }
 
