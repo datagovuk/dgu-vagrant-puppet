@@ -179,7 +179,9 @@ solr_url = http://127.0.0.1:8983/solr
 # Directory for logs (produced by cron scripts associated with ckan)
 ckan.log_dir = %(here)s/log
 # Directory for JSON/CSV dumps (must match setting in apache config)
-ckan.dump_dir = %(here)s/dump
+ckan.dump_dir = /mnt/shared/ckan_dumps
+ckan.dump_analysis_dir = /mnt/shared/ckan_dump_analysis
+
 # Directory for SQL database backups
 ckan.backup_dir = %(here)s/backup
 

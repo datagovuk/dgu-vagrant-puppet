@@ -18,7 +18,7 @@
 0 4 * * 6  co  /home/co/ckan/bin/paster --plugin=ckanext-qa qa update --config=/var/ckan/ckan.ini
 
 # MI Reports (weekly)
-#41 6 * * 7  root  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /home/co/ckan/reports/mi/ -z --config=/var/ckan/ckan.ini
+41 6 * * 7  root  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /mnt/shared/mi_reports/ -z --config=/var/ckan/ckan.ini
 
 # Runs scrapers that we may have installed at 3AM every day.
 0 3 * * *   co  /home/co/ckan/bin/paster --plugin=ckanext-dgu scrape_resources --config=/var/ckan/ckan.ini
@@ -30,7 +30,6 @@
 
 # Log reporting emails
 10 0 * * *   root  /home/co/ckan/bin/log-reporter --logs "/var/log/ckan/gather_consumer.log,/var/log/ckan/fetch_consumer.log,/var/log/ckan/ckan-apache.error.log,/var/log/ckan/celeryd.log,/var/log/ckan/ckan.log" --recipients "david.read@hackneyworkshop.com,ross@servercode.co.uk" --hours 24 --server "localhost:25"
-
 
 # NB When you edit this file, you have to alert cron to the change at the
 # end of the symbolic link, so recreate the link:
