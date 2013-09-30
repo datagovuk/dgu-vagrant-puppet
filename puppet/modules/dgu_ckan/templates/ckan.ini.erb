@@ -74,7 +74,7 @@ ckan.cache_url_root = http://localhost:5000/data/resource_cache/
 
 
 ckan.spatial.srid = 4258
-sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost:6432/<%= @ckan_db %>
+sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost/<%= @ckan_db %>
 
 # repoze.who config
 who.config_file = <%= @ckan_who_ini %>
