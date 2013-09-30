@@ -555,5 +555,14 @@ class dgu_ckan {
     source => "puppet:///modules/dgu_ckan/noserc_template",
     mode   => 644,
   }
+
+  # Redis
+  class { 'redis':
+    #version            => '2.4.17',
+    #redis_port         => '6900',
+    #redis_bind_address => '10.1.2.3',
+    #redis_password     => hiera('redis_password'),
+    #redis_max_memory   => '1gb',
+  }
 }
 
