@@ -1,47 +1,43 @@
 #!/bin/sh
 
-# SOURCE: https://github.com/purple52/librarian-puppet-vagrant
+# Simple application of the README file to a fresh (precise64) Vagrant VM.
+# You could work all this out if you read the README.
 
-mkdir ~/.puppet
-ln -s /vagrant/puppet/modules ~/.puppet
-
-# Directory in which librarian-puppet should manage its modules directory
-PUPPET_DIR=/etc/puppet/
-
-# NB: librarian-puppet might need git installed. If it is not already installed
-# in your basebox, this will manually install it at this point using apt or yum
-
+$(which puppet > /dev/null 2>&1)
+FOUND_PUPPET=$?
 $(which git > /dev/null 2>&1)
 FOUND_GIT=$?
+$(which librarian-puppet > /dev/null 2>&1)
+FOUND_LIBRARIAN=$?
+$(stat /etc/puppet/Puppetfile > /dev/null 2>&1)
+FOUND_PUPPETFILE=$?
+
+if [ "$FOUND_PUPPET" -ne '0' ]; then
+  wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+  sudo dpkg -i puppetlabs-release-precise.deb
+  sudo apt-get update
+  sudo apt-get install -y puppet-common=2.7.23-1puppetlabs1 puppet=2.7.23-1puppetlabs1
+fi
+
 if [ "$FOUND_GIT" -ne '0' ]; then
-  echo 'Attempting to install git.'
-  $(which apt-get > /dev/null 2>&1)
-  FOUND_APT=$?
-  $(which yum > /dev/null 2>&1)
-  FOUND_YUM=$?
-
-  if [ "${FOUND_YUM}" -eq '0' ]; then
-    yum -q -y makecache
-    yum -q -y install git
-    echo 'git installed.'
-  elif [ "${FOUND_APT}" -eq '0' ]; then
-    apt-get -q -y update
-    apt-get -q -y install git
-    echo 'git installed.'
-  else
-    echo 'No package installer available. You may need to install git manually.'
-  fi
-else
-  echo 'git found.'
+  sudo apt-get install -y git
+fi
+if [ "$FOUND_LIBRARIAN" -ne '0' ]; then
+  sudo gem librarian-puppet install
+fi
+if [ "$FOUND_PUPPETFILE" -ne '0' ]; then
+  sudo mv /etc/puppet{,.old}
+  sudo ln -s /vagrant/puppet /etc/
 fi
 
-mkdir -p $PUPPET_DIR
-cp /vagrant/puppet/Puppetfile $PUPPET_DIR
+cd /etc/puppet/
+sudo librarian-puppet install --verbose
 
-if [ "$(gem search -i librarian-puppet)" = "false" ]; then
-  gem install librarian-puppet
-  cd $PUPPET_DIR && librarian-puppet install --clean
-else
-  cd $PUPPET_DIR && librarian-puppet update --verbose
-fi
+echo "Provisioning complete."
+echo "Run a local puppet master:"
+echo "  sudo puppet master --mkusers"
+echo "Update /etc/hosts with the line:"
+echo "  127.0.0.1 puppet"
+echo "Run a puppet agent:"
+echo "  sudo puppet agent --test"
 
