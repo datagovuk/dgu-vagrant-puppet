@@ -23,7 +23,7 @@ sub vcl_recv {
   # NB the regex must correspond with the WSGIScriptAlias URLs listed in the apache config
 
   # We can merge these and let nginx proxy as necessary
-  if (req.url ~ "^/(data|dataset|publisher|unpublished|inventory|css|images|scripts|api|geoserver|harvest|ckanext|ckanXadmin|qa|revision|feeds|img|csw|assets)") {
+  if (req.url ~ "^/(data|dataset|font|publisher|unpublished|inventory|css|images|scripts|api|geoserver|harvest|ckanext|ckan-admin|qa|revision|feeds|img|csw|assets)") {
     set req.backend = ckanbackend;
     set req.http.X-App = "ckan";
   }

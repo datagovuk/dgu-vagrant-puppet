@@ -18,7 +18,7 @@ backend drupalbackend {
 }
 backend ckanbackend {
       .host = "127.0.0.1";
-      .port = "8000";
+      .port = "8010";   # Apache
       .connect_timeout = 5s;
       .first_byte_timeout = 60s;
       .between_bytes_timeout = 10s;
