@@ -136,6 +136,8 @@ class dgu_ckan {
     'ckanext-importlib',
     'ckanext-hierarchy',
     'logreporter',
+    'datautildate',
+    'datautil'
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => Python::Virtualenv[$ckan_virtualenv],
@@ -434,7 +436,7 @@ class dgu_ckan {
       File["solr_schema_xml"],
       File["/etc/default/jetty"],
       File["/etc/init.d/jetty"],
-      File['/etc/solr/conf'], 
+      File['/etc/solr/conf'],
       File['/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml'],
     ],
   }

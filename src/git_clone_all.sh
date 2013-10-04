@@ -70,3 +70,13 @@ cd logreporter
 git checkout master
 cd -
 
+git clone   git@github.com:okfn/datautil.git
+cd datautil
+git checkout master
+cd -
+
+git clone   git@github.com:okfn/datautildate.git
+cd datautildate
+git checkout master
+cd -
+
