@@ -1,7 +1,15 @@
 # Avoid 'unable to determine server name'
 ServerName co-prod3.dh.bytemark.co.uk
 
-<VirtualHost 127.0.0.1:8010>
+<VirtualHost *:8080>
+
+        <Location /server-status>
+            SetHandler server-status
+
+            Order Deny,Allow
+            Deny from all
+            Allow from 127.0.0.1
+        </Location>
 
        #Make sure our API is protected
         <Location /services >
@@ -33,8 +41,8 @@ ServerName co-prod3.dh.bytemark.co.uk
         </Directory>
 
         # CKAN Cached resources
-        Alias /assets /vagrant/src/dgu-joint-assets/assets/
-        <Directory /vagrant/src/dgu-joint-assets/assets/>
+        Alias /assets /vagrant/src/shared_dguk_assets/assets/
+        <Directory /vagrant/src/shared_dguk_assets/assets/>
                 FileETag MTime Size
                 Options FollowSymLinks MultiViews
                 AllowOverride All
@@ -83,6 +91,7 @@ ServerName co-prod3.dh.bytemark.co.uk
         </Directory>
 
         # CKAN paths
+        WSGIScriptAlias / /var/ckan/wsgi_app.py
         WSGIScriptAlias /inventory/ /var/ckan/wsgi_app.py/
         WSGIScriptAlias /unpublished/ /var/ckan/wsgi_app.py/
         WSGIScriptAlias /data /var/ckan/wsgi_app.py
@@ -111,6 +120,7 @@ ServerName co-prod3.dh.bytemark.co.uk
         # pass authorization info on (needed for rest api)
         WSGIPassAuthorization On
 
+  ErrorDocument 404 /404
 
   ErrorLog /var/log/ckan/ckan-apache.error.log
   CustomLog /var/log/ckan/ckan-apache.custom.log combined

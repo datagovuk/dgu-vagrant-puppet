@@ -25,9 +25,9 @@
 
 
 # ONS import (daily at 9.40 and 12.00 and on 1st of the month)
-40 9 * * *   co   /home/co/ckan/bin/ons_loader -d 7 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
-0 12 * * *   co   /home/co/ckan/bin/ons_loader -d 1 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
-0 1 1 * *   co   /home/co/ckan/bin/ons_loader --months-since 2012-01 -f -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+40 9 * * *   co   /home/co/ckan/bin/ons_loader -d 7 -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+0 12 * * *   co   /home/co/ckan/bin/ons_loader -d 1 -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+0 1 1 * *   co   /home/co/ckan/bin/ons_loader --months-since 2012-01 -f -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
 
 # Log reporting emails
 10 0 * * *   root  /home/co/ckan/bin/log-reporter --logs "/var/log/ckan/gather_consumer.log,/var/log/ckan/fetch_consumer.log,/var/log/ckan/ckan-apache.error.log,/var/log/ckan/celeryd.log,/var/log/ckan/ckan.log" --recipients "david.read@hackneyworkshop.com,ross@servercode.co.uk" --hours 24 --server "localhost:25"
