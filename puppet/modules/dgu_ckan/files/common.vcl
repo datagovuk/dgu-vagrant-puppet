@@ -10,7 +10,21 @@ acl ClearCache {
     "co-staging2.dh.bytemark.co.uk";
 }
 
+
+sub vcl_error {
+    if (obj.status == 750) {
+        set obj.http.Location = "http://co-prod3.dh.bytemark.co.uk" + req.url;
+        set obj.status = 301;
+        return (deliver);
+    }
+}
+
 sub vcl_recv {
+   if ( req.http.host ~ "^www.co-prod3.dh.bytemark.co.uk" &&
+            req.http.X-Forwarded-Proto !~ "(?i)https") {
+        error 750 "Moved Permanently";
+    }
+
   set req.http.X-Forwarded-For = client.ip;
   set req.grace = 3m;
 
@@ -104,6 +118,10 @@ sub vcl_recv {
 
 
 sub vcl_fetch {
+
+  if ( beresp.status >= 500 ) {
+    set beresp.ttl = 0s;
+  }
 
   if (req.url ~ "^/sites") {
     unset beresp.http.set-cookie;
