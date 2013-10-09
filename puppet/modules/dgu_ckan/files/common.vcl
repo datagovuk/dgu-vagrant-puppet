@@ -12,6 +12,8 @@ acl ClearCache {
 
 
 sub vcl_error {
+    # If we get our magic, invented http code, redirect the response (+url) to
+    # data.gov.uk instead.
     if (obj.status == 750) {
         set obj.http.Location = "http://co-prod3.dh.bytemark.co.uk" + req.url;
         set obj.status = 301;
@@ -20,6 +22,12 @@ sub vcl_error {
 }
 
 sub vcl_recv {
+
+   # Sanitize the host header to remove port numbers
+   set req.http.Host = regsub(req.http.Host, ":[0-9]+", "");
+
+   # Redirect requests to www. to just the hostname part
+   # www.data.gov.uk will eventually 301 to data.gov.uk (see vcl_error)
    if ( req.http.host ~ "^www.co-prod3.dh.bytemark.co.uk" &&
             req.http.X-Forwarded-Proto !~ "(?i)https") {
         error 750 "Moved Permanently";
