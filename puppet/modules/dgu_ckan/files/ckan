@@ -6,7 +6,7 @@
 */10 *  * * *   www-data   /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
 # Gov_daily script
-0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan_root_user.ini
 
 # Archive resources (every Friday night)
 0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
@@ -15,7 +15,7 @@
 0 4 * * 6  www-data  /home/co/ckan/bin/paster --plugin=ckanext-qa qa update --config=/var/ckan/ckan.ini
 
 # MI Reports (weekly)
-41 6 * * 7  root  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /mnt/shared/mi_reports/ -z --config=/var/ckan/ckan.ini
+41 6 * * 7  www-data  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /mnt/shared/mi_reports/ -z --config=/var/ckan/ckan.ini
 
 # Runs scrapers that we may have installed at 3AM every day.
 0 3 * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-dgu scrape_resources --config=/var/ckan/ckan.ini
