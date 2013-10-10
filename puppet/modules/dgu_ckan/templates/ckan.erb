@@ -3,35 +3,32 @@
 # m h  dom mon dow  user  command
 
 # Run any created harvest jobs (created by refreshing a harvest source)
-*/10 *  * * *   co   /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
-
-# Nightly backup (now done in the gov_daily)
-## 0 23 *  * * *  root  /home/co/ckan/bin/paster --plugin=ckan db dump /var/backups/ckan/dgu-`date +"\%Y-\%m-\%d"`.pg_dump --config=/var/ckan/ckan.ini && gzip /var/backups/ckan/dgu-`date +"\%Y-\%m-\%d"`.pg_dump
+*/10 *  * * *   www-data   /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
 # Gov_daily script
-0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan_root_user.ini
 
 # Archive resources (every Friday night)
-0 22 * * 5  co  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
+0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
 
 # Openness scores (every Saturday morning)
-0 4 * * 6  co  /home/co/ckan/bin/paster --plugin=ckanext-qa qa update --config=/var/ckan/ckan.ini
+0 4 * * 6  www-data  /home/co/ckan/bin/paster --plugin=ckanext-qa qa update --config=/var/ckan/ckan.ini
 
 # MI Reports (weekly)
-41 6 * * 7  root  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /mnt/shared/mi_reports/ -z --config=/var/ckan/ckan.ini
+41 6 * * 7  www-data  /home/co/ckan/bin/paster --plugin=ckanext-dgu uklpreports /mnt/shared/mi_reports/ -z --config=/var/ckan/ckan.ini
 
 # Runs scrapers that we may have installed at 3AM every day.
-0 3 * * *   co  /home/co/ckan/bin/paster --plugin=ckanext-dgu scrape_resources --config=/var/ckan/ckan.ini
-
+0 3 * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-dgu scrape_resources --config=/var/ckan/ckan.ini
 
 # ONS import (daily at 9.40 and 12.00 and on 1st of the month)
-40 9 * * *   co   /home/co/ckan/bin/ons_loader -d 7 -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
-0 12 * * *   co   /home/co/ckan/bin/ons_loader -d 1 -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
-0 1 1 * *   co   /home/co/ckan/bin/ons_loader --months-since 2012-01 -f -H http://localhost:8080/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+40 9 * * *   www-data   /home/co/ckan/bin/ons_loader -d 7 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+0 12 * * *   www-data   /home/co/ckan/bin/ons_loader -d 1 -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+0 1 1 * *   www-data   /home/co/ckan/bin/ons_loader --months-since 2012-01 -f -H http://localhost/api -k b42175db-0f18-465a-b906-ec8139837ae0 -l /var/log/ckan/ons_loader.log
+
+# Generate reports (every morning)
+0 3  * * *  www-data  /home/co/ckan/bin/paster --plugin=ckan cache-reports generate --config=/var/ckan/ckan.ini
+
+0 8-20/2 * * * www-data /home/co/ckan/bin/paster --plugin=ckan cache-reports generate feedback-report --config=/var/ckan/ckan.ini
 
 # Log reporting emails
 10 0 * * *   root  /home/co/ckan/bin/log-reporter --logs "/var/log/ckan/gather_consumer.log,/var/log/ckan/fetch_consumer.log,/var/log/ckan/ckan-apache.error.log,/var/log/ckan/celeryd.log,/var/log/ckan/ckan.log" --recipients "david.read@hackneyworkshop.com,ross@servercode.co.uk" --hours 24 --server "localhost:25"
-
-# NB When you edit this file, you have to alert cron to the change at the
-# end of the symbolic link, so recreate the link:
-# sudo rm /etc/cron.d/ckan && sudo ln -s /home/co/dgu/build/system/etc/cron.d/ckan /etc/cron.d/ckan
