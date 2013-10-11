@@ -50,16 +50,6 @@ ServerName co-prod3.dh.bytemark.co.uk
                 allow from all
         </Directory>
 
-        # CKAN Cached resources
-        Alias /data/resource_cache /mnt/shared/ckan_resource_cache/
-        <Directory /mnt/shared/ckan_resource_cache/>
-                FileETag MTime Size
-                Options FollowSymLinks MultiViews
-                AllowOverride All
-                Order allow,deny
-                allow from all
-        </Directory>
-
         # CKAN Resource Store
         Alias /data/resource /mnt/shared/ckan_resource_store/
         <Directory /mnt/shared/ckan_resource_store/>

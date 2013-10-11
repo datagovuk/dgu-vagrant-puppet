@@ -74,8 +74,9 @@ ckan.legacy_templates = true
 # execute malicious code after an exception is raised.
 # set debug = false
 
-ckanext-archiver.archive_dir = /tmp/resource_cache
-ckan.cache_url_root = http://localhost:5000/data/resource_cache/
+# Folder should be owned by co.www-data and chmod -R g+w
+ckanext-archiver.archive_dir = /mnt/shared/ckan_resource_cache
+ckan.cache_url_root = http://data.gov.uk/data/resource_cache/
 
 ckan.spatial.srid = 4258
 sqlalchemy.url = postgresql://<%= @ckan_db_user%>:<%= @ckan_db_pass %>@localhost:6432/<%= @ckan_db %>

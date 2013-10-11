@@ -16,7 +16,6 @@ Vagrant.configure("2") do |config|
   end
 
   # Allow local machines to view the VM
-  #config.vm.network :public_network
   config.vm.network :forwarded_port, host: 2008, guest: 80
   config.vm.network :forwarded_port, host: 2983, guest: 8983
   config.vm.network :forwarded_port, host: 2432, guest: 5433
@@ -26,6 +25,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     config.vm.box = "precise64"
     config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     # This allows symlinks to be created within the /vagrant root directory, 
     # which is something librarian-puppet needs to be able to do. This might
     # be enabled by default depending on what version of VirtualBox is used.
