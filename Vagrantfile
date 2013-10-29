@@ -41,6 +41,6 @@ Vagrant.configure("2") do |config|
     vmware.vmx["memsize"] = "8192"
     vmware.vmx["numvcpus"] = "8"
     vmware.vmx["displayName"] = "dgutg_vm"
-    vmware.vmx["annotation"] = "Virtualised data.gov.uk 2 environment"
+    vmware.vmx["annotation"] = "Virtualised data.gov.uk To Go environment"
   end 
 end

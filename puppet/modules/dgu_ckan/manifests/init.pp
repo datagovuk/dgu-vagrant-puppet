@@ -234,17 +234,15 @@ class dgu_ckan {
   $postgis_version = "9.1"
 
   class { "postgresql::server":
-    config_hash => {
-      'listen_addresses'           => '*',
-      'postgres_password'          => $pg_superuser_pass,
-    },
+    listen_addresses  => '*',
+    postgres_password => $pg_superuser_pass,
   }
   package {"postgresql-${postgis_version}-postgis":
     ensure => present,
     require => Class['postgresql::server'],
   }
 
-  postgresql::role { "co":
+  postgresql::server::role { "co":
     password_hash => postgresql_password("co",$pg_superuser_pass),
     createdb      => true,
     createrole    => true,
@@ -252,12 +250,12 @@ class dgu_ckan {
     superuser     => true,
     require       => Class["postgresql::server"],
   }
-  postgresql::role { $ckan_db_user:
+  postgresql::server::role { $ckan_db_user:
     password_hash => postgresql_password($ckan_db_user,$ckan_db_pass),
     login         => true,
     require       => Class["postgresql::server"],
   }
-  postgresql::role { $ckan_test_db_user:
+  postgresql::server::role { $ckan_test_db_user:
     password_hash => postgresql_password($ckan_test_db_user,$ckan_db_pass),
     login         => true,
     require       => Class["postgresql::server"],
@@ -272,7 +270,7 @@ class dgu_ckan {
     logoutput => true,
     require   => [
       Exec["createdb postgis_template"],
-      Postgresql::Role[$ckan_db_user],
+      Postgresql::Server::Role[$ckan_db_user],
       Class["postgresql::server"],
     ],
   }
@@ -287,7 +285,7 @@ class dgu_ckan {
     logoutput => true,
     require   => [
       Exec["createdb utf8_template"],
-      Postgresql::Role[$ckan_test_db_user],
+      Postgresql::Server::Role[$ckan_test_db_user],
       Class["postgresql::server"],
     ],
   }
@@ -347,7 +345,7 @@ class dgu_ckan {
     require => [
       File["/tmp/create_postgis_template.sh"],
       Package["postgresql-${postgis_version}-postgis"],
-      Postgresql::Role["co"],
+      Postgresql::Server::Role["co"],
     ]
   }
   exec {"createdb utf8_template":
@@ -357,7 +355,7 @@ class dgu_ckan {
     user    => co,
     require => [
       File["/tmp/create_utf8_template.sh"],
-      Postgresql::Role["co"],
+      Postgresql::Server::Role["co"],
     ]
   }
 
