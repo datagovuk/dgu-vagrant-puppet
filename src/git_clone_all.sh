@@ -21,7 +21,7 @@ cd -
 
 git clone	git@github.com:datagovuk/ckanext-dgu
 cd ckanext-dgu
-git checkout 2.0
+git checkout 903-redesign
 ln -s ../commit-msg.githook ./.git/hooks/commit-msg
 cd -
 
@@ -60,9 +60,9 @@ cd ckanext-hierarchy
 git checkout master
 cd -
 
-git clone	git@github.com:datagovuk/dgu-joint-assets
-cd dgu-joint-assets
-git checkout master
+git clone	git@github.com:datagovuk/shared_dguk_assets
+cd shared_dguk_assets
+git checkout redesign
 cd -
 
 git clone   git@github.com:datagovuk/logreporter.git

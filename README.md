@@ -1,20 +1,80 @@
-# Setup
+# data.gov.uk to go
 
-Clone this repo. Switch to `$THIS_REPO/src` and clone all the CKAN source repos ready for development work.
+This repo provides scripts to install a copy of data.gov.uk's website to your own server. Rebrand it and you have a fully-featured government open data portal.
 
-    cd $THIS_REPO/src
-    ./git_clone_all.sh
+Here is an overview:
+1. Machine preparation - Vagrant VM or a fresh Ubuntu 12.04 machine
+2. CKAN source - download from Github
+3. Virtual machine creation using Vagrant. (A fresh machine running Ubuntu 12.04 (Precise) works just as well.)
+3. Puppet provision of the main software packages (Apache, Postgres, SOLR etc) and set-up linux users
+4. CKAN database setup
+5. Data load (test data - optional)
+6. Drupal install
 
-Install Vagrant. Switch to this directory and launch a fully provisioned Virtual Machine:
+### Suggested system requirements:
 
+* 24GB RAM
+* 8 cores
+* 200GB disc
+
+## 1. Machine preparation
+
+### Download this build repo from Github
+
+Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the to-go branch:
+
+    git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
+    cd dgu-vagrant-puppet
+    git checkout togo
+
+### Option 1: Virtual Machine creation
+
+Install Vagrant. Launch a fully provisioned Virtual Machine as described in this repo:
+
+    cd $THIS_REPO
     vagrant up
+    vagrant ssh
 
-To provision an existing machine, rename it to "ckan" and execute the manifest. Inside the VM:
+The prompt will change to show your terminal is connected to the virtual machine. All further steps are from this ssh session on the VM.
+
+### Option 2: Fresh machine preparation
+
+Instead of using a virtual-machine it is perfectly fine alternative to use a non-virtual machine, freshly installed with Ubuntu 12.04. The Puppet scripts assume the name of the machine is 'ckan', so you need to ssh to it and rename it:
 
     sudo hostname ckan
     sudo vim /etc/hosts
     # ^ add "127.0.0.1  ckan" to hosts...
+
+Puppet also assumes your home user is 'co', so ensure that is used.
+
+All further steps are to be carried out from the ssh session on this target machine.
+
+## 2. CKAN source - download from Github
+
+Use the script to clone all the CKAN source repos.
+
+If using a Vagrant VM, do this step on the host machine, not the VM.
+
+You may need to install git first. 
+
+    cd $THIS_REPO/src
+    ./git_clone_all.sh
+
+## 3. Puppet provision
+
+Puppet is used to install and configure the main software packages (Apache, Postgres, SOLR etc) and setup linux users.
+
+To provision an existing machine, install the puppet modules:
+
+    sudo /vagrant/puppet/install_puppet_dependancies.sh
+
+and then execute the site manifest now at /etc/puppet/:
+
     sudo puppet apply /vagrant/puppet/manifests/site.pp
+
+You can ignore this warning:
+
+    warning: Could not retrieve fact fqdn
 
 # CKAN Database setup
 
@@ -22,28 +82,23 @@ To provision an existing machine, rename it to "ckan" and execute the manifest. 
 
     source ~/ckan/bin/activate
 
-And setup a useful environment variable... 
-
-    export CKAN_INI=/var/ckan/ckan.ini
+And make sure you run paster commands from the /vagrant/src/ckan directory.
 
 #### Option 1: Use test data
 
     createdb -O dgu ckan --template template_postgis
-    paster --plugin=ckanext-ga-report initdb --config=$CKAN_INI
-    paster --plugin=ckanext-dgu create-test-data --config=$CKAN_INI
-    paster --plugin=ckan search-index rebuild --config=$CKAN_INI
+    paster --plugin=ckanext-ga-report initdb --config=ckan.ini
+    paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
+    paster search-index rebuild --config=ckan.ini
 
-#### Option 2: Download a production database
+#### Option 2: Download an existing database
 
-On the host machine: 
+At data.gov.uk we download a database (using pg_dump and gzip) from another server like:
 
-    export CKAN_DUMP_FILE=dgu_as_root_user.2013-07-09.pg_dump.gz
-    export URL=co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/$CKAN_DUMP_FILE
-    cd $THIS_REPO
-    mkdir -p db_backup && cd db_backup
-    rsync --progress $URL $CKAN_DUMP_FILE
+    mkdir -p /vagrant/db_backup
+    rsync --progress co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/dgu.2013-07-09.pg_dump.gz /vagrant/db_backup/
 
-On the VM:
+Then load the dump in:
 
     export CKAN_DUMP_FILE=`ls /vagrant/db_backup/ -t |head -n 1` && echo $CKAN_DUMP_FILE
     sudo apachectl stop
@@ -52,17 +107,15 @@ On the VM:
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
-    paster --plugin=ckan db upgrade --config=$CKAN_INI
-       # is it just me that gets a benign failure on upgrade in init_const_data?
-    # If the database is pre-CKAN 2 then run the manual migrations in the pad:
-    # http://etherpad.co-dev1.dh.bytemark.co.uk/p/ckan2
-    paster --plugin=ckan search-index rebuild --config=$CKAN_INI
+    paster db upgrade --config=ckan.ini
+    paster search-index rebuild --config=ckan.ini
 
-### Give yourself a CKAN user for debug:
+### Give yourself a CKAN user for debug (optional)
 
-    paster --plugin=ckan user remove admin --config=$CKAN_INI
-    paster --plugin=ckan user add admin email=admin@ckan password=pass --config=$CKAN_INI
-    paster --plugin=ckan sysadmin add admin --config=$CKAN_INI
+For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
+
+    paster user add admin email=admin@ckan password=pass --config=ckan.ini
+    paster sysadmin add admin --config=ckan.ini
 
 ### Paster commands
 
@@ -83,7 +136,7 @@ Examples::
     nosetests --ckan --with-pylons=test-core.ini ckan/tests/
     nosetests --ckan --with-pylons=../ckanext-spatial/test-core.ini ../ckanext-spatial/ckanext/spatial/tests
 
-### Common errors
+### Common error messages
 
 * `multiple values encountered for non multiValued field groups: [david, roger]`
 
@@ -96,8 +149,10 @@ This is caused by running the ckan tests with SQLite, rather than Postgres. Ensu
 
 # Changing Python requirements
 
-1. Add new requirement (eg. `PyMollom==0.1` to init.pp).
-2. Add the archive to this repository.
+If you change the Python requirements/dependencies, then you need change a couple of things to make sure it installs:
+
+1. Tell Puppet to install it (eg. `PyMollom==0.1` to init.pp).
+2. Add the Python module to this repo's pypi folder:
 
     cd pypi
     pip install --download_cache="." "PyMollom==0.01"
