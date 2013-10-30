@@ -1,17 +1,23 @@
-# data.gov.uk to go
+# Data.gov.uk To Go
 
 This repo provides scripts to install a copy of data.gov.uk's website to your own server. Rebrand it and you have a fully-featured government open data portal.
 
-Here is an overview:
+## About
+
+The UK Government has contributed Data.gov.uk To Go to Github to kick-start the use and development of common open data portal software, beyond the basic CKAN. UK wants to develop it in partnership with other providers of Open Data portals, through the usual Open Source / Github model of forking, pull requests, issues etc. that everyone is encouraged to contribute to.
+
+## Overview
+
+Here is an overview of the install process:
 1. Machine preparation - Vagrant VM or a fresh Ubuntu 12.04 machine
 2. CKAN source - download from Github
 3. Virtual machine creation using Vagrant. (A fresh machine running Ubuntu 12.04 (Precise) works just as well.)
 3. Puppet provision of the main software packages (Apache, Postgres, SOLR etc) and set-up linux users
 4. CKAN database setup
-5. Data load (test data - optional)
-6. Drupal install
+5. Drupal install
+6. Additional configuration
 
-### Suggested system requirements:
+## Suggested system requirements
 
 * 24GB RAM
 * 8 cores
@@ -76,7 +82,7 @@ You can ignore this warning:
 
     warning: Could not retrieve fact fqdn
 
-# CKAN Database setup
+## 4. CKAN Database setup
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -117,11 +123,12 @@ For test purposes you can add a CKAN admin user. Remember to reset the password 
     paster user add admin email=admin@ckan password=pass --config=ckan.ini
     paster sysadmin add admin --config=ckan.ini
 
-### Paster commands
+## CKAN Paster commands
 
-The VM opens in the ckan directory with the virtualenv activated and there is a symlink to the ckan.ini there, making it easy to run paster commands. 
+When running CKAN paster commands, you should activate the virtualenv and run the paster commands from the ckan source directory:
 
-Warning: Since apache runs as www-data user, reading and writing log and session files, you may get problems if you run paster as vagrant user. To avoid issue, run paster commands ``sudo -u www-data paster``. However, most of the time you can get away with it.
+    source /home/vagrant/bin/activate
+    cd /vagrant/src/ckan
 
 Examples::
 
@@ -129,31 +136,66 @@ Examples::
     paster search-index rebuild --config=ckan.ini
     paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
 
-### Testing
+Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
 
-Examples::
+## 5. Drupal install
 
-    nosetests --ckan --with-pylons=test-core.ini ckan/tests/
-    nosetests --ckan --with-pylons=../ckanext-spatial/test-core.ini ../ckanext-spatial/ckanext/spatial/tests
+For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
+here: https://github.com/drush-ops/drush
 
-### Common error messages
+Get the DGU Drupal Distribution using:
 
-* `multiple values encountered for non multiValued field groups: [david, roger]`
+    git clone https://github.com/datagovuk/dgu_d7.git
 
-SOLR complains of this when running core ckan tests with the DGU schema. Ideally we'd have SOLR multicore to have the default CKAN schema running. But we don't have this in vagrant yet, so use the dgu-vagrant-puppet branch for non-DGU ckan to test this code.
+You can install drupal with the following drush command:
 
-* `sqlalchemy.exc.OperationalError: (OperationalError) no such table: user`
+````bash
+$ drush --yes --verbose site-install dgu --account-name=admin --account-pass=password  --site-name='something creative'
+```
 
-This is caused by running the ckan tests with SQLite, rather than Postgres. Ensure you use `--with-pylons=test-core.ini` rather than the default `test.ini`. It would be good to fix up SQLite soon - it is an issue with it dropping all tables before tests spuriously.
+This will install drupal, download all the required modules and configure the system.  After this step completes successfully, you should enable some modules:
+
+````bash
+$ drush --yes en dgu_site_feature  
+$ drush --yes en composer_manager  
+$ drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page
+````
+
+We have also written some migration classes for migrating our existing Drupal 6 web site to version 7.  The order
+that we run these tasks is important.  After installation, we run the following drush commands to migrate our web site:
+
+````bash
+$ drush migrate-import --group=User --debug  
+$ drush migrate-import --group=Taxonomy  
+$ drush migrate-import --group=Files --debug  
+$ drush migrate-import --group=Datasets --debug  
+$ drush migrate-import --group=Nodes --debug  
+$ drush migrate-import --group=Paths --debug  
+$ drush migrate-import --group=Comments --debug  
+````
+
+The migration depends on finding drupal variables to tell it where to look to find files and the data,
+so, before you can run the migration, you will to add something like the following to your settings.php file:
+
+````php
+$conf['drupal6files'] = '/var/www/old_files';
+$databases['d6source']['default'] = array(
+    'driver' => 'mysql',
+    'database' => 'drupal_d6',
+    'username' => 'web',
+    'password' => 'supersecret',
+    'host' => 'localhost',
+    'prefix' => '',
+);
+````
+
+Drupal uses a second SOLR core.
+
+## 6. Additional configuration
+
+In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
+
+For a live deployment it would make sense to adjust the database passwords.
 
 
-# Changing Python requirements
-
-If you change the Python requirements/dependencies, then you need change a couple of things to make sure it installs:
-
-1. Tell Puppet to install it (eg. `PyMollom==0.1` to init.pp).
-2. Add the Python module to this repo's pypi folder:
-
-    cd pypi
-    pip install --download_cache="." "PyMollom==0.01"
 

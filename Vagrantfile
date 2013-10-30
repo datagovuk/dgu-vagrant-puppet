@@ -4,16 +4,16 @@
 Vagrant.configure("2") do |config|
 
   # These steps are manual now
-  #config.vm.provision :shell, :path => "puppet/install_puppet_dependancies.sh"
-  #config.vm.provision :puppet do |puppet|
-  #    puppet.manifests_path = "puppet/manifests"
-  #    puppet.manifest_file  = "site.pp"
-  #    puppet.facter = {
-  #      "motd" => "Built by Vagrant using librarian-puppet.",
-  #      "fqdn" => "ckan.home",
-  #      "pgpasswd" => "pass",
-  #    }
-  #end
+  config.vm.provision :shell, :path => "puppet/install_puppet_dependancies.sh"
+  config.vm.provision :puppet do |puppet|
+      puppet.manifests_path = "puppet/manifests"
+      puppet.manifest_file  = "site.pp"
+      puppet.facter = {
+        "motd" => "Built by Vagrant using librarian-puppet.",
+        "fqdn" => "ckan.home",
+        "pgpasswd" => "pass",
+      }
+  end
 
   # Allow local machines to view the VM
   config.vm.network "private_network", ip: "192.168.11.11"
