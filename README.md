@@ -9,9 +9,9 @@ The UK Government has contributed Data.gov.uk To Go to Github to kick-start the 
 ## Overview
 
 Here is an overview of the install process:
+
 1. Machine preparation - Vagrant VM or a fresh Ubuntu 12.04 machine
 2. CKAN source - download from Github
-3. Virtual machine creation using Vagrant. (A fresh machine running Ubuntu 12.04 (Precise) works just as well.)
 3. Puppet provision of the main software packages (Apache, Postgres, SOLR etc) and set-up linux users
 4. CKAN database setup
 5. Drupal install
