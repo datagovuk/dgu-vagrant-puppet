@@ -82,6 +82,8 @@ You can ignore this warning:
 
     warning: Could not retrieve fact fqdn
 
+NB There is an issue with permissions which should be resolved in a few days.
+
 ## 4. CKAN Database setup
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
