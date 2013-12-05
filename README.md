@@ -27,7 +27,7 @@ Here is an overview of the install process:
 
 ### Download this build repo from Github
 
-Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
+Clone this repo (its path will now be referred to as $THIS_REPO) move it to where this manual expexts it  and switch to the 'togo' branch:
 
     git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
     mv dgu-vagrant-puppet /vagrant
@@ -55,7 +55,7 @@ Instead of using a virtual-machine it is perfectly fine alternative to use a non
 Puppet also assumes your home user is 'co', so ensure that is created and can login as sudo.
 
     sudo adduser co
-    visudo co
+    sudo visudo
     su co
 
 You need to install some dependencies:
@@ -63,7 +63,7 @@ You need to install some dependencies:
     sudo apt-get install rubygems git
     sudo gem install librarian-puppet 
 
-All further steps are to be carried out from the ssh session on this target machine.
+All further steps are to be carried out from the ssh session undeer the user 'co'  on this target machine.
 
 ## 2. CKAN source - download from Github
 
