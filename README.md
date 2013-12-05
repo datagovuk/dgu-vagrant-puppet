@@ -10,12 +10,12 @@ The UK Government has contributed Data.gov.uk To Go to Github to kick-start the 
 
 Here is an overview of the install process:
 
-1. Machine preparation - Vagrant VM or a fresh Ubuntu 12.04 machine
-2. CKAN source - download from Github
-3. Puppet provision of the main software packages (Apache, Postgres, SOLR etc) and set-up linux users
-4. CKAN database setup
-5. Drupal install
-6. Additional configuration
+* Machine preparation - Vagrant VM or a fresh Ubuntu 12.04 machine
+* CKAN source - download from Github
+* Puppet provision of the main software packages (Apache, Postgres, SOLR etc) and set-up linux users
+* CKAN database setup
+* Drupal install
+* Additional configuration
 
 ## Suggested system requirements
 
@@ -27,11 +27,10 @@ Here is an overview of the install process:
 
 ### Download this build repo from Github
 
-Clone this repo (its path will now be referred to as $THIS_REPO) move it to where this manual expexts it  and switch to the 'togo' branch:
+Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
 
     git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
-    mv dgu-vagrant-puppet /vagrant
-    cd /vagrant
+    cd dgu-vagrant-puppet
     git checkout togo
 
 ### Option 1: Virtual Machine creation
@@ -63,7 +62,11 @@ You need to install some dependencies:
     sudo apt-get install rubygems git
     sudo gem install librarian-puppet 
 
-All further steps are to be carried out from the ssh session undeer the user 'co'  on this target machine.
+And move the dgu-vagrant-puppet repo to the place where it would end up if using Vagrant:
+
+    mv dgu-vagrant-puppet /vagrant
+
+All further steps are to be carried out from the ssh session under the user 'co' on this target machine.
 
 ## 2. CKAN source - download from Github
 
@@ -94,7 +97,33 @@ You can ignore this warning:
 
 NB There is an issue with permissions which should be resolved in a few days.
 
-## 4. CKAN Database setup
+## 4. Run Grunt on the assets
+
+Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
+
+    sudo apt-get install python-software-properties python g++ make
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install nodejs
+
+Now install the Grunt CLI tools globally:
+
+    sudo npm install -g grunt-cli
+
+For each of the two repos with assets, install the required Node modules and run the Grunt scripts:
+
+    cd /vagrant/src/ckan
+    npm install
+    grunt
+    cd /vagrant/shared_dguk_assets
+    npm install
+    grunt
+
+When changes are made to the assets in these repos, you need to rerun Grunt.
+
+There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
+
+## 5. CKAN Database setup
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -150,7 +179,7 @@ Examples::
 
 Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
 
-## 5. Drupal install
+## 6. Drupal install
 
 For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
 here: https://github.com/drush-ops/drush
@@ -213,7 +242,7 @@ $databases['d6source']['default'] = array(
 
 Drupal uses a second SOLR core.
 
-## 6. Additional configuration
+## 7. Additional configuration
 
 In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
 
