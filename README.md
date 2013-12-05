@@ -112,11 +112,11 @@ Now install the Grunt CLI tools globally:
 
 For each of the two repos with assets, install the required Node modules and run the Grunt scripts:
 
-    cd /vagrant/src/ckan
-    npm install
+    cd /vagrant/src/ckanext-dgu
+    sudo npm install
     grunt
     cd /vagrant/shared_dguk_assets
-    npm install
+    sudo npm install
     grunt
 
 When changes are made to the assets in these repos, you need to rerun Grunt.
