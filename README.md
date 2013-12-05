@@ -84,7 +84,33 @@ You can ignore this warning:
 
 NB There is an issue with permissions which should be resolved in a few days.
 
-## 4. CKAN Database setup
+## 4. Run Grunt on the assets
+
+Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
+
+    sudo apt-get install python-software-properties python g++ make
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install nodejs
+
+Now install the Grunt CLI tools globally:
+
+    sudo npm install -g grunt-cli
+
+For each of the two repos with assets, install the required Node modules and run the Grunt scripts:
+
+    cd /vagrant/src/ckan
+    npm install
+    grunt
+    cd /vagrant/shared_dguk_assets
+    npm install
+    grunt
+
+When changes are made to the assets in these repos, you need to rerun Grunt.
+
+There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
+
+## 5. CKAN Database setup
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -140,7 +166,7 @@ Examples::
 
 Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
 
-## 5. Drupal install
+## 6. Drupal install
 
 For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
 here: https://github.com/drush-ops/drush
@@ -203,7 +229,7 @@ $databases['d6source']['default'] = array(
 
 Drupal uses a second SOLR core.
 
-## 6. Additional configuration
+## 7. Additional configuration
 
 In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
 
