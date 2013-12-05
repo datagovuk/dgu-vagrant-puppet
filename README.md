@@ -30,7 +30,8 @@ Here is an overview of the install process:
 Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the to-go branch:
 
     git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
-    cd dgu-vagrant-puppet
+    mv dgu-vagrant-puppet /vagrant
+    cd /vagrant
     git checkout togo
 
 ### Option 1: Virtual Machine creation
@@ -51,7 +52,16 @@ Instead of using a virtual-machine it is perfectly fine alternative to use a non
     sudo vim /etc/hosts
     # ^ add "127.0.0.1  ckan" to hosts...
 
-Puppet also assumes your home user is 'co', so ensure that is used.
+Puppet also assumes your home user is 'co', so ensure that is created and can login as sudo.
+
+    sudo adduser co
+    visudo co
+    su co
+
+You need to install some dependencies:
+
+    sudo apt-get install rubygems git
+    sudo gem install librarian-puppet 
 
 All further steps are to be carried out from the ssh session on this target machine.
 
