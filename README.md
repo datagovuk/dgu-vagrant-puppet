@@ -27,7 +27,7 @@ Here is an overview of the install process:
 
 ### Download this build repo from Github
 
-Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the to-go branch:
+Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
 
     git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
     mv dgu-vagrant-puppet /vagrant
