@@ -56,7 +56,7 @@ class dgu_ckan {
     'Jinja2==2.7',
     'Mako==0.8.1',
     'MarkupSafe==0.15',
-    'OWSLib==0.7.2',
+    'OWSLib==0.8.2',
     'Pairtree==0.7.1-T',
     'Paste==1.7.5.1',
     'PasteDeploy==1.5.0',
