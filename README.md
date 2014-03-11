@@ -106,6 +106,11 @@ Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as wel
     sudo apt-get update
     sudo apt-get install nodejs
 
+Install npm package manager if it wasn't installed by the previous command to enable grunt to install:
+
+    npm -v
+    sudo apt-get install npm
+
 Now install the Grunt CLI tools globally:
 
     sudo npm install -g grunt-cli
@@ -115,7 +120,7 @@ For each of the two repos with assets, install the required Node modules and run
     cd /vagrant/src/ckanext-dgu
     sudo npm install
     grunt
-    cd /vagrant/shared_dguk_assets
+    cd /vagrant/src/shared_dguk_assets
     sudo npm install
     grunt
 
