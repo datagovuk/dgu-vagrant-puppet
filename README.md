@@ -41,7 +41,12 @@ Install Vagrant. Launch a fully provisioned Virtual Machine as described in this
     vagrant up
     vagrant ssh
 
-The prompt will change to show your terminal is connected to the virtual machine. All further steps are from this ssh session on the VM.
+The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user. 
+All further steps are from this ssh session on the VM after you have changed your user to 'co' with:
+
+    sudo su
+    usermod -a -G admin co
+    su co
 
 ### Option 2: Fresh machine preparation
 
@@ -100,16 +105,17 @@ NB There is an issue with permissions which should be resolved in a few days.
 ## 4. Run Grunt on the assets
 
 Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
+Ubuntu 12.04 uses an old version (0.6.x) of Node in the standard repository.
+As of Node.js v0.10.0, the nodejs package from Chris Lea's repo includes both npm and nodejs-dev.
 
     sudo apt-get install python-software-properties python g++ make
     sudo add-apt-repository ppa:chris-lea/node.js
     sudo apt-get update
     sudo apt-get install nodejs
 
-Install npm package manager if it wasn't installed by the previous command to enable grunt to install:
+Check to make sure npm was installed by nodejs:
 
     npm -v
-    sudo apt-get install npm
 
 Now install the Grunt CLI tools globally:
 
