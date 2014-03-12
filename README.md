@@ -47,6 +47,12 @@ All further steps are from this ssh session on the VM after you have changed you
     sudo su
     usermod -a -G admin co
     su co
+    
+You need to install some dependencies:
+
+    sudo apt-get install rubygems git puppet-common
+    sudo gem install librarian-puppet 
+    
 
 ### Option 2: Fresh machine preparation
 
@@ -77,7 +83,7 @@ All further steps are to be carried out from the ssh session under the user 'co'
 
 Use the script to clone all the CKAN source repos.
 
-If using a Vagrant VM, do this step on the host machine, not the VM.
+If using a Vagrant VM, do this step on the host machine, NOT the VM.
 
 You may need to install git first. 
 
