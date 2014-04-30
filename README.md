@@ -115,7 +115,7 @@ For each of the two repos with assets, install the required Node modules and run
     cd /vagrant/src/ckanext-dgu
     sudo npm install
     grunt
-    cd /vagrant/shared_dguk_assets
+    cd /vagrant/src/shared_dguk_assets
     sudo npm install
     grunt
 
