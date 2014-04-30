@@ -5,7 +5,7 @@
 #   $ckan_pip_freeze
 define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
   if $local {
-    $url = "-e /vagrant/src/${name}"
+    $url = "-e /src/${name}"
     $grep = "${name}@"
   } else {
     $url = $name

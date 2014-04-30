@@ -15,6 +15,8 @@ Vagrant.configure("2") do |config|
       }
   end
 
+  config.vm.synced_folder "src/", "/src", owner: "co", create: true
+
   # Allow local machines to view the VM
   config.vm.network "private_network", ip: "192.168.11.11"
 
