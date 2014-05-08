@@ -482,9 +482,27 @@ class dgu_ckan {
     logoutput => 'on_failure',
   }
 
-# ---------
-# Dev tools
-# ---------
+  # -----------
+  # Redis
+  # -----------
+  package {'redis-server':
+    ensure => installed,
+  }
+  dgu_ckan::pip_package { 'redis==2.9.1':
+    require => Python::Virtualenv[$ckan_virtualenv],
+    ensure  => present,
+    owner   => 'co',
+    local   => false,
+  }
+  service { 'redis-server':
+    enable    => true,
+    ensure    => running,
+    require   => Package['redis-server'],
+  }
+
+  # ---------
+  # Dev tools
+  # ---------
   file { "/home/co/.noserc":
     ensure => file,
     source => "puppet:///modules/dgu_ckan/noserc_template",
