@@ -91,7 +91,7 @@ class dgu_ckan {
     'json-table-schema==0.1',
     'kombu==2.1.3',
     'kombu-sqlalchemy==1.1.0',
-    'lxml==2.2.4',
+    'lxml==3.2.4',
     'messytables==0.10.0',
     'nose==1.3.0',
     'ofs==0.4.1',
