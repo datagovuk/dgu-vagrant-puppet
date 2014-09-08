@@ -41,7 +41,18 @@ Install Vagrant. Launch a fully provisioned Virtual Machine as described in this
     vagrant up
     vagrant ssh
 
-The prompt will change to show your terminal is connected to the virtual machine. All further steps are from this ssh session on the VM.
+The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user. 
+All further steps are from this ssh session on the VM after you have changed your user to 'co' with:
+
+    sudo su
+    usermod -a -G admin co
+    su co
+    
+You need to install some dependencies:
+
+    sudo apt-get install rubygems git puppet-common
+    sudo gem install librarian-puppet 
+    
 
 ### Option 2: Fresh machine preparation
 
@@ -72,7 +83,7 @@ All further steps are to be carried out from the ssh session under the user 'co'
 
 Use the script to clone all the CKAN source repos.
 
-If using a Vagrant VM, do this step on the host machine, not the VM.
+If using a Vagrant VM, do this step on the host machine, NOT the VM.
 
 You may need to install git first. 
 
@@ -100,11 +111,17 @@ NB There is an issue with permissions which should be resolved in a few days.
 ## 4. Run Grunt on the assets
 
 Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
+Ubuntu 12.04 uses an old version (0.6.x) of Node in the standard repository.
+As of Node.js v0.10.0, the nodejs package from Chris Lea's repo includes both npm and nodejs-dev.
 
     sudo apt-get install python-software-properties python g++ make
     sudo add-apt-repository ppa:chris-lea/node.js
     sudo apt-get update
     sudo apt-get install nodejs
+
+Check to make sure npm was installed by nodejs:
+
+    npm -v
 
 Now install the Grunt CLI tools globally:
 
@@ -115,7 +132,7 @@ For each of the two repos with assets, install the required Node modules and run
     cd /vagrant/src/ckanext-dgu
     sudo npm install
     grunt
-    cd /vagrant/shared_dguk_assets
+    cd /vagrant/src/shared_dguk_assets
     sudo npm install
     grunt
 

@@ -93,6 +93,7 @@
         WSGIScriptAlias /font /var/ckan/wsgi_app.py
         WSGIScriptAlias /organization /var/ckan/wsgi_app.py
 
+
         # CKAN / OS Widget map tile proxy
         ProxyPass /geoserver/ http://osinspiremappingprod.ordnancesurvey.co.uk/geoserver/
         ProxyPassReverse /geoserver/ http://osinspiremappingprod.ordnancesurvey.co.uk/geoserver/
