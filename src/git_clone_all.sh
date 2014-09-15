@@ -70,3 +70,7 @@ cd logreporter
 git checkout master
 cd -
 
+git clone git@github.com:datagovuk/ckanext-report
+cd ckanext-report
+git checkout master
+cd -
