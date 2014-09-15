@@ -21,7 +21,7 @@ cd -
 
 git clone	git@github.com:datagovuk/ckanext-dgu
 cd ckanext-dgu
-git checkout 903-redesign
+git checkout master
 ln -s ../commit-msg.githook ./.git/hooks/commit-msg
 cd -
 
