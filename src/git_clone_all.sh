@@ -5,7 +5,7 @@
 
 git clone	git@github.com:datagovuk/ckan
 cd ckan
-git checkout release-v2.0.1-dgu
+git checkout release-v2.2-dgu
 git remote add okfn git@github.com:okfn/ckan
 cd -
 
@@ -70,3 +70,7 @@ cd logreporter
 git checkout master
 cd -
 
+git clone git@github.com:datagovuk/ckanext-report
+cd ckanext-report
+git checkout master
+cd -
