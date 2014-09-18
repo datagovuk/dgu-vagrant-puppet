@@ -15,10 +15,18 @@ Vagrant.configure("2") do |config|
       }
   end
 
-  config.vm.synced_folder "src/", "/src", owner: "co", create: true
-
   # Allow local machines to view the VM
   config.vm.network "private_network", ip: "192.168.11.11"
+
+  # Set owner of the src to co
+  #config.vm.synced_folder "src/", "/src", owner: "co", create: true
+  # To get the owner of the 'src' dir to be 'co', we need to set it using a
+  # uid, because the first time you do 'vagrant up' the folder is created
+  # before the 'co' user exists.
+  config.vm.synced_folder "src/", "/src", create: true, :mount_options => ["uid=510"]
+  # Once the 'co' user has been created on the first 'vagrant up' you can uncomment this
+  # line to ssh in as co by default. Just don't commit that change!
+  #config.ssh.username = "co"
 
   config.vm.provider :virtualbox do |vb|
     config.vm.box = "precise64"

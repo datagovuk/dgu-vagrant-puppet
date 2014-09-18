@@ -36,7 +36,7 @@ mkdir -p $PUPPET_DIR
 cp /vagrant/puppet/Puppetfile $PUPPET_DIR
 
 if [ "$(gem search -i librarian-puppet)" = "false" ]; then
-  gem install librarian-puppet
+  gem install librarian-puppet -v 1.0.3
   cd $PUPPET_DIR && librarian-puppet install --clean
 else
   cd $PUPPET_DIR && librarian-puppet update --verbose

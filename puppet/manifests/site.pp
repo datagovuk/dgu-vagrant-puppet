@@ -15,6 +15,7 @@ user { "co":
   require    => Group["co"],
   ensure     => present,
   managehome => true,
+  uid        => "510",
   gid        => "co",
   shell      => "/bin/bash",
   home       => "/home/co",

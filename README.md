@@ -35,10 +35,20 @@ Clone this repo (its path will now be referred to as $THIS_REPO) and switch to t
 
 ### Option 1: Virtual Machine creation
 
-Install Vagrant. Launch a fully provisioned Virtual Machine as described in this repo:
+Before creating the virtual machine, use the script to clone all the CKAN source repos onto your host machine.
+
+You may need to install git first.
+
+    cd $THIS_REPO/src
+    ./git_clone_all.sh
+
+Now install Vagrant. Launch a fully provisioned Virtual Machine as described in this repo:
 
     cd $THIS_REPO
     vagrant up
+
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+
     vagrant ssh
 
 The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user. 
@@ -47,12 +57,7 @@ All further steps are from this ssh session on the VM after you have changed you
     sudo su
     usermod -a -G admin co
     su co
-    
-You need to install some dependencies:
 
-    sudo apt-get install rubygems git puppet-common
-    sudo gem install librarian-puppet 
-    
 
 ### Option 2: Fresh machine preparation
 
@@ -71,7 +76,7 @@ Puppet also assumes your home user is 'co', so ensure that is created and can lo
 You need to install some dependencies:
 
     sudo apt-get install rubygems git
-    sudo gem install librarian-puppet 
+    sudo gem install librarian-puppet -v 1.0.3
 
 And move the dgu-vagrant-puppet repo to the place where it would end up if using Vagrant:
 
@@ -79,18 +84,12 @@ And move the dgu-vagrant-puppet repo to the place where it would end up if using
 
 All further steps are to be carried out from the ssh session under the user 'co' on this target machine.
 
-## 2. CKAN source - download from Github
-
 Use the script to clone all the CKAN source repos.
-
-If using a Vagrant VM, do this step on the host machine, NOT the VM.
 
 You may need to install git first. 
 
     cd $THIS_REPO/src
     ./git_clone_all.sh
-
-## 3. Puppet provision
 
 Puppet is used to install and configure the main software packages (Apache, Postgres, SOLR etc) and setup linux users.
 
@@ -102,13 +101,10 @@ and then execute the site manifest now at /etc/puppet/:
 
     sudo puppet apply /vagrant/puppet/manifests/site.pp
 
-You can ignore this warning:
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
 
-    warning: Could not retrieve fact fqdn
 
-NB There is an issue with permissions which should be resolved in a few days.
-
-## 4. Run Grunt on the assets
+## 2. Run Grunt on the assets
 
 Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
 Ubuntu 12.04 uses an old version (0.6.x) of Node in the standard repository.
@@ -140,7 +136,7 @@ When changes are made to the assets in these repos, you need to rerun Grunt.
 
 There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
 
-## 5. CKAN Database setup
+## 3. CKAN Database setup
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -196,7 +192,7 @@ Examples::
 
 Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
 
-## 6. Drupal install
+## 4. Drupal install
 
 For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
 here: https://github.com/drush-ops/drush
@@ -259,11 +255,20 @@ $databases['d6source']['default'] = array(
 
 Drupal uses a second SOLR core.
 
-## 7. Additional configuration
+## 5. Additional configuration
 
 In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
 
 For a live deployment it would make sense to adjust the database passwords.
 
 
+# Puppet warnings
+
+These messages will be seen during provisioning with Puppet, and are harmless:
+
+    warning: Could not retrieve fact fqdn
+    stdin: is not a tty
+    dpkg-preconfigure: unable to re-open stdin: No such file or directory
+    warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
+    warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
 

@@ -14,6 +14,11 @@ cd ckanext-archiver
 git checkout master
 cd -
 
+git clone	git@github.com:datagovuk/ckanext-certificates
+cd ckanext-certificates
+git checkout master
+cd -
+
 git clone	git@github.com:datagovuk/ckanext-datapreview
 cd ckanext-datapreview
 git checkout master
@@ -35,6 +40,11 @@ cd ckanext-harvest
 git checkout 2.0
 cd -
 
+git clone	git@github.com:datagovuk/ckanext-hierarchy
+cd ckanext-hierarchy
+git checkout master
+cd -
+
 git clone	git@github.com:datagovuk/ckanext-os
 cd ckanext-os
 git checkout master
@@ -43,6 +53,11 @@ cd -
 git clone	git@github.com:datagovuk/ckanext-qa
 cd ckanext-qa
 git checkout 2.0
+cd -
+
+git clone git@github.com:datagovuk/ckanext-report
+cd ckanext-report
+git checkout master
 cd -
 
 git clone	git@github.com:datagovuk/ckanext-spatial
@@ -55,14 +70,9 @@ cd ckanext-importlib
 git checkout master
 cd -
 
-git clone	git@github.com:datagovuk/ckanext-hierarchy
-cd ckanext-hierarchy
-git checkout master
-cd -
-
 git clone	git@github.com:datagovuk/shared_dguk_assets
 cd shared_dguk_assets
-git checkout redesign
+git checkout master
 cd -
 
 git clone   git@github.com:datagovuk/logreporter.git
@@ -70,7 +80,3 @@ cd logreporter
 git checkout master
 cd -
 
-git clone git@github.com:datagovuk/ckanext-report
-cd ckanext-report
-git checkout master
-cd -
