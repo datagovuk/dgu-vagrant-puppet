@@ -139,7 +139,10 @@ class dgu_ckan {
     'logreporter',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
-    require => Python::Virtualenv[$ckan_virtualenv],
+    require => [
+        Python::Virtualenv[$ckan_virtualenv],
+        Dgu_ckan::Pip_package[$pip_pkgs_remote],
+    ],
     ensure  => present,
     owner   => 'co',
     local   => true,
