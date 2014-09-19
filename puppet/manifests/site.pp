@@ -45,6 +45,9 @@ package { "pv":
 package { "unzip":
   ensure => "installed"
 }
+package { "curl":
+  ensure => "installed"
+}
 
 include dgu_ckan
 

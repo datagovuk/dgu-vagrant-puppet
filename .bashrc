@@ -112,5 +112,4 @@ export PATH=$PATH:/vagrant/scripts
 
 # Handy enabling of CKAN pyenv
 export CKAN_INI=/var/ckan/ckan.ini
-export DEV_INI=/var/ckan/development.ini
-source ~/ckan/bin/activate && cd /vagrant/src/ckan
+source ~/ckan/bin/activate && cd /src/ckan

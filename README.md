@@ -101,8 +101,13 @@ and then execute the site manifest now at /etc/puppet/:
 
 Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
 
+To automatically activate your CKAN python virtual environment on log-in, it is recommended to add this line to your .bashrc:
 
-## 3. CKAN Database setup
+    source ~/ckan/bin/activate && cd /src/ckan
+
+
+## 2. CKAN Database setup
+
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
@@ -122,9 +127,9 @@ And make sure you run paster commands from the /vagrant/src/ckan directory.
 At data.gov.uk we download a database (using pg_dump and gzip) from another server like:
 
     mkdir -p /vagrant/db_backup
-    rsync --progress co@co-prod1.dh.bytemark.co.uk:/var/backups/ckan/dgu.2013-07-09.pg_dump.gz /vagrant/db_backup/
+    rsync --progress co@co-prod3.dh.bytemark.co.uk:/var/ckan/backup/ckan.2014-09-18.pg_dump.gz /vagrant/db_backup/
 
-Then load the dump in:
+Then load the dump in (ensure you are logged in as the co user):
 
     export CKAN_DUMP_FILE=`ls /vagrant/db_backup/ -t |head -n 1` && echo $CKAN_DUMP_FILE
     sudo apachectl stop
@@ -136,6 +141,33 @@ Then load the dump in:
     paster db upgrade --config=ckan.ini
     paster search-index rebuild --config=ckan.ini
 
+Note: expect the `pv` command to produce a number of non-fatal errors and warnings. At the start there are several pages of errors before it starts creating tables:
+
+```
+...
+ERROR:  must be owner of type public.geometry or type bytea
+ERROR:  must be owner of type public.geometry or type public.geography
+ERROR:  must be owner of type public.geometry or type text
+ERROR:  must be owner of type text or type public.geometry
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+...
+```
+
+There are also a few more errors later on to be expected a few times:
+
+```
+ERROR:  relation "geometry_columns" already exists
+ERROR:  must be owner of relation geometry_columns
+ERROR:  relation "spatial_ref_sys" already exists
+ERROR:  must be owner of relation spatial_ref_sys
+```
+
 ### Give yourself a CKAN user for debug (optional)
 
 For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
@@ -143,22 +175,29 @@ For test purposes you can add a CKAN admin user. Remember to reset the password 
     paster user add admin email=admin@ckan password=pass --config=ckan.ini
     paster sysadmin add admin --config=ckan.ini
 
-## CKAN Paster commands
+### Test CKAN
 
-When running CKAN paster commands, you should activate the virtualenv and run the paster commands from the ckan source directory:
+You can test CKAN on the command-line:
+    
+    curl -i http://localhost/data/search
 
-    source /home/vagrant/bin/activate
-    cd /vagrant/src/ckan
+And try a browser to connect to the machine. If its running in Vagrant then the address (from the Vagrantfile) will be: http://192.168.11.11/data/search
 
-Examples::
+You should get CKAN HTML. It's worth checking the logs for errors too:
 
-    paster create-test-data --config=ckan.ini
-    paster search-index rebuild --config=ckan.ini
-    paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
+    less /var/log/ckan/ckan-apache.error.log
 
-Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
+Working correctly you should see something like this:
+```
+[Fri Sep 19 13:43:49 2014] [error] 2014-09-19 13:43:49,484 DEBUG [ckanext.spatial.model.package_extent] Spatial tables defined in memory
+[Fri Sep 19 13:43:49 2014] [error] 2014-09-19 13:43:49,491 DEBUG [ckanext.spatial.model.package_extent] Spatial tables already exist
+[Fri Sep 19 13:43:49 2014] [error] 2014-09-19 13:43:49,502 DEBUG [ckanext.harvest.model] Harvest tables defined in memory
+[Fri Sep 19 13:43:49 2014] [error] 2014-09-19 13:43:49,505 DEBUG [ckanext.harvest.model] Harvest tables already exist
+[Fri Sep 19 13:43:50 2014] [error] 2014-09-19 13:43:50,025 CRITI [ckan.lib.uploader] Please specify a ckan.storage_path in your config
+[Fri Sep 19 13:43:50 2014] [error]                              for your uploads
+```
 
-## 4. Drupal install
+## 3. Drupal install
 
 For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
 here: https://github.com/drush-ops/drush
@@ -221,13 +260,32 @@ $databases['d6source']['default'] = array(
 
 Drupal uses a second SOLR core.
 
-## 5. Additional configuration
+## 4. Additional configuration
 
 In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
 
 For a live deployment it would make sense to adjust the database passwords.
 
 # Orientation
+
+## CKAN Paster commands
+
+When running CKAN paster commands, you should ensure that CKAN's python virtual environment is activated the you are in the CKAN source directory.
+
+The virtual environment will normally be actived automatically for the co user, (in the .bashrc). Alternatively you can do it manually:
+
+    source ~/ckan/bin/activate && cd /src/ckan
+
+ You can see that the virtual environment is activated by the presence of the `(ckan)` prefix in the prompt. e.g.:
+
+
+Examples::
+
+    paster create-test-data --config=ckan.ini
+    paster search-index rebuild --config=ckan.ini
+    paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
+
+Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
 
 ## Grunt and assets
 
@@ -244,6 +302,27 @@ Grunt runs on puppet provision, and you can manually run it like this:
 
 There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
 P
+
+## Reports
+
+The reports at /data/report should be pre-generated nightly using a cron. e.g.:
+
+    0 6  * * *  www-data  /home/co/ckan/bin/paster --plugin=ckanext-report report generate --config=/var/ckan/ckan.ini
+
+
+## Harvesting
+
+For harvesting to work you need a cron running every few minutes to put the latest jobs onto the gather queue:
+
+    */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=
+/var/ckan/ckan.ini
+
+## Backups
+
+The gov_daily.py script performs a number of nightly jobs including creating backups. Read through and see if you need it in all or part. It could be scheduled in the cron:
+
+    0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+
 
 # Puppet warnings
 
