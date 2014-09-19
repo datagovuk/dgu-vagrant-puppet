@@ -19,7 +19,7 @@ user { "co":
   gid        => "co",
   shell      => "/bin/bash",
   home       => "/home/co",
-  groups     => ["sudo","adm","www-data"],
+  groups     => ["sudo","adm","www-data","admin"],
 }
 
 file { '/etc/fqdn':

@@ -54,9 +54,7 @@ Provisioning will take a while, and you can ignore warnings that are listed in t
 The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user. 
 All further steps are from this ssh session on the VM after you have changed your user to 'co' with:
 
-    sudo su
-    usermod -a -G admin co
-    su co
+    sudo su co
 
 
 ### Option 2: Fresh machine preparation
@@ -103,38 +101,6 @@ and then execute the site manifest now at /etc/puppet/:
 
 Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
 
-
-## 2. Run Grunt on the assets
-
-Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning. Install a recent version of NodeJS:
-Ubuntu 12.04 uses an old version (0.6.x) of Node in the standard repository.
-As of Node.js v0.10.0, the nodejs package from Chris Lea's repo includes both npm and nodejs-dev.
-
-    sudo apt-get install python-software-properties python g++ make
-    sudo add-apt-repository ppa:chris-lea/node.js
-    sudo apt-get update
-    sudo apt-get install nodejs
-
-Check to make sure npm was installed by nodejs:
-
-    npm -v
-
-Now install the Grunt CLI tools globally:
-
-    sudo npm install -g grunt-cli
-
-For each of the two repos with assets, install the required Node modules and run the Grunt scripts:
-
-    cd /vagrant/src/ckanext-dgu
-    sudo npm install
-    grunt
-    cd /vagrant/src/shared_dguk_assets
-    sudo npm install
-    grunt
-
-When changes are made to the assets in these repos, you need to rerun Grunt.
-
-There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
 
 ## 3. CKAN Database setup
 
@@ -261,6 +227,23 @@ In this example, both Drupal and CKAN are served from a single vhost of Apache. 
 
 For a live deployment it would make sense to adjust the database passwords.
 
+# Orientation
+
+## Grunt and assets
+
+Data.gov.uk uses Grunt to do pre-processing of Javascript and CSS scripts as well as images and it writes timestamps to help with cache versioning.
+
+Puppet will have installed a recent version of NodeJS (0.10.32+) and npm (1.4.28+) plus Grunt. There are two repos with assets which if you change you need to run Grunt before they will be used by CKAN.
+
+Grunt runs on puppet provision, and you can manually run it like this:
+
+    cd /vagrant/src/ckanext-dgu
+    grunt
+    cd /vagrant/src/shared_dguk_assets
+    grunt
+
+There is more about Grunt use here: https://github.com/datagovuk/shared_dguk_assets/blob/master/README.md
+P
 
 # Puppet warnings
 

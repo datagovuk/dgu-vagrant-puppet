@@ -504,6 +504,63 @@ class dgu_ckan {
     require   => Package['redis-server'],
   }
 
+  # -----------
+  # Shared assets
+  # -----------
+  # Setting manage_repo=true tells it to install nodejs from the chrislea PPA
+  class { 'nodejs':
+    manage_repo => true,
+  }
+  package { 'grunt-cli':
+    ensure   => present,
+    provider => 'npm',
+    require  => Class['nodejs'],
+  }
+  # Why use sudo here? There is some weird permissions thing running 'npm
+  # install' in puppet as the root user that causes a permissions error:
+  #   2 of 3 tests failed:
+  # I can replicate this on the command-line when logged in as vagrant and using sudo,
+  # but it works if you do 'sudo su' or 'sudo su co' and then do 'sudo npm install'.
+  exec { 'npm_deps_dgu':
+    command   => 'sudo npm install',
+    cwd       => '/src/ckanext-dgu',
+    user      => 'co',
+    require   => [
+      Dgu_ckan::Pip_package[$pip_pkgs_local],
+      Package['grunt-cli'],
+    ],
+    creates   => '/src/ckanext-dgu/node_modules',
+    path      => "/usr/bin:/bin:/usr/sbin",
+    logoutput => "on_failure",
+  } ->
+  exec {'grunt_dgu':
+    require => [
+      Package['grunt-cli'],
+    ],
+    command   => "grunt",
+    cwd       => "/src/ckanext-dgu",
+    user      => "co",
+    path      => "/usr/bin:/bin:/usr/sbin",
+  }
+  exec { 'npm_deps_shared':
+    command   => 'sudo npm install',
+    cwd       => '/src/shared_dguk_assets',
+    user      => 'co',
+    require   => Package['grunt-cli'],
+    creates   => '/src/shared_dguk_assets/node_modules',
+    path      => "/usr/bin:/bin:/usr/sbin",
+    logoutput => "on_failure",
+  } ->
+  exec {'grunt_shared':
+    require => [
+      Package['grunt-cli'],
+    ],
+    command   => "grunt",
+    cwd       => "/src/shared_dguk_assets",
+    user      => "co",
+    path      => "/usr/bin:/bin:/usr/sbin",
+  }
+
   # ---------
   # Dev tools
   # ---------
