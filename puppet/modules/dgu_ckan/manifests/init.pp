@@ -454,6 +454,9 @@ class dgu_ckan {
     mpm_module => 'prefork',
   }
   apache::mod {'wsgi':}
+  apache::mod {'php5':}
+  include ::apache::mod::rewrite
+  include ::apache::mod::proxy
   apache::listen {'80':}
   file {[$ckan_apache_errorlog, $ckan_apache_customlog]:
     ensure => file,
@@ -474,6 +477,9 @@ class dgu_ckan {
     require   => [
       Class['apache'],
       Apache::Mod['wsgi'],
+      Apache::Mod['php5'],
+      Class['apache::mod::rewrite'],
+      Class['apache::mod::proxy'],
       Apache::Listen['80'],
       File[$ckan_apache_errorlog],
       File[$ckan_apache_customlog],
