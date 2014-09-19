@@ -92,7 +92,7 @@
         WSGIScriptAlias /csw /var/ckan/wsgi_app.py
         WSGIScriptAlias /font /var/ckan/wsgi_app.py
         WSGIScriptAlias /organization /var/ckan/wsgi_app.py
-
+        WSGIScriptAlias /data-standard /var/ckan/wsgi_app.py
 
         # CKAN / OS Widget map tile proxy
         ProxyPass /geoserver/ http://osinspiremappingprod.ordnancesurvey.co.uk/geoserver/

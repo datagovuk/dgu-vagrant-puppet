@@ -179,7 +179,7 @@ For test purposes you can add a CKAN admin user. Remember to reset the password 
 
 You can test CKAN on the command-line:
     
-    curl -i http://localhost/data/search
+    curl http://localhost/data/search
 
 And try a browser to connect to the machine. If its running in Vagrant then the address (from the Vagrantfile) will be: http://192.168.11.11/data/search
 
@@ -199,18 +199,47 @@ Working correctly you should see something like this:
 
 ## 3. Drupal install
 
-For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements. You can get drush and it's installation instructions from
-here: https://github.com/drush-ops/drush
+For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements.
+
+## Install Drush
+
+For more details about installation of Drush, see here: https://github.com/drush-ops/drush
+
+First get Composer:
+
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+
+Now install the latest Drush:
+
+    composer global require drush/drush:dev-master
+
+And add it to the path:
+
+    sed -i '$a\export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+    source $HOME/.bashrc
+
+## Install the DGU Drupal Distribution
+
+If using Vagrant, clone the distribution on your host machine before switching to the host machine.
 
 Get the DGU Drupal Distribution using:
 
+    cd $THIS_REPO/src
     git clone https://github.com/datagovuk/dgu_d7.git
 
 You can install drupal with the following drush command:
 
 ````bash
-$ drush make distro.make /var/www/
-$ drush --yes --verbose site-install dgu --db-url=mysql://user:pass@localhost/db_name --account-name=admin --account-pass=password  --site-name='something creative'
+$ sudo mkdir /var/www/drupal
+$ sudo chown co:www-data /var/www/drupal
+$ cd /src/dgu_d7/
+$ drush make distro.make /var/www/drupal/dgu
+$ mysql -u root --execute "CREATE DATABASE dgu;"
+$ mysql -u root --execute "CREATE USER 'co'@'localhost' IDENTIFIED BY 'pass';"
+$ mysql -u root --execute "GRANT ALL PRIVILEGES ON *.* TO 'co'@'localhost';"
+$ cd /var/www/drupal/dgu
+$ drush --yes --verbose site-install dgu --db-url=mysql://co:pass@localhost/dgu --account-name=admin --account-pass=password  --site-name='something creative'
 ```
 
 This will install drupal, download all the required modules and configure the system.  After this step completes

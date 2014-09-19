@@ -2,8 +2,6 @@
 ServerName localhost
 
 <VirtualHost *:80>
-  WSGIScriptAlias / <%= @ckan_wsgi_script %>
-
   # Used for debug mode: Force single-threaded execution
   WSGIDaemonProcess singlethreaded
   WSGIProcessGroup singlethreaded
@@ -12,6 +10,55 @@ ServerName localhost
   WSGIPassAuthorization On
   ErrorLog <%= @ckan_apache_errorlog %>
   CustomLog <%= @ckan_apache_customlog %> combined
+
+  # CKAN paths
+  WSGIScriptAlias /inventory/ <%= @ckan_wsgi_script %>/
+  WSGIScriptAlias /unpublished/ <%= @ckan_wsgi_script %>/
+  WSGIScriptAlias /data <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /dataset <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /publisher <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /css <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /images <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /scripts <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /api <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /geoserver <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /harvest <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /ckanext <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /ckan-admin <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /qa <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /revision <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /feeds <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /img <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /csw <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /font <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /organization <%= @ckan_wsgi_script %>
+  WSGIScriptAlias /linked-data-admin <%= @ckan_wsgi_script %>
+
+  # Shared Assets
+  Alias /assets /src/shared_dguk_assets/assets
+  <Directory /src/shared_dguk_assets/assets/>
+            FileETag MTime Size
+            Options FollowSymLinks MultiViews
+            AllowOverride All
+            Order allow,deny
+            allow from all
+  </Directory>
+
+  # Drupal
+  DocumentRoot /var/www/drupal/dgu
+  Alias /dgud7 /var/www/drupal/dgu
+  <Directory /var/www/drupal/dgu>
+    AllowOverride All
+    Options FollowSymLinks
+  </Directory>
+
+  # Make sure Drupal API is password protected
+  <Location /services >
+    AuthUserFile /var/www/api_users
+    AuthName "Restricted"
+    AuthType Basic
+    require valid-user
+  </Location>
 
   # Possible values include: debug, info, notice, warn, error, crit,
   # alert, emerg.

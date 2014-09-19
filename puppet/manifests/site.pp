@@ -49,5 +49,18 @@ package { "curl":
   ensure => "installed"
 }
 
+# ---------
+# Drupal bits
+# ---------
+package { "mysql-server-5.5":
+  ensure => "installed"
+}
+package { "php5-gd":
+  ensure => "installed"
+}
+package { "php5-mysql":
+  ensure => "installed"
+}
+
 include dgu_ckan
 
