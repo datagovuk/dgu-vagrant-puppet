@@ -127,7 +127,6 @@ class dgu_ckan {
     'ckan',
     'ckanext-dgu',
     'ckanext-os',
-	'ckanext-report',
     'ckanext-qa',
     'ckanext-spatial',
     'ckanext-harvest',
