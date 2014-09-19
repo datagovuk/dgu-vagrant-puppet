@@ -118,9 +118,9 @@ And make sure you run paster commands from the /vagrant/src/ckan directory.
 #### Option 1: Use test data
 
     createdb -O dgu ckan --template template_postgis
-    paster --plugin=ckanext-ga-report initdb --config=ckan.ini
-    paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
-    paster search-index rebuild --config=ckan.ini
+    sudo -u www-data paster --plugin=ckanext-ga-report initdb --config=ckan.ini
+    sudo -u www-data paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
+    sudo -u www-data paster search-index rebuild --config=ckan.ini
 
 #### Option 2: Download an existing database
 
@@ -138,8 +138,8 @@ Then load the dump in (ensure you are logged in as the co user):
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
-    paster db upgrade --config=ckan.ini
-    paster search-index rebuild --config=ckan.ini
+    sudo -u www-data paster db upgrade --config=ckan.ini
+    sudo -u www-data paster search-index rebuild --config=ckan.ini
 
 Note: expect the `pv` command to produce a number of non-fatal errors and warnings. At the start there are several pages of errors before it starts creating tables:
 
@@ -172,8 +172,8 @@ ERROR:  must be owner of relation spatial_ref_sys
 
 For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
 
-    paster user add admin email=admin@ckan password=pass --config=ckan.ini
-    paster sysadmin add admin --config=ckan.ini
+    sudo -u www-data paster user add admin email=admin@ckan password=pass --config=ckan.ini
+    sudo -u www-data paster sysadmin add admin --config=ckan.ini
 
 ### Test CKAN
 
@@ -270,7 +270,7 @@ For a live deployment it would make sense to adjust the database passwords.
 
 ## CKAN Paster commands
 
-When running CKAN paster commands, you should ensure that CKAN's python virtual environment is activated the you are in the CKAN source directory.
+When running CKAN paster commands, you should ensure that CKAN's python virtual environment is activated the you are in the CKAN source directory. And you should use the www-data user, to avoid the log permissions problem (see section below).
 
 The virtual environment will normally be actived automatically for the co user, (in the .bashrc). Alternatively you can do it manually:
 
@@ -281,11 +281,23 @@ The virtual environment will normally be actived automatically for the co user, 
 
 Examples::
 
-    paster create-test-data --config=ckan.ini
-    paster search-index rebuild --config=ckan.ini
-    paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
+    sudo -u www-data paster create-test-data --config=ckan.ini
+    sudo -u www-data paster search-index rebuild --config=ckan.ini
+    sudo -u www-data paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
 
-Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.0.2/paster.html
+Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
+
+## Log permissions
+
+It can happened that you may see CKAN return '500 Internal Server Error' and when looking at the log /var/log/ckan/ckan.log you see this error:
+
+    IOError: [Errno 13] Permission denied: '/var/log/ckan/ckan.log
+
+This can happen when running paster commands and forgetting run them as the `www-data` user as directed. Normally the CKAN logfile is created and written to by apache and hence is owned by user `www-data`. However when running paster commands as the co user it will also write to the log, and if the log happens to roll-over at this time then the co user will now own the logfile. To rectify this, change the ownership:
+
+    sudo chown www-data:www-data /var/log/ckan/ckan.log
+
+The fix for this issue is in the pipeline.
 
 ## Grunt and assets
 
