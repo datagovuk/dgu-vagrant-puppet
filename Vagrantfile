@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Allow local machines to view the VM
-  config.vm.network "private_network", ip: "192.168.11.11"
+  config.vm.network "private_network", ip: "192.168.11.12"
 
   # Put CKAN source in /src, owned by 'co' user.
   # This is needed so 'co' can write to it and therefore install it into our
@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     # boot headless (or make true to get a display)
     vb.gui = false
     # Virtualbox Custom CPU count:
-    vb.customize ["modifyvm", :id, "--name", "dgutg_vm"]
+    vb.customize ["modifyvm", :id, "--name", "dgu2_vm"]
     vb.customize ["modifyvm", :id, "--memory", "8192"]
     vb.customize ["modifyvm", :id, "--cpus", "8"]
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
@@ -51,7 +51,7 @@ Vagrant.configure("2") do |config|
     # 4GB RAM and 4 (hyperthreaded virtual) CPU cores
     vmware.vmx["memsize"] = "8192"
     vmware.vmx["numvcpus"] = "8"
-    vmware.vmx["displayName"] = "dgutg_vm"
-    vmware.vmx["annotation"] = "Virtualised data.gov.uk To Go environment"
+    vmware.vmx["displayName"] = "dgu2_vm"
+    vmware.vmx["annotation"] = "Virtualised data.gov.uk 2 environment"
   end 
 end
