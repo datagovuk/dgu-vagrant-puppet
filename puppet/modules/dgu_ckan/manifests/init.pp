@@ -93,6 +93,7 @@ class dgu_ckan {
     'kombu-sqlalchemy==1.1.0',
     'lxml==3.2.4',
     'messytables==0.10.0',
+    'nltk==3.0.0',
     'nose==1.3.0',
     'ofs==0.4.1',
     'openpyxl==1.5.7',
@@ -136,6 +137,7 @@ class dgu_ckan {
     'ckanext-importlib',
     'ckanext-hierarchy',
     'ckanext-report',
+    'ckanext-dgu-local',
     'logreporter',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
@@ -304,7 +306,7 @@ class dgu_ckan {
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep package",
-    logoutput => true,
+    logoutput => 'on_failure',
   }
   exec {"paster ga_reports init":
     subscribe => Exec["paster db init"],
@@ -313,20 +315,46 @@ class dgu_ckan {
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
     unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
-    logoutput => true,
+    logoutput => 'on_failure',
   }
   exec {"paster inventory init":
     subscribe => Exec["paster db init"],
     command   => "${ckan_virtualenv}/bin/paster --plugin=ckanext-dgu inventory_init --config=${ckan_ini}",
     path      => "/usr/bin:/bin:/usr/sbin",
     user      => root,
-    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep ga_url",
-    logoutput => true,
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep inventory",
+    logoutput => 'on_failure',
+  }
+  exec {"paster dgu_local init":
+    subscribe => Exec["paster db init"],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckanext-dgu-local dgulocal init --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep organization_extent",
+    logoutput => 'on_failure',
+  }
+  exec {"paster archiver init":
+    subscribe => Exec["paster db init"],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckanext-archiver archiver init --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep archival",
+    logoutput => 'on_failure',
+  }
+  exec {"paster qa init":
+    subscribe => Exec["paster db init"],
+    command   => "${ckan_virtualenv}/bin/paster --plugin=ckanext-qa qa init --config=${ckan_ini}",
+    path      => "/usr/bin:/bin:/usr/sbin",
+    user      => root,
+    unless    => "sudo -u postgres psql -d $ckan_db_name -c \"\\dt\" | grep qa",
+    logoutput => 'on_failure',
   }
   notify {"db_ready":
     subscribe => [
       Exec['paster inventory init'],
       Exec['paster ga_reports init'],
+      Exec['paster dgu_local init'],
+      Exec['paster archiver init'],
     ],
     message   => "PostgreSQL database is ready.",
   }

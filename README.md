@@ -105,8 +105,16 @@ To automatically activate your CKAN python virtual environment on log-in, it is 
 
     source ~/ckan/bin/activate && cd /src/ckan
 
+## 2. Extra CKAN setup
 
-## 2. CKAN Database setup
+(This extra setup will be usefully puppetized in the future)
+
+Download NLTK Stopwords Corpus
+
+   python -m nltk.downloader stopwords 
+
+
+## 3. CKAN Database setup
 
 
 **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
@@ -197,11 +205,11 @@ Working correctly you should see something like this:
 [Fri Sep 19 13:43:50 2014] [error]                              for your uploads
 ```
 
-## 3. Drupal install
+## 4. Drupal install
 
 For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements.
 
-## Install Drush
+### Install Drush
 
 For more details about installation of Drush, see here: https://github.com/drush-ops/drush
 
@@ -219,7 +227,7 @@ And add it to the path:
     sed -i '$a\export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
     source $HOME/.bashrc
 
-## Install the DGU Drupal Distribution
+### Install the DGU Drupal Distribution
 
 If using Vagrant, clone the distribution on your host machine before switching to the host machine for the remainder of the instructions.
 
@@ -265,7 +273,7 @@ Otherwise you'll get messages such as "The specified file temporary://fileKrLiDX
 
 Drupal uses a second SOLR core for the search. The configuration of this is to be provided soon.
 
-## 4. Drupal content
+## 5. Drupal content
 
 ### Sample content
 
@@ -311,7 +319,7 @@ $databases['d6source']['default'] = array(
 );
 ````
 
-## 5. Additional configuration
+## 6. Additional configuration
 
 ### Passwords
 

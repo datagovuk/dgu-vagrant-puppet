@@ -30,6 +30,11 @@ git checkout master
 ln -s ../commit-msg.githook ./.git/hooks/commit-msg
 cd -
 
+git clone	git@github.com:datagovuk/ckanext-dgu-local
+cd ckanext-dgu-local
+git checkout master
+cd -
+
 git clone	git@github.com:datagovuk/ckanext-ga-report
 cd ckanext-ga-report
 git checkout master
