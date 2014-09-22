@@ -61,6 +61,9 @@ package { "php5-gd":
 package { "php5-mysql":
   ensure => "installed"
 }
+package { "php5-curl":
+  ensure => "installed"
+}
 
 include dgu_ckan
 

@@ -247,9 +247,7 @@ successfully, you should enable some modules:
 
 ````bash
 $ drush --yes en dgu_site_feature  
-$ drush --yes en composer_manager  
-$ drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page
-$ drush --yes en ckan
+$ drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page dgu_moderation
 ````
 
 You will need to configure drupal with the url of your CKAN instance.  We use the following drush commands:
