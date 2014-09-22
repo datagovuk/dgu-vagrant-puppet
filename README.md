@@ -221,7 +221,7 @@ And add it to the path:
 
 ## Install the DGU Drupal Distribution
 
-If using Vagrant, clone the distribution on your host machine before switching to the host machine.
+If using Vagrant, clone the distribution on your host machine before switching to the host machine for the remainder of the instructions.
 
 Get the DGU Drupal Distribution using:
 
@@ -239,7 +239,7 @@ $ mysql -u root --execute "CREATE DATABASE dgu;"
 $ mysql -u root --execute "CREATE USER 'co'@'localhost' IDENTIFIED BY 'pass';"
 $ mysql -u root --execute "GRANT ALL PRIVILEGES ON *.* TO 'co'@'localhost';"
 $ cd /var/www/drupal/dgu
-$ drush --yes --verbose site-install dgu --db-url=mysql://co:pass@localhost/dgu --account-name=admin --account-pass=password  --site-name='something creative'
+$ drush --yes --verbose site-install dgu --db-url=mysql://co:pass@localhost/dgu --account-name=admin --account-pass=admin  --site-name='something creative'
 ```
 
 This will install drupal, download all the required modules and configure the system.  After this step completes
@@ -257,7 +257,33 @@ $ drush vset ckan_apikey 'xxxxxxxxxxxxxxxxxxxxx';
 ````
 You may also check and modify these settings in the admin menu: configuration->system->ckan.
 
-We have also written some migration classes for migrating our existing Drupal 6 web site to version 7.  The order
+Now fix permissions:
+```
+$ sudo chown -R co:www-data /var/www/drupal/dgu/sites/default/files
+```
+Otherwise you'll get messages such as "The specified file temporary://fileKrLiDX could not be copied, because the destination directory is not properly configured. This may be caused by a problem with file or directory permissions. More information is available in the system log."
+
+Drupal uses a second SOLR core for the search. The configuration of this is to be provided soon.
+
+## 4. Drupal content
+
+### Sample content
+
+Those evaluating this distribution will probably want to use the sample content, which creates some sample blog posts, apps etc. This is installed like this:
+
+    $ zcat /src/dgu_d7/sample/dgud7_default_db.sql.gz  | mysql -u root dgu
+
+NB This will delete all other Drupal content and users.
+
+You can now log-in with this user:
+
+    Username: admin
+    Password: admin
+
+
+### Content migration from Drupal 6
+
+For reference purposes, we provide the migration classes for migrating our older Drupal 6 version of data.gov.uk to Drupal version 7.  The order
 that we run these tasks is important.  After installation, we run the following drush commands to migrate our web site:
 
 ````bash
@@ -285,13 +311,48 @@ $databases['d6source']['default'] = array(
 );
 ````
 
-Drupal uses a second SOLR core.
+## 5. Additional configuration
 
-## 4. Additional configuration
+### Passwords
 
-In this example, both Drupal and CKAN are served from a single vhost of Apache. An example is provided: resources/apache.vhost
+For a live deployment it is important to change the passwords from the sample ones. The passwords to change are:
 
-For a live deployment it would make sense to adjust the database passwords.
+* Drupal accounts, particularly `admin` and 'jason' users (if using the sample database). Log-in as admin and edit the users here: /admin/people
+* CKAN `admin` account. Change it with:
+
+    sudo -u www-data paster user setpass admin --config=ckan.ini
+
+* MySQL database for both the `root` and `co`. Use these commands:
+
+    mysql -u root --execute "SET PASSWORD = PASSWORD('new root password');"
+    mysql -u -p root --execute "SET PASSWORD FOR 'co'@'localhost' = PASSWORD('new co password');"
+
+And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/settings.php` and reboot Apache:
+
+    sudo apachectl restart
+
+* Postgres database
+
+    sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
+    sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
+
+And change password in your CKAN sqlalchemy setting in `/var/ckan/ckan.ini`:
+
+    sqlalchemy.url = postgresql://dgu:pass@localhost/ckan
+
+and reboot Apache:
+
+    sudo apachectl restart
+
+
+### Caching
+
+It is likely that you'll want to set-up caching in front of Apache, to massively speed up common requests. This can be achieved with Varnish or Nginx in front of Apache. We suggest:
+
+* Strip any cookies apart from these essential ones: `(flags|SESS[a-z0-9]+|NO_CACHE|auth_tkt|ckan|session_api_[a-z]+)`
+* Logged-in users bypass the cache - cookie `SESS[a-z0-9]+`
+* assets are kept for 24h - This is cache-safe because a timestamp is added to URLs that CKAN uses e.g. `/assets/css/datagovuk.min.css?1411377399236`, so whenever Grunt runs, a new number is given and the cache will be bypassed because of the new number.
+
 
 # Orientation
 
