@@ -25,24 +25,20 @@ Here is an overview of the install process:
 
 ## 1. Machine preparation
 
-### Download this build repo from Github
+### Option 1: Virtual Machine creation
 
-Clone this repo (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
+Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
 
-    git clone https://github.com/datagovuk/dgu-vagrant-puppet.git
+    git clone git@github.com:datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
     git checkout togo
 
-### Option 1: Virtual Machine creation
-
-Before creating the virtual machine, use the script to clone all the CKAN source repos onto your host machine.
-
-You may need to install git first.
+Use the script to clone all the CKAN source repos onto your host machine.
 
     cd $THIS_REPO/src
     ./git_clone_all.sh
 
-Now install Vagrant. Launch a fully provisioned Virtual Machine as described in this repo:
+Using Vagrant and Puppet, launch a fully provisioned Virtual Machine as described in this repo:
 
     cd $THIS_REPO
     vagrant up
@@ -78,35 +74,38 @@ All further steps are from this ssh session on the VM after you have changed you
 
 ### Option 2: Fresh machine preparation
 
-Instead of using a virtual-machine it is perfectly fine alternative to use a non-virtual machine, freshly installed with Ubuntu 12.04. The Puppet scripts assume the name of the machine is 'ckan', so you need to ssh to it and rename it:
+Instead of using a virtual-machine it is perfectly fine alternative to use a non-virtual machine, freshly installed with Ubuntu 12.04. The Puppet scripts assume the name of the machine is 'ckan', so you need to login to it and rename it:
 
     sudo hostname ckan
     sudo vim /etc/hosts
     # ^ add "127.0.0.1  ckan" to hosts...
 
-Puppet also assumes your home user is 'co', so ensure that is created and can login as sudo.
+Puppet will assume the home user is called 'co', so create it with some particular options:
 
-    sudo adduser co
-    sudo visudo
-    su co
-
-You need to install some dependencies:
-
-    sudo apt-get install rubygems git
-    sudo gem install librarian-puppet -v 1.0.3
-
-And move the dgu-vagrant-puppet repo to the place where it would end up if using Vagrant:
-
-    mv dgu-vagrant-puppet /vagrant
+    sudo adduser co -u 510 -G sudo
+    sudo su co
 
 All further steps are to be carried out from the ssh session under the user 'co' on this target machine.
 
+You need to install some dependencies:
+
+    sudo apt-get install ruby1.9.3 rubygems git
+    sudo ln -sf /usr/bin/ruby1.9.3 /etc/alternatives/ruby
+    sudo gem install librarian-puppet -v 1.0.3
+
+Clone this repo to the machine in /vagrant (to match the vagrant install) and switch to the 'togo' branch:
+
+    mkdir /vagrant
+    cd /vagrant
+    git clone git@github.com:datagovuk/dgu-vagrant-puppet
+    cd /vagrant/dgu-vagrant-puppet
+    git checkout togo
+
 Use the script to clone all the CKAN source repos.
 
-You may need to install git first. 
-
-    cd $THIS_REPO/src
-    ./git_clone_all.sh
+     ln -s /vagrant/src /src
+     cd /src
+     ./git_clone_all.sh
 
 Puppet is used to install and configure the main software packages (Apache, Postgres, SOLR etc) and setup linux users.
 
