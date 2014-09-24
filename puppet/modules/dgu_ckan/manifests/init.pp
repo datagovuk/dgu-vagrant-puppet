@@ -83,6 +83,7 @@ class dgu_ckan {
     'ckanclient==0.10',
     'datautil==0.4',
     'decorator==3.3.2',
+    'factory-boy==2.1.1',
     'fanstatic==0.12',
     'flup==1.0.2',
     'gdata==2.0.17',
@@ -93,6 +94,8 @@ class dgu_ckan {
     'kombu-sqlalchemy==1.1.0',
     'lxml==3.2.4',
     'messytables==0.10.0',
+    'mock=1.0.1',
+    'nltk==2.0.4',
     'nose==1.3.0',
     'ofs==0.4.1',
     'openpyxl==1.5.7',
@@ -508,6 +511,13 @@ class dgu_ckan {
     enable    => true,
     ensure    => running,
     require   => Package['redis-server'],
+  }
+
+  # -----------
+  # Harvesting
+  # -----------
+  package {"rabbitmq-server":
+    ensure => present,
   }
 
   # -----------
