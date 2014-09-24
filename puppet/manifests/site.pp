@@ -5,6 +5,14 @@ Exec {
 group {"co":
   ensure => present,
 }
+class { 'sudo':
+  purge               => false,
+  config_file_replace => false,
+}
+sudo::conf { 'sudo':
+  priority => 10,
+  content  => "%sudo ALL=(ALL) NOPASSWD: ALL",
+}
 file {"/home/co":
   require => [ User["co"], Group["co"] ],
   ensure  => directory,
@@ -12,14 +20,15 @@ file {"/home/co":
   group   => "co",
 }
 user { "co":
-  require    => Group["co"],
+  require    => [Group["co"],
+                 Sudo::Conf["sudo"]],
   ensure     => present,
   managehome => true,
   uid        => "510",
   gid        => "co",
   shell      => "/bin/bash",
   home       => "/home/co",
-  groups     => ["sudo","adm","www-data","admin"],
+  groups     => ["sudo","adm","www-data"],
 }
 
 file { '/etc/fqdn':

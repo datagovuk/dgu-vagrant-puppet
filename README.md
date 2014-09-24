@@ -47,11 +47,30 @@ Now install Vagrant. Launch a fully provisioned Virtual Machine as described in 
     cd $THIS_REPO
     vagrant up
 
+Now a great deal should happen. Expect key stages:
+
+* create the virtual machine (VM)
+* boot the VM
+* update some key Ubuntu packages like linux-headers
+* mount the shared folders
+
+At this point the shell text goes green and it does the "provision" which is:
+
+* prepare to run librarian (install_puppet_dependancies.sh) - install git, update all Ubuntu packages, install ruby and librarian-puppet
+* runs librarian-puppet - downloads all puppet modules that are required (listed in Puppetfile) and makes a copy of the CKAN puppet module.
+* runs 'puppet apply' (blue output) - installs and configures CKAN and installs some dependencies of Drupal.
+
 Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+
+NB If there is an error and you want to restart the provisioning, from the host box you should do:
+
+    vagrant provision
+
+Now you can log into the new VM ("host" machine):
 
     vagrant ssh
 
-The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user. 
+The prompt will change to show your terminal is connected to the VM, you will be logged in as the vagrant user.
 All further steps are from this ssh session on the VM after you have changed your user to 'co' with:
 
     sudo su co
@@ -246,7 +265,7 @@ This will install drupal, download all the required modules and configure the sy
 successfully, you should enable some modules:
 
 ````bash
-$ drush --yes en dgu_site_feature  
+$ drush --yes en dgu_site_feature
 $ drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page dgu_moderation
 ````
 
@@ -287,13 +306,13 @@ For reference purposes, we provide the migration classes for migrating our older
 that we run these tasks is important.  After installation, we run the following drush commands to migrate our web site:
 
 ````bash
-$ drush migrate-import --group=User --debug  
-$ drush migrate-import --group=Taxonomy  
-$ drush migrate-import --group=Files --debug  
-$ drush migrate-import --group=Datasets --debug  
-$ drush migrate-import --group=Nodes --debug  
-$ drush migrate-import --group=Paths --debug  
-$ drush migrate-import --group=Comments --debug  
+$ drush migrate-import --group=User --debug
+$ drush migrate-import --group=Taxonomy
+$ drush migrate-import --group=Files --debug
+$ drush migrate-import --group=Datasets --debug
+$ drush migrate-import --group=Nodes --debug
+$ drush migrate-import --group=Paths --debug
+$ drush migrate-import --group=Comments --debug
 ````
 
 The migration depends on finding drupal variables to tell it where to look to find files and the data,
@@ -424,7 +443,9 @@ The gov_daily.py script performs a number of nightly jobs including creating bac
     0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
 
 
-# Puppet warnings
+# Puppet notes
+
+## Puppet warnings
 
 These messages will be seen during provisioning with Puppet, and are harmless:
 
@@ -433,4 +454,16 @@ These messages will be seen during provisioning with Puppet, and are harmless:
     dpkg-preconfigure: unable to re-open stdin: No such file or directory
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
+
+## Puppet apply
+
+When tinkering with the Puppet configuration and rerunning it, it can be frustrating the the `vagrant provision` takes several minutes to run. Much of the time there is no need to have librarian check the puppet module dependencies, and in this case there is a short cut.
+
+You can manually install an updated Puppet CKAN module like this (on the host):
+
+    rsync -r /vagrant/puppet/modules/dgu_ckan /etc/puppet/modules/dgu_ckan
+
+And run 'puppet apply' like this:
+
+    sudo FACTER_fqdn=ckan.home puppet apply --modulepath=/etc/puppet/modules /vagrant/puppet/manifests/site.pp
 
