@@ -113,6 +113,34 @@ Download NLTK Stopwords Corpus
 
    python -m nltk.downloader stopwords 
 
+### Harvesting
+
+Harvester needs a backend. One option is RabbitMQ (installed by puppet).
+
+The alternative backend is Redis. This requires extra CKAN configuration:
+```
+[app:celery]
+BROKER_BACKEND = redis
+BROKER_HOST = redis://localhost/1
+CELERY_RESULT_BACKEND = redis
+CELERY_SEND_EVENTS = True
+REDIS_HOST = 127.0.0.1
+REDIS_PORT = 6379
+REDIS_DB = 0
+REDIS_CONNECT_RETRY = True
+```
+
+You need to create the gather and fetch queues by running the consumers briefly:
+
+    sudo -u www-data paster --plugin=ckanext-harvest harvester gather_consumer --config=../ckan/ckan.ini
+    sudo -u www-data paster --plugin=ckanext-harvest harvester fetch_consumer --config=../ckan/ckan.ini
+
+The queues should be left running, either in screen sessions, or preferably using supervisord.
+
+Meanwhile you need the `harvester run` cron job to run every 10 minutes:
+
+    */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
+
 
 ## 3. CKAN Database setup
 
@@ -183,7 +211,7 @@ For test purposes you can add a CKAN admin user. Remember to reset the password 
     sudo -u www-data paster user add admin email=admin@ckan password=pass --config=ckan.ini
     sudo -u www-data paster sysadmin add admin --config=ckan.ini
 
-### Test CKAN
+### Try CKAN
 
 You can test CKAN on the command-line:
     
