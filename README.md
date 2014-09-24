@@ -459,11 +459,11 @@ These messages will be seen during provisioning with Puppet, and are harmless:
 
 When tinkering with the Puppet configuration and rerunning it, it can be frustrating the the `vagrant provision` takes several minutes to run. Much of the time there is no need to have librarian check the puppet module dependencies, and in this case there is a short cut.
 
-You can manually install an updated Puppet CKAN module like this (on the host):
+You can manually install an updated Puppet CKAN module like this (on the guest):
 
-    rsync -r /vagrant/puppet/modules/dgu_ckan /etc/puppet/modules/dgu_ckan
+    sudo -u vagrant rsync -r /vagrant/puppet/modules/dgu_ckan /etc/puppet/modules/dgu_ckan
 
-And run 'puppet apply' like this:
+And run 'puppet apply' as the vagrant user like this:
 
     sudo FACTER_fqdn=ckan.home puppet apply --modulepath=/etc/puppet/modules /vagrant/puppet/manifests/site.pp
 
