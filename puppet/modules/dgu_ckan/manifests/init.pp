@@ -114,6 +114,7 @@ class dgu_ckan {
     'simplejson==2.6.2',
     'solrpy==0.9.5',
     'sqlalchemy-migrate==0.7.2',
+    'unicodecsv==0.9.4',
     'vdm==0.11',
     'xlrd==0.9.2',
     'zope.interface==4.0.1',
