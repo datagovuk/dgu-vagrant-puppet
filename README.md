@@ -6,6 +6,8 @@ This repo provides scripts to install a copy of data.gov.uk's website to your ow
 
 The UK Government has contributed Data.gov.uk To Go to Github to kick-start the use and development of common open data portal software, beyond the basic CKAN. UK wants to develop it in partnership with other providers of Open Data portals, through the usual Open Source / Github model of forking, pull requests, issues etc. that everyone is encouraged to contribute to.
 
+![Demo image](ckan_sample_data.png)
+
 ## Overview
 
 Here is an overview of the install process:
@@ -179,6 +181,9 @@ Sample data is provided to demonstrate CKAN. It comprises 5 sample datasets and 
 
     sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
 
+The sample data looks like this:
+
+![Demo image](ckan_sample_data.png)
 
 #### Option 2: Download an existing database
 
