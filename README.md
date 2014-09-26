@@ -169,16 +169,20 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
 And make sure you run paster commands from the /vagrant/src/ckan directory.
 
-#### Option 1: Use test data
+After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
 
     createdb -O dgu ckan --template template_postgis
-    sudo -u www-data paster --plugin=ckanext-ga-report initdb --config=ckan.ini
-    sudo -u www-data paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
-    sudo -u www-data paster search-index rebuild --config=ckan.ini
+
+#### Option 1: Use test data
+
+Sample data is provided to demonstrate CKAN. It comprises 5 sample datasets and is loaded like this:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
+
 
 #### Option 2: Download an existing database
 
-At data.gov.uk we download a database (using pg_dump and gzip) from another server like:
+At data.gov.uk we transfer database by first creating a dump (using pg_dump and gzip) and transfer it to a test server or local machine for development. Here is an example transfer - adapt the commands to transfer your own database dumps from your own server.
 
     mkdir -p /vagrant/db_backup
     rsync --progress co@co-prod3.dh.bytemark.co.uk:/var/ckan/backup/ckan.2014-09-18.pg_dump.gz /vagrant/db_backup/
@@ -496,7 +500,7 @@ When tinkering with the Puppet configuration and rerunning it, it can be frustra
 
 You can manually install an updated Puppet CKAN module like this (on the guest):
 
-    sudo -u vagrant rsync -r /vagrant/puppet/modules/dgu_ckan /etc/puppet/modules/dgu_ckan
+    sudo -u vagrant rsync -r /vagrant/puppet/modules/dgu_ckan/ /etc/puppet/modules/dgu_ckan/
 
 And run 'puppet apply' as the vagrant user like this:
 

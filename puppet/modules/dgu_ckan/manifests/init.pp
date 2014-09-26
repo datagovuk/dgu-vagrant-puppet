@@ -94,7 +94,7 @@ class dgu_ckan {
     'kombu-sqlalchemy==1.1.0',
     'lxml==3.2.4',
     'messytables==0.10.0',
-    'mock=1.0.1',
+    'mock==1.0.1',
     'nltk==2.0.4',
     'nose==1.3.0',
     'ofs==0.4.1',
