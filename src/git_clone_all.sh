@@ -80,8 +80,13 @@ cd shared_dguk_assets
 git checkout master
 cd -
 
-git clone   git@github.com:datagovuk/logreporter.git
+git clone   git@github.com:datagovuk/logreporter
 cd logreporter
+git checkout master
+cd -
+
+git clone   git@github.com:datagovuk/dgu_d7.git
+cd dgu_d7
 git checkout master
 cd -
 
