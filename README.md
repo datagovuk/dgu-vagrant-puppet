@@ -284,45 +284,39 @@ And add it to the path:
 
 ### Install the DGU Drupal Distribution
 
-If using Vagrant, clone the distribution on your host machine before switching to the host machine for the remainder of the instructions.
-
-Get the DGU Drupal Distribution using:
-
-    cd $THIS_REPO/src
-    git clone https://github.com/datagovuk/dgu_d7.git
-
-You can install drupal with the following drush command:
+You can install the DGU Drupal Distribution with the following drush command:
 
 ````bash
-$ sudo mkdir /var/www/drupal
-$ sudo chown co:www-data /var/www/drupal
-$ cd /src/dgu_d7/
-$ drush make distro.make /var/www/drupal/dgu
-$ mysql -u root --execute "CREATE DATABASE dgu;"
-$ mysql -u root --execute "CREATE USER 'co'@'localhost' IDENTIFIED BY 'pass';"
-$ mysql -u root --execute "GRANT ALL PRIVILEGES ON *.* TO 'co'@'localhost';"
-$ cd /var/www/drupal/dgu
-$ drush --yes --verbose site-install dgu --db-url=mysql://co:pass@localhost/dgu --account-name=admin --account-pass=admin  --site-name='something creative'
+sudo mkdir /var/www/drupal
+sudo chown co:www-data /var/www/drupal
+cd /src/dgu_d7/
+drush make distro.make /var/www/drupal/dgu
+mysql -u root --execute "CREATE DATABASE dgu;"
+mysql -u root --execute "CREATE USER 'co'@'localhost' IDENTIFIED BY 'pass';"
+mysql -u root --execute "GRANT ALL PRIVILEGES ON *.* TO 'co'@'localhost';"
+cd /var/www/drupal/dgu
+drush --yes --verbose site-install dgu --db-url=mysql://co:pass@localhost/dgu --account-name=admin --account-pass=admin  --site-name='something creative'
 ```
 
-This will install drupal, download all the required modules and configure the system.  After this step completes
-successfully, you should enable some modules:
+This will install Drupal, download all the required modules and configure the system.  In the `site-install` command you can ignore two errors at the end about sending e-mails, due to sendmail being missing. E-mail functionality will need to be fixed for a production system.
+
+After this step completes successfully, you should enable some modules:
 
 ````bash
-$ drush --yes en dgu_site_feature
-$ drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page dgu_moderation
+drush --yes en dgu_site_feature
+drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page dgu_moderation
 ````
 
 You will need to configure drupal with the url of your CKAN instance.  We use the following drush commands:
 ````bash
-$ drush vset ckan_url 'http://data.gov.uk/api/';
-$ drush vset ckan_apikey 'xxxxxxxxxxxxxxxxxxxxx';
+drush vset ckan_url 'http://data.gov.uk/api/';
+drush vset ckan_apikey 'xxxxxxxxxxxxxxxxxxxxx';
 ````
 You may also check and modify these settings in the admin menu: configuration->system->ckan.
 
 Now fix permissions:
 ```
-$ sudo chown -R co:www-data /var/www/drupal/dgu/sites/default/files
+sudo chown -R co:www-data /var/www/drupal/dgu/sites/default/files
 ```
 Otherwise you'll get messages such as "The specified file temporary://fileKrLiDX could not be copied, because the destination directory is not properly configured. This may be caused by a problem with file or directory permissions. More information is available in the system log."
 
@@ -334,7 +328,7 @@ Drupal uses a second SOLR core for the search. The configuration of this is to b
 
 Those evaluating this distribution will probably want to use the sample content, which creates some sample blog posts, apps etc. This is installed like this:
 
-    $ zcat /src/dgu_d7/sample/dgud7_default_db.sql.gz  | mysql -u root dgu
+    zcat /src/dgu_d7/sample/dgud7_default_db.sql.gz  | mysql -u root dgu
 
 NB This will delete all other Drupal content and users.
 
@@ -350,13 +344,13 @@ For reference purposes, we provide the migration classes for migrating our older
 that we run these tasks is important.  After installation, we run the following drush commands to migrate our web site:
 
 ````bash
-$ drush migrate-import --group=User --debug
-$ drush migrate-import --group=Taxonomy
-$ drush migrate-import --group=Files --debug
-$ drush migrate-import --group=Datasets --debug
-$ drush migrate-import --group=Nodes --debug
-$ drush migrate-import --group=Paths --debug
-$ drush migrate-import --group=Comments --debug
+drush migrate-import --group=User --debug
+drush migrate-import --group=Taxonomy
+drush migrate-import --group=Files --debug
+drush migrate-import --group=Datasets --debug
+drush migrate-import --group=Nodes --debug
+drush migrate-import --group=Paths --debug
+drush migrate-import --group=Comments --debug
 ````
 
 The migration depends on finding drupal variables to tell it where to look to find files and the data,
