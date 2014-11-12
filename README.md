@@ -25,9 +25,15 @@ Here is an overview of the install process:
 * 8 cores
 * 200GB disc
 
-## 1. Machine preparation
+## 1. Machine preparation & CKAN install
+
+There are two options - you can either use Vagrant to create a virtual machine, or you can use an Ubuntu machine that already exists. Either way, Puppet will be used to do basic set-up of users, install packages and CKAN itself.
 
 ### Option 1: Virtual Machine creation
+
+NB We have had issues running this in VMWare and suggest you stick with (free) VirtualBox, using 4.3.14 or later.
+
+NB This setup does not work with a Windows host machine (since it relies on symbolic links).
 
 Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
 
