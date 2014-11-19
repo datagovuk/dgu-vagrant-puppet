@@ -338,41 +338,11 @@ Those evaluating this distribution will probably want to use the sample content,
 
 NB This will delete all other Drupal content and users.
 
-You can now log-in with this user:
+You can now log-in (in Vagrant it is http://192.168.11.11/user ) with this user:
 
     Username: admin
     Password: admin
 
-
-### Content migration from Drupal 6
-
-For reference purposes, we provide the migration classes for migrating our older Drupal 6 version of data.gov.uk to Drupal version 7.  The order
-that we run these tasks is important.  After installation, we run the following drush commands to migrate our web site:
-
-````bash
-drush migrate-import --group=User --debug
-drush migrate-import --group=Taxonomy
-drush migrate-import --group=Files --debug
-drush migrate-import --group=Datasets --debug
-drush migrate-import --group=Nodes --debug
-drush migrate-import --group=Paths --debug
-drush migrate-import --group=Comments --debug
-````
-
-The migration depends on finding drupal variables to tell it where to look to find files and the data,
-so, before you can run the migration, you will to add something like the following to your settings.php file:
-
-````php
-$conf['drupal6files'] = '/var/www/old_files';
-$databases['d6source']['default'] = array(
-    'driver' => 'mysql',
-    'database' => 'drupal_d6',
-    'username' => 'web',
-    'password' => 'supersecret',
-    'host' => 'localhost',
-    'prefix' => '',
-);
-````
 
 ## 6. Additional configuration
 
@@ -381,9 +351,22 @@ $databases['d6source']['default'] = array(
 For a live deployment it is important to change the passwords from the sample ones. The passwords to change are:
 
 * Drupal accounts, particularly `admin` and 'jason' users (if using the sample database). Log-in as admin and edit the users here: /admin/people
+
 * CKAN `admin` account. Change it with:
 
     sudo -u www-data paster user setpass admin --config=ckan.ini
+
+* HTTP Basic Auth around Drupal services. Change the password CKAN uses to contact the Drupal services API by editing in `/var/ckan/ckan.ini` the value for `dgu.xmlrpc_password` to be a new password:
+
+    dgu.xmlrpc_password = newpassword
+
+And then set that same password to be the one accepted by the API using:
+
+    sudo htpasswd /var/www/api_users ckan
+
+and reboot Apache:
+
+    sudo apachectl restart
 
 * MySQL database for both the `root` and `co`. Use these commands:
 
@@ -394,7 +377,7 @@ And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/s
 
     sudo apachectl restart
 
-* Postgres database
+* Postgres database:
 
     sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
     sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
@@ -421,22 +404,48 @@ It is likely that you'll want to set-up caching in front of Apache, to massively
 
 ## CKAN Paster commands
 
-When running CKAN paster commands, you should ensure that CKAN's python virtual environment is activated the you are in the CKAN source directory. And you should use the www-data user, to avoid the log permissions problem (see section below).
+When running CKAN paster commands, you should ensure that:
 
-The virtual environment will normally be actived automatically for the co user, (in the .bashrc). Alternatively you can do it manually:
+* you specify the path to paster in the virtualenv (in the future you might just ensure you've activated CKAN's python virtual environment, but that doesn't work when you sudo)
+* you are in the CKAN source directory
+* use the www-data user, to avoid the log permissions problem (see section below)
 
-    source ~/ckan/bin/activate && cd /src/ckan
+You can see that the virtual environment is activated by the presence of the `(ckan)` prefix in the prompt. e.g.:
 
- You can see that the virtual environment is activated by the presence of the `(ckan)` prefix in the prompt. e.g.:
+    (ckan)co@precise64:/src/ckan$
 
+Note you don't need to specify --config because ckan now gets it from the CKAN_INI environment variable (this is due to a recently introduced change to ckan).
 
 Examples::
 
-    sudo -u www-data paster create-test-data --config=ckan.ini
-    sudo -u www-data paster search-index rebuild --config=ckan.ini
-    sudo -u www-data paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster create-test-data
+    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild
+    sudo -u www-data /home/co/ckan/bin/paster user admin
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority
 
-Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
+You can add --help to list commands and find out more about one. Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
+
+## CKAN Config file
+
+The ckan config file is /var/ckan/ckan.ini. If you change any options, for them to take effect in the web interface you need to restart apache:
+
+    sudo /etc/init.d/apache2 graceful
+
+## CKAN Logs
+
+The main CKAN log file is: /var/log/ckan/ckan.log
+
+Errors go to: /var/log/ckan/ckan-apache.error.log
+
+The log levels are set in /var/ckan/ckan.ini, so to get the debug logging from ckan you can change the level in the `logger_ckan` section. i.e. change it to:
+```
+[logger_ckan]
+level = DEBUG
+handlers = console, file
+qualname = ckan
+propagate = 0
+```
+(and obviously restart apache to take effect)
 
 ## Log permissions
 
@@ -485,6 +494,26 @@ For harvesting to work you need a cron running every few minutes to put the late
 The gov_daily.py script performs a number of nightly jobs including creating backups. Read through and see if you need it in all or part. It could be scheduled in the cron:
 
     0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+
+## Running in paster
+
+When developing CKAN it is often helpful to use the pdb debugging tool. For this to work, you need to run CKAN in paster (instead of apache).
+
+Run CKAN in paster:
+
+    stty echo; sudo -u www-data /home/co/ckan/bin/paster serve /var/ckan/ckan.ini --reload
+
+In the code insert your pdb breakpoint (e.g. in the data controller):
+
+    import pdb; pdb.set_trace()
+
+In your browser access the site via port 5000 (e.g. for vagrant):
+
+    http://192.168.11.11:5000/data/search
+
+Occasionally when working with pdb you will find it goes into a mode where nothing you type appears on the screen. The solution without having to start a new terminal is to type on the command-line (blind):
+
+    stty echo
 
 
 # Puppet notes

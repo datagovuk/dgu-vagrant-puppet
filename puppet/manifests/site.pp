@@ -73,6 +73,12 @@ package { "php5-mysql":
 package { "php5-curl":
   ensure => "installed"
 }
+file {'/var/www/api_users':
+  ensure => file,
+  content => template('dgu_ckan/api_users.erb'),
+  owner   => "co",
+  group   => "www-data",
+}
 
 include dgu_ckan
 
