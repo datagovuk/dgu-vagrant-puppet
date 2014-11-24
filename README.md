@@ -414,14 +414,14 @@ You can see that the virtual environment is activated by the presence of the `(c
 
     (ckan)co@precise64:/src/ckan$
 
-Note you don't need to specify --config because ckan now gets it from the CKAN_INI environment variable (this is due to a recently introduced change to ckan).
+Note you do need to specify --config because although ckan now gets it from the CKAN_INI environment variable (this is due to a recently introduced change to ckan), that is not available when you sudo.
 
 Examples::
 
-    sudo -u www-data /home/co/ckan/bin/paster create-test-data
-    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild
-    sudo -u www-data /home/co/ckan/bin/paster user admin
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority
+    sudo -u www-data /home/co/ckan/bin/paster create-test-data --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user admin --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
 
 You can add --help to list commands and find out more about one. Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
 
@@ -486,8 +486,7 @@ The reports at /data/report should be pre-generated nightly using a cron. e.g.:
 
 For harvesting to work you need a cron running every few minutes to put the latest jobs onto the gather queue:
 
-    */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=
-/var/ckan/ckan.ini
+    */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
 ## Backups
 
@@ -514,6 +513,12 @@ In your browser access the site via port 5000 (e.g. for vagrant):
 Occasionally when working with pdb you will find it goes into a mode where nothing you type appears on the screen. The solution without having to start a new terminal is to type on the command-line (blind):
 
     stty echo
+
+## Paster shell
+
+You can get a python shell which has the database loaded:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=pylons shell /var/ckan/ckan.ini
 
 
 # Puppet notes
