@@ -136,9 +136,11 @@ To automatically activate your CKAN python virtual environment on log-in, it is 
 
 (This extra setup will be usefully puppetized in the future)
 
-Download NLTK Stopwords Corpus
+## Download NLTK Stopwords Corpus
 
-   python -m nltk.downloader stopwords
+For the auth-theming used by the harvesters you need to install this corpus:
+
+   /home/co/ckan/bin/python -m nltk.downloader stopwords
 
 ### Harvesting
 
@@ -175,7 +177,7 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
     source ~/ckan/bin/activate
 
-And make sure you run paster commands from the /vagrant/src/ckan directory.
+And make sure you run paster commands from the `/vagrant/src/ckan` directory.
 
 After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
 
@@ -370,8 +372,8 @@ and reboot Apache:
 
 * MySQL database for both the `root` and `co`. Use these commands:
 
-    mysql -u root --execute "SET PASSWORD = PASSWORD('new root password');"
-    mysql -u -p root --execute "SET PASSWORD FOR 'co'@'localhost' = PASSWORD('new co password');"
+      mysql -u root --execute "SET PASSWORD = PASSWORD('new root password');"
+      mysql -u -p root --execute "SET PASSWORD FOR 'co'@'localhost' = PASSWORD('new co password');"
 
 And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/settings.php` and reboot Apache:
 
@@ -379,8 +381,8 @@ And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/s
 
 * Postgres database:
 
-    sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
-    sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
+      sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
+      sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
 
 And change password in your CKAN sqlalchemy setting in `/var/ckan/ckan.ini`:
 
@@ -479,19 +481,19 @@ Examples::
     sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=/var/ckan/ckan.ini
     sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
 
-You can add --help to list commands and find out more about one. Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
+You can add `--help` to list commands and find out more about one. Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
 
 ## CKAN Config file
 
-The ckan config file is /var/ckan/ckan.ini. If you change any options, for them to take effect in the web interface you need to restart apache:
+The ckan config file is `/var/ckan/ckan.ini`. If you change any options, for them to take effect in the web interface you need to restart apache:
 
     sudo /etc/init.d/apache2 graceful
 
 ## CKAN Logs
 
-The main CKAN log file is: /var/log/ckan/ckan.log
+The main CKAN log file is: `/var/log/ckan/ckan.log`
 
-Errors go to: /var/log/ckan/ckan-apache.error.log
+Errors go to: `/var/log/ckan/ckan-apache.error.log`
 
 The log levels are set in /var/ckan/ckan.ini, so to get the debug logging from ckan you can change the level in the `logger_ckan` section. i.e. change it to:
 ```
