@@ -268,7 +268,7 @@ Working correctly you should see something like this:
 
 ## 4. Drupal install
 
-For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation.  Please see https://drupal.org/requirements for detailed requirements.
+For Drupal you will need to complete the configuration of the LAMP stack and get a working drush installation, as explained below.  For more detailed requirements, please refer to https://drupal.org/requirements .
 
 ### Install Drush
 
@@ -391,6 +391,62 @@ and reboot Apache:
     sudo apachectl restart
 
 
+### Syncing publishers and datasets from CKAN to Drupal
+
+Drupal needs to get data from CKAN for forms creating Data Requests and Apps (for example).
+
+It is suggested that this data is synchronized hourly with a cron.
+
+To install the dependencies for the syncing:
+```
+cd /var/www/drupal/dgu
+drush composer-rebuild
+cd /var/www/drupal/dgu/sites/default/files/composer
+composer install
+```
+
+You need to create a sysadmin user in CKAN that Drupal can use to get the data:
+```
+paster --plugin=ckan user add frontend email=a@b.com password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+paster --plugin=ckan sysadmin add frontend
+```
+Note the apikey from the output of the first command e.g.:
+
+    'apikey': u'17a4a2fa-edf9-479e-bd71-1c0620fe457d'
+
+Now configure how Drupal contacts CKAN: Browse to: /admin/config/system/ckan (On vagrant it is: http://192.168.11.11/admin/config/system/ckan )
+And configure the URL for CKAN (adding `/api/`) and the `apikey` from the previous step. e.g.
+```
+CKAN API URL = http://192.168.11.11/api/
+API key = 17a4a2fa-edf9-479e-bd71-1c0620fe457d
+CKAN editor role = data publisher
+CKAN admin role = data publisher
+```
+(NB: leave the revision options the same)
+
+To (re)sync all publishers you can execute:
+
+    drush ckan_resync_publisher all
+
+These sync commands create a lock to avoid parallel execution.
+If you stop the command (ctrl+c) this lock isn't remove it, to remove it please append ```--kill``` to the command:
+
+    drush ckan_resync_publisher all --kill
+
+You can also resync a single publisher:
+
+    drush ckan_resync_publisher 041e93f9-bf4e-48ec-b779-6bda9588ef55
+
+There is also similar command for syncing datasets:
+
+    drush ckan_resync_dataset
+
+and for datasets and publishers in one go:
+
+    drush ckan_resync_all
+
+(NB If you have no dataset in CKAN, then you'll get an SQL error when syncing them.)
+
 ### Caching
 
 It is likely that you'll want to set-up caching in front of Apache, to massively speed up common requests. This can be achieved with Varnish or Nginx in front of Apache. We suggest:
@@ -418,9 +474,9 @@ Note you do need to specify --config because although ckan now gets it from the 
 
 Examples::
 
-    sudo -u www-data /home/co/ckan/bin/paster create-test-data --config=/var/ckan/ckan.ini
     sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=/var/ckan/ckan.ini
-    sudo -u www-data /home/co/ckan/bin/paster user admin --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user user_d1 --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=/var/ckan/ckan.ini
     sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
 
 You can add --help to list commands and find out more about one. Find full details of the CKAN paster commands is here: http://docs.ckan.org/en/ckan-2.2/paster.html
