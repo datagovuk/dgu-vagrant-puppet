@@ -161,8 +161,8 @@ REDIS_CONNECT_RETRY = True
 
 You need to create the gather and fetch queues by running the consumers briefly:
 
-    sudo -u www-data paster --plugin=ckanext-harvest harvester gather_consumer --config=../ckan/ckan.ini
-    sudo -u www-data paster --plugin=ckanext-harvest harvester fetch_consumer --config=../ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester gather_consumer --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester fetch_consumer --config=/var/ckan/ckan.ini
 
 The queues should be left running, either in screen sessions, or preferably using supervisord.
 
