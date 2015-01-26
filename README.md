@@ -35,7 +35,7 @@ NB We have had issues running this in VMWare and suggest you stick with (free) V
 
 NB This setup does not work with a Windows host machine (since it relies on symbolic links).
 
-Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
+Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as `$THIS_REPO`) and switch to the 'togo' branch:
 
     git clone git@github.com:datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
@@ -51,7 +51,7 @@ Using Vagrant and Puppet, launch a fully provisioned Virtual Machine as describe
     cd $THIS_REPO
     vagrant up
 
-Now a great deal should happen. Expect key stages:
+Now a great deal should happen. Expect these key stages:
 
 * create the virtual machine (VM)
 * boot the VM
@@ -60,11 +60,11 @@ Now a great deal should happen. Expect key stages:
 
 At this point the shell text goes green and it does the "provision" which is:
 
-* prepare to run librarian (install_puppet_dependancies.sh) - install git, update all Ubuntu packages, install ruby and librarian-puppet
+* prepare to run librarian (`install_puppet_dependancies.sh`) - install git, update all Ubuntu packages, install ruby and librarian-puppet
 * runs librarian-puppet - downloads all puppet modules that are required (listed in Puppetfile) and makes a copy of the CKAN puppet module.
 * runs 'puppet apply' (blue output) - installs and configures CKAN and installs some dependencies of Drupal.
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
 
 NB If there is an error and you want to restart the provisioning, from the host box you should do:
 
@@ -125,7 +125,7 @@ and then execute the site manifest now at /etc/puppet/:
 
     sudo puppet apply /vagrant/puppet/manifests/site.pp
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
 
 To automatically activate your CKAN python virtual environment on log-in, it is recommended to add this line to your .bashrc:
 
