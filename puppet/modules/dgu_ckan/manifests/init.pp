@@ -95,7 +95,7 @@ class dgu_ckan {
     'lxml==3.2.4',
     'messytables==0.10.0',
     'mock==1.0.1',
-    'nltk==2.0.4',
+    'nltk==2.0.5',
     'nose==1.3.0',
     'ofs==0.4.1',
     'openpyxl==1.5.7',
