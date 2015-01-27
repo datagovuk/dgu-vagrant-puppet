@@ -41,6 +41,7 @@ class dgu_ckan {
     version => 'system',
     owner => 'co',
     group => 'co',
+    mode => 755,
   }
 
   # Pip install everything

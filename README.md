@@ -140,7 +140,7 @@ To automatically activate your CKAN python virtual environment on log-in, it is 
 
 For the auth-theming used by the harvesters you need to install this corpus:
 
-   /home/co/ckan/bin/python -m nltk.downloader stopwords
+    /home/co/ckan/bin/python -m nltk.downloader stopwords
 
 ### Harvesting
 
