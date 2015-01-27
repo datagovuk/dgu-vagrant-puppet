@@ -292,7 +292,7 @@ And add it to the path:
 
 ### Install the DGU Drupal Distribution
 
-You can install the DGU Drupal Distribution with the following drush command:
+You can install the DGU Drupal Distribution with the following commands:
 
 ````bash
 sudo mkdir /var/www/drupal
@@ -343,6 +343,8 @@ You can now log-in (in Vagrant it is http://192.168.11.11/user ) with this user:
 
     Username: admin
     Password: admin
+
+If you get the message "The website encountered an unexpected error. Please try again later." please see the section below "Debugging Drupal".
 
 
 ## 6. Additional configuration
@@ -577,6 +579,16 @@ You can get a python shell which has the database loaded:
 
     sudo -u www-data /home/co/ckan/bin/paster --plugin=pylons shell /var/ckan/ckan.ini
 
+## Debugging Drupal
+
+### "The website encountered an unexpected error. Please try again later."
+
+To find out what the error is behind this web error page, as long as it is not a public machine you can increase the debug level using this command:
+```
+cd /var/www/drupal/dgu
+drush vset -y error_level 2
+```
+and request the page again.
 
 # Puppet notes
 
