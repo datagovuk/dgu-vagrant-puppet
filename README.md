@@ -393,6 +393,10 @@ and reboot Apache:
 
     sudo apachectl restart
 
+* SSH authentication. The install provides ssh access to the data.gov.uk team, and clearly this should be changed for other organizations. Remove the irrelevant people's lines from this file:
+
+    /home/co/.ssh/authorized_keys
+
 
 ### Syncing publishers and datasets from CKAN to Drupal
 

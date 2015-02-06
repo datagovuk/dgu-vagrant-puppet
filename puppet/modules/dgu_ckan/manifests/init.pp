@@ -12,6 +12,13 @@ class dgu_ckan {
     owner  => 'co',
     group  => 'co',
   }
+  file {'/etc/logrotate.d/ckan':
+    ensure => file,
+    source => "puppet:///modules/dgu_ckan/logrotate.ckan",
+    mode   => 0644,
+    owner  => root,
+    group  => root,
+  }
   class { 'memcached':
       install_dev => true
   }
