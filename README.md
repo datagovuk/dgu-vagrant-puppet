@@ -283,7 +283,7 @@ First get Composer:
 
 Now install the latest Drush:
 
-    composer global require drush/drush:dev-master
+    composer global require drush/drush
 
 And add it to the path:
 
