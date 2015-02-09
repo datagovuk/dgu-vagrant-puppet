@@ -566,7 +566,7 @@ For harvesting to work you need a cron running every few minutes to put the late
 
 ## Archiver & QA
 
-The 'Archiver' extension downloads all the data files and notes if the link is 'broken' or not. The 'QA' extension examines the downloaded data files, mainly to determine the format, and give the dataset a rating against the 5 Stars of Openness.
+The 'Archiver' extension downloads all the data files and notes if the link is 'broken' or not. The 'QA' extension examines the downloaded data files, mainly to determine the format, and give the dataset a rating against the 5 Stars of Openness ("Openness Score").
 
 The 'Archiver' is triggered when a dataset is created or modified, and that in turn triggers the 'QA'. In addition, to links going rotten at a later date, it is sensible to trigger the Archival (and thus QA) on a weekly basis using a cron job.
 
