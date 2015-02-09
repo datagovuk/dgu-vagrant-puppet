@@ -8,6 +8,18 @@ The UK Government has contributed Data.gov.uk To Go to Github to kick-start the 
 
 ![Demo image](ckan_sample_data.png)
 
+If you have an issue installing, please refer to open Github issues before creating a new one: https://github.com/datagovuk/dgu-vagrant-puppet/issues
+
+Here are some useful docs:
+
+* [User Guide for Editors and Administrators](http://data.gov.uk/sites/default/files/library/User%20guide.pdf)
+  * Permissions for publisher users
+  * Creating datasets using the form
+* [Harvesting dataset records into data.gov.uk](http://data.gov.uk/sites/default/files/library/Harvesting%20guide.pdf)
+  * Creating datasets using harvesters, particularly for metadata in DCAT/data.json/CKAN format.
+
+Please get in touch if there are more queries: david.read@hackneyworkshop.com
+
 ## Overview
 
 Here is an overview of the install process:
