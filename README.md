@@ -521,6 +521,8 @@ propagate = 0
 ```
 (and obviously restart apache to take effect)
 
+The Celery queues workers (Archiver & QA) log to: `/var/log/ckan/celeryd.log`
+
 ## Log permissions
 
 It can happened that you may see CKAN return '500 Internal Server Error' and when looking at the log /var/log/ckan/ckan.log you see this error:
@@ -592,6 +594,7 @@ or to archive all of a publisher's datasets (goes onto bulk queue):
 
     sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update cabinet-office --config=$CKAN_INI
 
+You can follow the logs of the Archiver & QA in `/var/log/ckan/celeryd.log`.
 
 ## Backups
 
