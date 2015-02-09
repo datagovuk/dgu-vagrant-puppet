@@ -156,20 +156,7 @@ For the auth-theming used by the harvesters you need to install this corpus:
 
 ### Harvesting
 
-Harvester needs a backend. One option is RabbitMQ (installed by puppet).
-
-The alternative backend is Redis. This requires extra CKAN configuration:
-```
-[app:celery]
-BROKER_BACKEND = redis
-BROKER_HOST = redis://localhost/1
-CELERY_RESULT_BACKEND = redis
-CELERY_SEND_EVENTS = True
-REDIS_HOST = 127.0.0.1
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_CONNECT_RETRY = True
-```
+Harvester needs a backend, and the default is RabbitMQ (installed by puppet).
 
 You need to create the gather and fetch queues by running the consumers briefly:
 
@@ -182,6 +169,18 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
     */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
+### Archiver & QA
+
+To enable the resource cache, broken link checker and 5 star checker, keep these two processes running in the background, using screen or ideally supervisord:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=priority --config=/var/ckan/ckan.ini
+
+And trigger the weekly refreshes using this cron setting:
+
+    0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
+
+The Archiver and QA extensions are explained later on in this guide.
 
 ## 3. CKAN Database setup
 
@@ -562,6 +561,37 @@ The reports at /data/report should be pre-generated nightly using a cron. e.g.:
 For harvesting to work you need a cron running every few minutes to put the latest jobs onto the gather queue:
 
     */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
+
+## Archiver & QA
+
+The 'Archiver' extension downloads all the data files and notes if the link is 'broken' or not. The 'QA' extension examines the downloaded data files, mainly to determine the format, and give the dataset a rating against the 5 Stars of Openness.
+
+The 'Archiver' is triggered when a dataset is created or modified, and that in turn triggers the 'QA'. In addition, to links going rotten at a later date, it is sensible to trigger the Archival (and thus QA) on a weekly basis using a cron job.
+
+Archiver and QA work asynchronously from the rest of CKAN. Jobs for them are put onto a celery queue, and by 'running' the queue the Archiver and QA carry out their jobs. So for the Archiver and QA to work, you need to have two Celery processes running all the time, either in a screen session or preferably using supervisord.
+
+The list of jobs in the queue are stored in Redis (previously the jobs were stored in the `kombu_message` table in the database - if this is still being used you need to add the `[app:celery]` section to your ckan config - see `ckan.ini.erb`).
+
+In fact there are two queues for the jobs - 'priority' deals with the trickle of new and updated datasets and 'bulk' deals with the weekly refresh and other longer updates.
+
+To see how many jobs are on a queue:
+
+    redis-cli -n 1 LLEN priority
+    redis-cli -n 1 LLEN bulk
+
+To clean a queue (delete all of its the queued jobs):
+
+    redis-cli -n 1 DEL priority
+    redis-cli -n 1 DEL bulk
+
+To schedule a dataset to be archived (and then QA'd):
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update cabinet-office-energy-use --config=$CKAN_INI
+
+or to archive all of a publisher's datasets (goes onto bulk queue):
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update cabinet-office --config=$CKAN_INI
+
 
 ## Backups
 
