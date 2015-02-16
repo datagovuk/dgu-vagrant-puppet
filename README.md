@@ -473,6 +473,44 @@ It is likely that you'll want to set-up caching in front of Apache, to massively
 * Logged-in users bypass the cache - cookie `SESS[a-z0-9]+`
 * assets are kept for 24h - This is cache-safe because a timestamp is added to URLs that CKAN uses e.g. `/assets/css/datagovuk.min.css?1411377399236`, so whenever Grunt runs, a new number is given and the cache will be bypassed because of the new number.
 
+### Site Analytics/Usage (Google Analytics)
+
+The Google Analytics data is shown here: http://data.gov.uk/data/site-usage
+To set this up, you need to:
+
+1. Setup Google Analytics account & tracking - see: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#setup-google-analytics
+
+2. Add the configuration to your ckan.ini, customizing the values for the first 2 options:
+```
+googleanalytics.id = UA-1010101-1
+googleanalytics.account = Account name (e.g. data.gov.uk, see top level item at https://www.google.com/analytics)
+googleanalytics.token.filepath = /var/ckan/ga_auth_token.dat
+ga-report.period = monthly
+ga-report.bounce_url = /data/search
+```
+
+3. Create the database tables:
+
+    sudo -u www-data /home/co/ckan/bin/paster initdb --config=/var/ckan/ckan.ini
+
+4. Enable the extension by adding it to the list of `ckan.plugins` in ckan.ini:
+
+    ckan.plugins = ... ga-report
+
+5. Generate an OAUTH token using the instructions: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#authorization The paster command is:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report getauthtoken --config=/var/ckan/ckan.ini
+    mv token.dat /var/ckan/ga_auth_token.dat
+
+6. Now you can load the GA data into CKAN. Run it the first time on the command-line to check it works:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
+
+Then you can add it as a cron job. e.g. add it to /etc/cron.d/ckan
+```
+0 22  * * *  www-data  /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
+
+```
 
 # Orientation
 
@@ -596,11 +634,11 @@ or to archive all of a publisher's datasets (goes onto bulk queue):
 
 You can follow the logs of the Archiver & QA in `/var/log/ckan/celeryd.log`.
 
-## Backups
+## Backups (gov_daily)
 
-The gov_daily.py script performs a number of nightly jobs including creating backups. Read through and see if you need it in all or part. It could be scheduled in the cron:
+The gov_daily.py script performs a number of nightly jobs including creating backups and getting the Site Analytics Google Analytics info. Read through and see if you need it in all or part. You can specify a parameter to just do the backup for example. It could be scheduled in the cron:
 
-    0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+    0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py backup /var/ckan/ckan.ini
 
 ## Running in paster
 
