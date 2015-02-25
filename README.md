@@ -171,14 +171,20 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
 ### Archiver & QA
 
-To enable the resource cache, broken link checker and 5 star checker, keep these two processes running in the background, using screen or ideally supervisord:
+To enable the resource cache, broken link checker and 5 star checker:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=priority --config=/var/ckan/ckan.ini
+1. Unless you're just testing the site locally, change the `ckan.cache_url_root` setting in /var/ckan/ckan.ini to reflect the domain where you will host your site. e.g. for data.gov.uk we have:
 
-And trigger the weekly refreshes using this cron setting:
+       ckan.cache_url_root = http://data.gov.uk/data/resource_cache/
 
-    0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
+2. Keep these two processes running in the background, using screen or ideally supervisord:
+
+       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
+       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=bulk --config=/var/ckan/ckan.ini
+
+3. Trigger the weekly refreshes using this cron setting:
+
+       0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
 
 The Archiver and QA extensions are explained later on in this guide.
 
