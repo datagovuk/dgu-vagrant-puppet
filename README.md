@@ -8,17 +8,15 @@ The UK Government has contributed Data.gov.uk To Go to Github to kick-start the 
 
 ![Demo image](ckan_sample_data.png)
 
-If you have an issue installing, please refer to open Github issues before creating a new one: https://github.com/datagovuk/dgu-vagrant-puppet/issues
+If you question or issue installing, please refer to open Github issues before creating a new one: https://github.com/datagovuk/dgu-vagrant-puppet/issues
 
-Here are some useful docs:
-
-* [User Guide for Editors and Administrators](http://data.gov.uk/sites/default/files/library/User%20guide.pdf)
-  * Permissions for publisher users
+Here are some useful docs: [data.gov.uk guidance](http://datagovuk.github.io/guidance/)
+  * Permissions for publisher users - requesting and giving
   * Creating datasets using the form
-* [Harvesting dataset records into data.gov.uk](http://data.gov.uk/sites/default/files/library/Harvesting%20guide.pdf)
-  * Creating datasets using harvesters, particularly for metadata in DCAT/data.json/CKAN format.
+  * Creating datasets using harvesters, particularly for metadata in DCAT/data.json/CKAN format
 
-Please get in touch if there are more queries: david.read@hackneyworkshop.com
+David Read
+david.read@hackneyworkshop.com
 
 ## Overview
 
@@ -33,9 +31,15 @@ Here is an overview of the install process:
 
 ## Suggested system requirements
 
+data.gov.uk runs on a single machine specified as follows:
+
 * 24GB RAM
 * 8 cores
 * 200GB disc
+
+We've done little testing or optimising, so you may well get away with a lot less.
+
+For single-user testing, you can run it in less. e.g. we run it on dev VMs with 8 GB RAM.
 
 ## 1. Machine preparation & CKAN install
 
