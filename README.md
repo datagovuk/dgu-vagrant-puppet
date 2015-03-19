@@ -37,9 +37,9 @@ data.gov.uk runs on a single machine specified as follows:
 * 8 cores
 * 200GB disc
 
-We've done little testing or optimising, so you may well get away with a lot less.
+We've not needed to make it work on a lesser machine, but no doubt it could.
 
-For single-user testing, you can run it in less. e.g. we run it on dev VMs with 8 GB RAM.
+For single-user testing, you can certainly run it in less. e.g. we run it on dev VMs with 8 GB RAM.
 
 ## 1. Machine preparation & CKAN install
 
