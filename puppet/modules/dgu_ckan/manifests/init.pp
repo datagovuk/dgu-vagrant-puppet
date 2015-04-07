@@ -142,6 +142,7 @@ class dgu_ckan {
     'ckanext-report',
     'ckanext-dgu-local',
     'logreporter',
+    'ckanext-taxonomy',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => [
