@@ -24,6 +24,11 @@ cd ckanext-datapreview
 git checkout master
 cd -
 
+git clone	git@github.com:datagovuk/ckanext-dcat
+cd ckanext-dcat
+git checkout dgu
+cd -
+
 git clone	git@github.com:datagovuk/ckanext-dgu
 cd ckanext-dgu
 git checkout master
@@ -68,6 +73,11 @@ cd -
 git clone	git@github.com:datagovuk/ckanext-spatial
 cd ckanext-spatial
 git checkout dgu
+cd -
+
+git clone	git@github.com:datagovuk/ckanext-taxonomy
+cd ckanext-taxonomy
+git checkout master
 cd -
 
 git clone	git@github.com:okfn/ckanext-importlib
