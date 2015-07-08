@@ -74,7 +74,11 @@ Now a great deal should happen. Expect these key stages:
 * update some key Ubuntu packages like linux-headers
 * mount the shared folders
 
-At this point the shell text goes green and it does the "provision" which is:
+At this point the shell text goes green and it does the "provision". If this does not start automatically, start it manually (from the host box)::
+
+    vagrant provision
+
+The provision is:
 
 * prepare to run librarian (`install_puppet_dependancies.sh`) - install git, update all Ubuntu packages, install ruby and librarian-puppet
 * runs librarian-puppet - downloads all puppet modules that are required (listed in Puppetfile) and makes a copy of the CKAN puppet module.
@@ -230,8 +234,8 @@ Then load the dump in (ensure you are logged in as the co user):
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
-    sudo -u www-data paster db upgrade --config=ckan.ini
-    sudo -u www-data paster search-index rebuild --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster db upgrade --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=ckan.ini
 
 Note: expect the `pv` command to produce a number of non-fatal errors and warnings. At the start there are several pages of errors before it starts creating tables:
 
@@ -264,8 +268,8 @@ ERROR:  must be owner of relation spatial_ref_sys
 
 For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
 
-    sudo -u www-data paster user add admin email=admin@ckan password=pass --config=ckan.ini
-    sudo -u www-data paster sysadmin add admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user add admin email=admin@ckan password=pass --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster sysadmin add admin --config=ckan.ini
 
 ### Try CKAN
 
@@ -378,7 +382,7 @@ For a live deployment it is important to change the passwords from the sample on
 
 * CKAN `admin` account. Change it with:
 
-    sudo -u www-data paster user setpass admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user setpass admin --config=ckan.ini
 
 * HTTP Basic Auth around Drupal services. Change the password CKAN uses to contact the Drupal services API by editing in `/var/ckan/ckan.ini` the value for `dgu.xmlrpc_password` to be a new password:
 
@@ -435,8 +439,8 @@ composer install
 
 You need to create a sysadmin user in CKAN that Drupal can use to get the data:
 ```
-paster --plugin=ckan user add frontend email=a@b.com password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-paster --plugin=ckan sysadmin add frontend
+sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user add frontend email=a@b.com password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan sysadmin add frontend
 ```
 Note the apikey from the output of the first command e.g.:
 
@@ -698,6 +702,7 @@ These messages will be seen during provisioning with Puppet, and are harmless:
     dpkg-preconfigure: unable to re-open stdin: No such file or directory
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
+    The directory '/home/vagrant/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
 
 ## Puppet apply
 
