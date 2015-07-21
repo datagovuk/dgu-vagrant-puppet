@@ -51,20 +51,20 @@ NB We have had issues running this in VMWare and suggest you stick with (free) V
 
 NB This setup does not work with a Windows host machine (since it relies on symbolic links).
 
-Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as `$THIS_REPO`) and switch to the 'togo' branch:
+Before creating the virtual machine, clone this repo to the host machine and switch to the 'togo' branch:
 
     git clone git@github.com:datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
     git checkout togo
 
-Use the script to clone all the CKAN source repos onto your host machine.
+Use the script to clone all the CKAN source repos onto your host machine:
 
-    cd $THIS_REPO/src
+    cd src
     ./git_clone_all.sh
+    cd ..
 
 Using Vagrant and Puppet, launch a fully provisioned Virtual Machine as described in this repo:
 
-    cd $THIS_REPO
     vagrant up
 
 Now a great deal should happen. Expect these key stages:
@@ -74,7 +74,7 @@ Now a great deal should happen. Expect these key stages:
 * update some key Ubuntu packages like linux-headers
 * mount the shared folders
 
-At this point the shell text goes green and it does the "provision". If this does not start automatically, start it manually (from the host box)::
+At this point the shell text goes green and it does the "provision". If this does not start automatically, start it manually (from the host box):
 
     vagrant provision
 
@@ -542,7 +542,7 @@ You can see that the virtual environment is activated by the presence of the `(c
 
 Note you do need to specify --config because although ckan now gets it from the CKAN_INI environment variable (this is due to a recently introduced change to ckan), that is not available when you sudo.
 
-Examples::
+Examples:
 
     sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=/var/ckan/ckan.ini
     sudo -u www-data /home/co/ckan/bin/paster user user_d1 --config=/var/ckan/ckan.ini
