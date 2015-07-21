@@ -680,6 +680,14 @@ You can get a python shell which has the database loaded:
 
     sudo -u www-data /home/co/ckan/bin/paster --plugin=pylons shell /var/ckan/ckan.ini
 
+## Running ckan tests
+
+The core ckan tests can be run, but need to use the core ckan solr schema, for which you need to set-up a new solr core.
+
+    sed 's/8983\/solr/8983\/solr\/ckan-2.2/g' test-core.ini > test-core-dread.ini
+
+TBC
+
 ## Debugging Drupal
 
 ### "The website encountered an unexpected error. Please try again later."
