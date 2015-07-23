@@ -8,6 +8,16 @@ The UK Government has contributed Data.gov.uk To Go to Github to kick-start the 
 
 ![Demo image](ckan_sample_data.png)
 
+If you question or issue installing, please refer to open Github issues before creating a new one: https://github.com/datagovuk/dgu-vagrant-puppet/issues
+
+Here are some useful docs: [data.gov.uk guidance](http://datagovuk.github.io/guidance/)
+  * Permissions for publisher users - requesting and giving
+  * Creating datasets using the form
+  * Creating datasets using harvesters, particularly for metadata in DCAT/data.json/CKAN format
+
+David Read
+david.read@hackneyworkshop.com
+
 ## Overview
 
 Here is an overview of the install process:
@@ -21,9 +31,15 @@ Here is an overview of the install process:
 
 ## Suggested system requirements
 
+data.gov.uk runs on a single machine specified as follows:
+
 * 24GB RAM
 * 8 cores
 * 200GB disc
+
+We've not needed to make it work on a lesser machine, but no doubt it could.
+
+For single-user testing, you can certainly run it in less. e.g. we run it on dev VMs with 8 GB RAM.
 
 ## 1. Machine preparation & CKAN install
 
@@ -35,36 +51,40 @@ NB We have had issues running this in VMWare and suggest you stick with (free) V
 
 NB This setup does not work with a Windows host machine (since it relies on symbolic links).
 
-Before creating the virtual machine, clone this repo to the host machine (its path will now be referred to as $THIS_REPO) and switch to the 'togo' branch:
+Before creating the virtual machine, clone this repo to the host machine and switch to the 'togo' branch:
 
     git clone git@github.com:datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
     git checkout togo
 
-Use the script to clone all the CKAN source repos onto your host machine.
+Use the script to clone all the CKAN source repos onto your host machine:
 
-    cd $THIS_REPO/src
+    cd src
     ./git_clone_all.sh
+    cd ..
 
 Using Vagrant and Puppet, launch a fully provisioned Virtual Machine as described in this repo:
 
-    cd $THIS_REPO
     vagrant up
 
-Now a great deal should happen. Expect key stages:
+Now a great deal should happen. Expect these key stages:
 
 * create the virtual machine (VM)
 * boot the VM
 * update some key Ubuntu packages like linux-headers
 * mount the shared folders
 
-At this point the shell text goes green and it does the "provision" which is:
+At this point the shell text goes green and it does the "provision". If this does not start automatically, start it manually (from the host box):
 
-* prepare to run librarian (install_puppet_dependancies.sh) - install git, update all Ubuntu packages, install ruby and librarian-puppet
+    vagrant provision
+
+The provision is:
+
+* prepare to run librarian (`install_puppet_dependancies.sh`) - install git, update all Ubuntu packages, install ruby and librarian-puppet
 * runs librarian-puppet - downloads all puppet modules that are required (listed in Puppetfile) and makes a copy of the CKAN puppet module.
 * runs 'puppet apply' (blue output) - installs and configures CKAN and installs some dependencies of Drupal.
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
 
 NB If there is an error and you want to restart the provisioning, from the host box you should do:
 
@@ -125,7 +145,7 @@ and then execute the site manifest now at /etc/puppet/:
 
     sudo puppet apply /vagrant/puppet/manifests/site.pp
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Vagrant warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
 
 To automatically activate your CKAN python virtual environment on log-in, it is recommended to add this line to your .bashrc:
 
@@ -140,29 +160,16 @@ To automatically activate your CKAN python virtual environment on log-in, it is 
 
 For the auth-theming used by the harvesters you need to install this corpus:
 
-   /home/co/ckan/bin/python -m nltk.downloader stopwords
+    /home/co/ckan/bin/python -m nltk.downloader stopwords
 
 ### Harvesting
 
-Harvester needs a backend. One option is RabbitMQ (installed by puppet).
-
-The alternative backend is Redis. This requires extra CKAN configuration:
-```
-[app:celery]
-BROKER_BACKEND = redis
-BROKER_HOST = redis://localhost/1
-CELERY_RESULT_BACKEND = redis
-CELERY_SEND_EVENTS = True
-REDIS_HOST = 127.0.0.1
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_CONNECT_RETRY = True
-```
+Harvester needs a backend, and the default is RabbitMQ (installed by puppet).
 
 You need to create the gather and fetch queues by running the consumers briefly:
 
-    sudo -u www-data paster --plugin=ckanext-harvest harvester gather_consumer --config=../ckan/ckan.ini
-    sudo -u www-data paster --plugin=ckanext-harvest harvester fetch_consumer --config=../ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester gather_consumer --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester fetch_consumer --config=/var/ckan/ckan.ini
 
 The queues should be left running, either in screen sessions, or preferably using supervisord.
 
@@ -170,6 +177,24 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
     */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
+### Archiver & QA
+
+To enable the resource cache, broken link checker and 5 star checker:
+
+1. Unless you're just testing the site locally, change the `ckan.cache_url_root` setting in /var/ckan/ckan.ini to reflect the domain where you will host your site. e.g. for data.gov.uk we have:
+
+       ckan.cache_url_root = http://data.gov.uk/data/resource_cache/
+
+2. Keep these two processes running in the background, using screen or ideally supervisord:
+
+       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
+       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=bulk --config=/var/ckan/ckan.ini
+
+3. Trigger the weekly refreshes using this cron setting:
+
+       0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
+
+The Archiver and QA extensions are explained later on in this guide.
 
 ## 3. CKAN Database setup
 
@@ -209,8 +234,8 @@ Then load the dump in (ensure you are logged in as the co user):
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
-    sudo -u www-data paster db upgrade --config=ckan.ini
-    sudo -u www-data paster search-index rebuild --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster db upgrade --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=ckan.ini
 
 Note: expect the `pv` command to produce a number of non-fatal errors and warnings. At the start there are several pages of errors before it starts creating tables:
 
@@ -243,8 +268,8 @@ ERROR:  must be owner of relation spatial_ref_sys
 
 For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
 
-    sudo -u www-data paster user add admin email=admin@ckan password=pass --config=ckan.ini
-    sudo -u www-data paster sysadmin add admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user add admin email=admin@ckan password=pass --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster sysadmin add admin --config=ckan.ini
 
 ### Try CKAN
 
@@ -283,7 +308,7 @@ First get Composer:
 
 Now install the latest Drush:
 
-    composer global require drush/drush:dev-master
+    composer global require drush/drush
 
 And add it to the path:
 
@@ -292,7 +317,7 @@ And add it to the path:
 
 ### Install the DGU Drupal Distribution
 
-You can install the DGU Drupal Distribution with the following drush command:
+You can install the DGU Drupal Distribution with the following commands:
 
 ````bash
 sudo mkdir /var/www/drupal
@@ -311,8 +336,7 @@ This will install Drupal, download all the required modules and configure the sy
 After this step completes successfully, you should enable some modules:
 
 ````bash
-drush --yes en dgu_site_feature
-drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_organogram dgu_promo_items dgu_reply dgu_shared_fields dgu_user dgu_taxonomy ckan dgu_search dgu_services dgu_home_page dgu_moderation
+drush --yes en dgu_app dgu_blog dgu_consultation dgu_data_set dgu_data_set_request dgu_footer dgu_forum dgu_glossary dgu_idea dgu_library dgu_linked_data dgu_location dgu_moderation dgu_notifications dgu_organogram dgu_print dgu_reply dgu_search dgu_services dgu_user ckan
 ````
 
 You will need to configure drupal with the url of your CKAN instance.  We use the following drush commands:
@@ -345,6 +369,8 @@ You can now log-in (in Vagrant it is http://192.168.11.11/user ) with this user:
     Username: admin
     Password: admin
 
+If you get the message "The website encountered an unexpected error. Please try again later." please see the section below "Debugging Drupal".
+
 
 ## 6. Additional configuration
 
@@ -356,7 +382,7 @@ For a live deployment it is important to change the passwords from the sample on
 
 * CKAN `admin` account. Change it with:
 
-    sudo -u www-data paster user setpass admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster user setpass admin --config=ckan.ini
 
 * HTTP Basic Auth around Drupal services. Change the password CKAN uses to contact the Drupal services API by editing in `/var/ckan/ckan.ini` the value for `dgu.xmlrpc_password` to be a new password:
 
@@ -392,6 +418,10 @@ and reboot Apache:
 
     sudo apachectl restart
 
+* SSH authentication. The install provides ssh access to the data.gov.uk team, and clearly this should be changed for other organizations. Remove the irrelevant people's lines from this file:
+
+    /home/co/.ssh/authorized_keys
+
 
 ### Syncing publishers and datasets from CKAN to Drupal
 
@@ -409,8 +439,8 @@ composer install
 
 You need to create a sysadmin user in CKAN that Drupal can use to get the data:
 ```
-paster --plugin=ckan user add frontend email=a@b.com password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-paster --plugin=ckan sysadmin add frontend
+sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user add frontend email=a@b.com password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan sysadmin add frontend
 ```
 Note the apikey from the output of the first command e.g.:
 
@@ -457,6 +487,44 @@ It is likely that you'll want to set-up caching in front of Apache, to massively
 * Logged-in users bypass the cache - cookie `SESS[a-z0-9]+`
 * assets are kept for 24h - This is cache-safe because a timestamp is added to URLs that CKAN uses e.g. `/assets/css/datagovuk.min.css?1411377399236`, so whenever Grunt runs, a new number is given and the cache will be bypassed because of the new number.
 
+### Site Analytics/Usage (Google Analytics)
+
+The Google Analytics data is shown here: http://data.gov.uk/data/site-usage
+To set this up, you need to:
+
+1. Setup Google Analytics account & tracking - see: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#setup-google-analytics
+
+2. Add the configuration to your ckan.ini, customizing the values for the first 2 options:
+```
+googleanalytics.id = UA-1010101-1
+googleanalytics.account = Account name (e.g. data.gov.uk, see top level item at https://www.google.com/analytics)
+googleanalytics.token.filepath = /var/ckan/ga_auth_token.dat
+ga-report.period = monthly
+ga-report.bounce_url = /data/search
+```
+
+3. Create the database tables:
+
+    sudo -u www-data /home/co/ckan/bin/paster initdb --config=/var/ckan/ckan.ini
+
+4. Enable the extension by adding it to the list of `ckan.plugins` in ckan.ini:
+
+    ckan.plugins = ... ga-report
+
+5. Generate an OAUTH token using the instructions: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#authorization The paster command is:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report getauthtoken --config=/var/ckan/ckan.ini
+    mv token.dat /var/ckan/ga_auth_token.dat
+
+6. Now you can load the GA data into CKAN. Run it the first time on the command-line to check it works:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
+
+Then you can add it as a cron job. e.g. add it to /etc/cron.d/ckan
+```
+0 22  * * *  www-data  /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
+
+```
 
 # Orientation
 
@@ -474,7 +542,7 @@ You can see that the virtual environment is activated by the presence of the `(c
 
 Note you do need to specify --config because although ckan now gets it from the CKAN_INI environment variable (this is due to a recently introduced change to ckan), that is not available when you sudo.
 
-Examples::
+Examples:
 
     sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=/var/ckan/ckan.ini
     sudo -u www-data /home/co/ckan/bin/paster user user_d1 --config=/var/ckan/ckan.ini
@@ -504,6 +572,8 @@ qualname = ckan
 propagate = 0
 ```
 (and obviously restart apache to take effect)
+
+The Celery queues workers (Archiver & QA) log to: `/var/log/ckan/celeryd.log`
 
 ## Log permissions
 
@@ -546,11 +616,43 @@ For harvesting to work you need a cron running every few minutes to put the late
 
     */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
-## Backups
+## Archiver & QA
 
-The gov_daily.py script performs a number of nightly jobs including creating backups. Read through and see if you need it in all or part. It could be scheduled in the cron:
+The 'Archiver' extension downloads all the data files and notes if the link is 'broken' or not. The 'QA' extension examines the downloaded data files, mainly to determine the format, and give the dataset a rating against the 5 Stars of Openness ("Openness Score").
 
-    0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py /var/ckan/ckan.ini
+The 'Archiver' is triggered when a dataset is created or modified, and that in turn triggers the 'QA'. In addition, to links going rotten at a later date, it is sensible to trigger the Archival (and thus QA) on a weekly basis using a cron job.
+
+Archiver and QA work asynchronously from the rest of CKAN. Jobs for them are put onto a celery queue, and by 'running' the queue the Archiver and QA carry out their jobs. So for the Archiver and QA to work, you need to have two Celery processes running all the time, either in a screen session or preferably using supervisord.
+
+The list of jobs in the queue are stored in Redis (previously the jobs were stored in the `kombu_message` table in the database - if this is still being used you need to add the `[app:celery]` section to your ckan config - see `ckan.ini.erb`).
+
+In fact there are two queues for the jobs - 'priority' deals with the trickle of new and updated datasets and 'bulk' deals with the weekly refresh and other longer updates.
+
+To see how many jobs are on a queue:
+
+    redis-cli -n 1 LLEN priority
+    redis-cli -n 1 LLEN bulk
+
+To clean a queue (delete all of its the queued jobs):
+
+    redis-cli -n 1 DEL priority
+    redis-cli -n 1 DEL bulk
+
+To schedule a dataset to be archived (and then QA'd):
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update cabinet-office-energy-use --config=$CKAN_INI
+
+or to archive all of a publisher's datasets (goes onto bulk queue):
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update cabinet-office --config=$CKAN_INI
+
+You can follow the logs of the Archiver & QA in `/var/log/ckan/celeryd.log`.
+
+## Backups (gov_daily)
+
+The gov_daily.py script performs a number of nightly jobs including creating backups and getting the Site Analytics Google Analytics info. Read through and see if you need it in all or part. You can specify a parameter to just do the backup for example. It could be scheduled in the cron:
+
+    0 23  * * *  root  /home/co/ckan/bin/python /vagrant/src/ckanext-dgu/ckanext/dgu/bin/gov_daily.py backup /var/ckan/ckan.ini
 
 ## Running in paster
 
@@ -578,6 +680,24 @@ You can get a python shell which has the database loaded:
 
     sudo -u www-data /home/co/ckan/bin/paster --plugin=pylons shell /var/ckan/ckan.ini
 
+## Running ckan tests
+
+The core ckan tests can be run, but need to use the core ckan solr schema, for which you need to set-up a new solr core.
+
+    sed 's/8983\/solr/8983\/solr\/ckan-2.2/g' test-core.ini > test-core-dread.ini
+
+TBC
+
+## Debugging Drupal
+
+### "The website encountered an unexpected error. Please try again later."
+
+To find out what the error is behind this web error page, as long as it is not a public machine you can increase the debug level using this command:
+```
+cd /var/www/drupal/dgu
+drush vset -y error_level 2
+```
+and request the page again.
 
 # Puppet notes
 
@@ -590,6 +710,7 @@ These messages will be seen during provisioning with Puppet, and are harmless:
     dpkg-preconfigure: unable to re-open stdin: No such file or directory
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
+    The directory '/home/vagrant/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
 
 ## Puppet apply
 

@@ -19,6 +19,7 @@ define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
           command     => "${ckan_virtualenv}/bin/pip install --no-index --find-links=file:///vagrant/pypi --log-file ${ckan_virtualenv}/pip.log ${url}",
           user        => $owner,
           logoutput   => "on_failure",
+          environment => ["XDG_CACHE_HOME=/home/co/.cache"],
         }
       }
     }
@@ -29,6 +30,7 @@ define dgu_ckan::pip_package ($ensure = present, $owner, $local) {
           command     => "/bin/echo y | ${ckan_virtualenv}/bin/pip uninstall ${name}",
           user        => $owner,
           logoutput   => "on_failure",
+          environment => ["XDG_CACHE_HOME=/home/co/.cache"],
         }
       }
     }

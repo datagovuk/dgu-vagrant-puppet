@@ -1,0 +1,42 @@
+/var/log/ckan/ckan.log {
+    weekly
+    size 10M
+    missingok
+    rotate 10
+    compress
+    create 640 syslog adm
+    sharedscripts
+    postrotate
+    service rsyslog reload > /dev/null
+    endscript
+    lastaction
+    endscript
+}
+/var/log/ckan/ckan-error.log {
+    weekly
+    size 10M
+    missingok
+    rotate 10
+    compress
+    create 640 syslog adm
+    sharedscripts
+    postrotate
+    service rsyslog reload > /dev/null
+    endscript
+    lastaction
+    endscript
+}
+/var/log/ckan/ckan-apache.custom.log {
+    weekly
+    size 10M
+    missingok
+    rotate 10
+    compress
+    create 640 syslog adm
+    sharedscripts
+    postrotate
+    service rsyslog reload > /dev/null
+    endscript
+    lastaction
+    endscript
+}
