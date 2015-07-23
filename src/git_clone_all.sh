@@ -100,7 +100,3 @@ cd dgu_d7
 git checkout master
 cd -
 
-git clone   git@github.com:datagovuk/ckanext-taxonomy.git
-cd ckanext-taxonomy
-git checkout master
-cd -

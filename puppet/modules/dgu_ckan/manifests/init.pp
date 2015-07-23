@@ -159,7 +159,6 @@ class dgu_ckan {
     'ckanext-taxonomy',
     'ckanext-certificates',
     'logreporter',
-    'ckanext-taxonomy',
   ]
   dgu_ckan::pip_package { $pip_pkgs_local:
     require => [
