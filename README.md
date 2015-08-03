@@ -177,6 +177,15 @@ Meanwhile you need the `harvester run` cron job to run every 10 minutes:
 
     */10 *  * * *   www-data  /home/co/ckan/bin/paster --plugin=ckanext-harvest harvester run --config=/var/ckan/ckan.ini
 
+### Gemini Harvester
+
+The Gemini harvester needs a newer version of xmllib2 than is installed on this version of Ubuntu. Until you upgrade it you'll see this harvesting error:
+
+    File "xmlschema.pxi", line 102, in lxml.etree.XMLSchema.__init__ (src/lxml/lxml.etree.c:154475)
+    lxml.etree.XMLSchemaParseError: local list type: A type, derived by list or union, must have th
+
+The way to upgrade it manually is written here: http://docs.ckan.org/projects/ckanext-spatial/en/latest/install.html#when-running-the-spatial-harvesters
+
 ### Archiver & QA
 
 To enable the resource cache, broken link checker and 5 star checker:
