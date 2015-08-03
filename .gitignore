@@ -3,5 +3,6 @@ db_backup
 *~
 *.swp
 src/ckanext*
+src/ckanapi
 src/logreporter
 scripts/*

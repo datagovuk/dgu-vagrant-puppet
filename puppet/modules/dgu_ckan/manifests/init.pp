@@ -300,17 +300,14 @@ class dgu_ckan {
       Class["postgresql::server"],
     ],
   }
-  # The testing process deletes all tables, which doesn't work if there are the Postgis
-  # ones there owned by the co user and no deletable. Reconsider this when testing
-  # ckanext-spatial.
   exec {"createdb ${ckan_test_db_name}":
-    command   => "createdb -O ${ckan_test_db_user} ${ckan_test_db_name} --template template_utf8",
+    command   => "createdb -O ${ckan_test_db_user} ${ckan_test_db_name} --template template_postgis",
     unless    => "psql -l | grep \" ${ckan_test_db_name} \"",
     path      => "/usr/bin:/bin",
     user      => postgres,
     logoutput => true,
     require   => [
-      Exec["createdb utf8_template"],
+      Exec["createdb postgis_template"],
       Postgresql::Server::Role[$ckan_test_db_user],
       Class["postgresql::server"],
     ],
