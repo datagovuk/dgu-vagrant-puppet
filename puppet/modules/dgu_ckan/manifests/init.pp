@@ -108,6 +108,7 @@ class dgu_ckan {
     'nltk==2.0.5',
     'nose==1.3.0',
     'ofs==0.4.1',
+    'passlib==1.6.2',
     'openpyxl==1.5.7',
     'psycopg2==2.4.5',
     'pylibmc',
