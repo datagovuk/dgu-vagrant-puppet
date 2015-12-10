@@ -55,7 +55,7 @@ NB This setup does not work with a Windows host machine (since it relies on symb
 
 Before creating the virtual machine, clone this repo to the host machine and switch to the 'togo' branch:
 
-    git clone git@github.com:datagovuk/dgu-vagrant-puppet
+    git clone https://github.com/datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
     git checkout togo
 
@@ -127,7 +127,7 @@ Clone this repo to the machine in /vagrant (to match the vagrant install) and sw
 
     mkdir /vagrant
     cd /vagrant
-    git clone git@github.com:datagovuk/dgu-vagrant-puppet
+    git clone https://github.com/datagovuk/dgu-vagrant-puppet
     cd /vagrant/dgu-vagrant-puppet
     git checkout togo
 
