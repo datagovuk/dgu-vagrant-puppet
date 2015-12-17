@@ -366,10 +366,8 @@ Those evaluating this distribution will probably want to use the sample content,
 
 NB This will delete all other Drupal content and users.
 
-You can now log-in (in Vagrant it is http://192.168.11.11/user ) with this user:
-
-    Username: admin
-    Password: admin
+You can now log-in by executing 'drush uli' in Drupal root folder.
+This command generates one time login link, you can change admin password once logged in.
 
 If you get the message "The website encountered an unexpected error. Please try again later." please see the section below "Debugging Drupal".
 
