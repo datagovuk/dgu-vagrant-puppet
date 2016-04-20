@@ -6,10 +6,10 @@
 git clone	https://github.com/datagovuk/ckan
 cd ckan
 git checkout release-v2.2-dgu
-git remote add okfn https://github.com/okfn/ckan
+git remote add ckan https://github.com/ckan/ckan
 cd -
 
-git clone	https://github.com/datagovuk/ckanext-archiver
+git clone	https://github.com/ckan/ckanext-archiver
 cd ckanext-archiver
 git checkout master
 cd -
@@ -60,9 +60,9 @@ cd ckanext-os
 git checkout master
 cd -
 
-git clone	https://github.com/datagovuk/ckanext-qa
+git clone	https://github.com/ckan/ckanext-qa
 cd ckanext-qa
-git checkout 2.0
+git checkout master
 cd -
 
 git clone https://github.com/datagovuk/ckanext-report

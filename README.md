@@ -53,11 +53,10 @@ NB We have had issues running this in VMWare and suggest you stick with (free) V
 
 NB This setup does not work with a Windows host machine (since it relies on symbolic links).
 
-Before creating the virtual machine, clone this repo to the host machine and switch to the 'togo' branch:
+Before creating the virtual machine, clone this repo to the host machine:
 
     git clone https://github.com/datagovuk/dgu-vagrant-puppet
     cd dgu-vagrant-puppet
-    git checkout togo
 
 Use the script to clone all the CKAN source repos onto your host machine:
 
@@ -76,6 +75,11 @@ Now a great deal should happen. Expect these key stages:
 * update some key Ubuntu packages like linux-headers
 * mount the shared folders
 
+You can generally ignore these warnings if they come up:
+
+* the version of GuestAdditions not matching
+* "Could not find the X.Org or XFree86 Window System, skipping."
+
 At this point the shell text goes green and it does the "provision". If this does not start automatically, start it manually (from the host box):
 
     vagrant provision
@@ -86,7 +90,7 @@ The provision is:
 * runs librarian-puppet - downloads all puppet modules that are required (listed in Puppetfile) and makes a copy of the CKAN puppet module.
 * runs 'puppet apply' (blue output) - installs and configures CKAN and installs some dependencies of Drupal.
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'. If you should suffer errors, please see the section below 'Puppet errors'.
 
 NB If there is an error and you want to restart the provisioning, from the host box you should do:
 
@@ -112,30 +116,40 @@ Instead of using a virtual-machine it is perfectly fine alternative to use a non
 
 Puppet will assume the home user is called 'co', so create it with some particular options:
 
-    sudo adduser co -u 510 -G sudo
+    sudo adduser co -u 510 --group sudo
     sudo su co
 
 All further steps are to be carried out from the ssh session under the user 'co' on this target machine.
 
-You need to install some dependencies:
+You need to install some dependencies. Firstly git:
 
-    sudo apt-get install ruby1.9.3 rubygems git
-    sudo ln -sf /usr/bin/ruby1.9.3 /etc/alternatives/ruby
+    sudo apt-get install git
+
+Now install ruby and 'librarian-puppet':
+
+    sudo apt-get install python-software-properties
+    sudo apt-add-repository ppa:brightbox/ruby-ng
+    sudo apt-get update
+    sudo apt-get install ruby2.2
+    sudo gem install puppet -v 2.7.19
     sudo gem install librarian-puppet -v 1.0.3
 
-Clone this repo to the machine in /vagrant (to match the vagrant install) and switch to the 'togo' branch:
+Clone this repo to the machine in /vagrant (to match the vagrant install):
 
-    mkdir /vagrant
+    sudo mkdir /vagrant
+    sudo chown co /vagrant
+    sudo chgrp co /vagrant
     cd /vagrant
     git clone https://github.com/datagovuk/dgu-vagrant-puppet
     cd /vagrant/dgu-vagrant-puppet
-    git checkout togo
 
 Use the script to clone all the CKAN source repos.
 
-     ln -s /vagrant/src /src
-     cd /src
-     ./git_clone_all.sh
+    ln -s /vagrant/dgu-vagrant-puppet/src /vagrant/src
+    ln -s /vagrant/dgu-vagrant-puppet/puppet/ /vagrant/puppet
+    ln -s /vagrant/src /src
+    cd /src
+    ./git_clone_all.sh
 
 Puppet is used to install and configure the main software packages (Apache, Postgres, SOLR etc) and setup linux users.
 
@@ -147,7 +161,7 @@ and then execute the site manifest now at /etc/puppet/:
 
     sudo puppet apply /vagrant/puppet/manifests/site.pp
 
-Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'.
+Provisioning will take a while, and you can ignore warnings that are listed in the section of this document titled 'Puppet warnings'. If you should suffer errors, please see the section below 'Puppet errors'.
 
 To automatically activate your CKAN python virtual environment on log-in, it is recommended to add this line to your .bashrc:
 
@@ -204,7 +218,7 @@ The Archiver and QA extensions are explained later on in this guide.
 
     source ~/ckan/bin/activate
 
-And make sure you run paster commands from the `/vagrant/src/ckan` directory.
+And make sure you run paster commands as `co` user from the `/src/ckan` or `/vagrant/src/ckan` directory.
 
 After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
 
@@ -711,6 +725,21 @@ These messages will be seen during provisioning with Puppet, and are harmless:
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
     warning: Scope(Class[Python]): Could not look up qualified variable '::python::install::valid_versions'; class ::python::install has not been evaluated at /etc/puppet/modules/python/manifests/init.pp:73
     The directory '/home/vagrant/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+
+## Puppet errors
+
+Despite aiming to keep these scripts working without error, 'Puppet apply' might possibly fail.
+
+If 'puppet apply' fails (e.g. during 'provision') then you see it end with this red text:
+
+    The SSH command responded with a non-zero exit status. Vagrant
+    assumes that this means the command failed. The output for this command
+    should be in the log above. Please read the output to determine what
+    went wrong.
+
+At this point you will usually see lots of yellow warnings "Skipping because of failed dependencies" peppered amongst the blue lines. The art of finding out the cause of the failure is to scroll up to find the *first* of these yellow warnings and look for the error in the line or two above this.
+
+It is always worth trying running puppet again (either with `vagrant provision` or puppet apply - see below) in case it was a one-off problem.
 
 ## Puppet apply
 
