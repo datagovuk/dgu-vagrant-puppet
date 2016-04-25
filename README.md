@@ -127,11 +127,12 @@ You need to install some dependencies. Firstly git:
 
 Now install ruby and 'librarian-puppet':
 
-    sudo apt-get install python-software-properties
-    sudo apt-add-repository ppa:brightbox/ruby-ng
-    sudo apt-get update
-    sudo apt-get install ruby2.2
+    curl -L get.rvm.io | bash -s stable
+    source ~/.rvm/scripts/rvm
+    rvm requirements
+    rvm install 1.8.7
     sudo gem install puppet -v 2.7.19
+    sudo gem install highline -v 1.6.1  # need this older version for librarian compatibility with this version of ruby
     sudo gem install librarian-puppet -v 1.0.3
 
 Clone this repo to the machine in /vagrant (to match the vagrant install):
@@ -147,6 +148,7 @@ Use the script to clone all the CKAN source repos.
 
     ln -s /vagrant/dgu-vagrant-puppet/src /vagrant/src
     ln -s /vagrant/dgu-vagrant-puppet/puppet/ /vagrant/puppet
+    ln -s /vagrant/dgu-vagrant-puppet/pypi /vagrant/pypi
     ln -s /vagrant/src /src
     cd /src
     ./git_clone_all.sh
@@ -166,6 +168,10 @@ Provisioning will take a while, and you can ignore warnings that are listed in t
 To automatically activate your CKAN python virtual environment on log-in, it is recommended to add this line to your .bashrc:
 
     source ~/ckan/bin/activate && cd /src/ckan
+
+and also add this line for the ruby to work properly:
+
+    source ~/.rvm/scripts/rvm
 
 
 ## 2. Extra CKAN setup

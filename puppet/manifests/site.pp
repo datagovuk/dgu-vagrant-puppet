@@ -2,6 +2,9 @@ Exec {
   # Set defaults for execution of commands
   path => "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/ruby/bin",
 }
+group {"puppet":
+  ensure => present,
+}
 group {"co":
   ensure => present,
 }
