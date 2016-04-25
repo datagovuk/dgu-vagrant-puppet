@@ -747,6 +747,17 @@ At this point you will usually see lots of yellow warnings "Skipping because of 
 
 It is always worth trying running puppet again (either with `vagrant provision` or puppet apply - see below) in case it was a one-off problem.
 
+### Pylons and Setuptools
+
+An error with these two fundamental python packages has been seen when doing "Option 2: Fresh machine preparation":
+
+    err: /Stage[main]/Dgu_ckan/Dgu_ckan::Pip_package[Pylons==0.9.7]/Exec[pip_install_Pylons==0.9.7]/returns: change from notrun to 0 failed: /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi --log-file /home/co/ckan/pip.log Pylons==0.9.7 returned 1 instead of one of [0] at /etc/puppet/modules/dgu_ckan/manifests/pip_package.pp:23
+
+and it was solved by install these manually:
+
+    /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi PasteScript==1.7.5
+    /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi Pylons==0.9.7
+
 ## Puppet apply
 
 When tinkering with the Puppet configuration and rerunning it, it can be frustrating the the `vagrant provision` takes several minutes to run. Much of the time there is no need to have librarian check the puppet module dependencies, and in this case there is a short cut.
