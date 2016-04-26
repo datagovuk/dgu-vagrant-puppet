@@ -234,7 +234,7 @@ After running puppet, a fresh database is created for you. If you need to create
 
 Sample data is provided to demonstrate CKAN. It comprises 5 sample datasets and is loaded like this:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-dgu create-test-data --config=/var/ckan/ckan.ini
 
 The sample data looks like this:
 
@@ -256,8 +256,8 @@ Then load the dump in (ensure you are logged in as the co user):
     pv /vagrant/db_backup/$CKAN_DUMP_FILE | funzip \
       | PGPASSWORD=pass psql -h localhost -U dgu -d ckan
     sudo apachectl start
-    sudo -u www-data /home/co/ckan/bin/paster db upgrade --config=ckan.ini
-    sudo -u www-data /home/co/ckan/bin/paster search-index rebuild --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan db upgrade --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan search-index rebuild --config=/var/ckan/ckan.ini
 
 Note: expect the `pv` command to produce a number of non-fatal errors and warnings. At the start there are several pages of errors before it starts creating tables:
 
@@ -290,8 +290,8 @@ ERROR:  must be owner of relation spatial_ref_sys
 
 For test purposes you can add a CKAN admin user. Remember to reset the password before making the site live.
 
-    sudo -u www-data /home/co/ckan/bin/paster user add admin email=admin@ckan password=pass --config=ckan.ini
-    sudo -u www-data /home/co/ckan/bin/paster sysadmin add admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user add admin email=admin@ckan password=pass --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan sysadmin add admin --config=/var/ckan/ckan.ini
 
 ### Try CKAN
 
@@ -402,7 +402,7 @@ For a live deployment it is important to change the passwords from the sample on
 
 * CKAN `admin` account. Change it with:
 
-    sudo -u www-data /home/co/ckan/bin/paster user setpass admin --config=ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user setpass admin --config=/var/ckan/ckan.ini
 
 * HTTP Basic Auth around Drupal services. Change the password CKAN uses to contact the Drupal services API by editing in `/var/ckan/ckan.ini` the value for `dgu.xmlrpc_password` to be a new password:
 
@@ -525,7 +525,7 @@ ga-report.bounce_url = /data/search
 
 3. Create the database tables:
 
-    sudo -u www-data /home/co/ckan/bin/paster initdb --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report initdb --config=/var/ckan/ckan.ini
 
 4. Enable the extension by adding it to the list of `ckan.plugins` in ckan.ini:
 
@@ -553,7 +553,7 @@ Then you can add it as a cron job. e.g. add it to /etc/cron.d/ckan
 When running CKAN paster commands, you should ensure that:
 
 * you specify the path to paster in the virtualenv (in the future you might just ensure you've activated CKAN's python virtual environment, but that doesn't work when you sudo)
-* you are in the CKAN source directory
+* you are in the CKAN source directory (/src/ckan)
 * use the www-data user, to avoid the log permissions problem (see section below)
 
 You can see that the virtual environment is activated by the presence of the `(ckan)` prefix in the prompt. e.g.:
