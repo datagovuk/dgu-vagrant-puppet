@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # SOURCE: https://github.com/purple52/librarian-puppet-vagrant
 
@@ -31,6 +31,28 @@ if [ "$FOUND_GIT" -ne '0' ]; then
 else
   echo 'git found.'
 fi
+
+# Install newer Ruby version
+# (Vagrant comes bundled with ruby 1.8.7 which is too old for librarian-puppet to access a https server that uses SNI - https://forge.puppetlabs.com)
+$(which ruby | grep vagrant_ruby > /dev/null 2>&1)
+FOUND_ACCEPTABLE_RUBY=$?
+if [ "$FOUND_ACCEPTABLE_RUBY" -ne '1' ]; then
+  echo 'Attempting to install ruby.'
+  git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+  echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+  echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+  cd
+  exec $SHELL
+  echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bashrc
+  exec $SHELL
+  rbenv install 2.3.1
+  rbenv global 2.3.1
+else
+  echo 'ruby found.'
+fi
+echo $PATH
+which ruby
+ruby --version
 
 mkdir -p $PUPPET_DIR
 cp /vagrant/puppet/Puppetfile $PUPPET_DIR

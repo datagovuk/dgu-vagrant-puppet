@@ -55,8 +55,13 @@ cd ckanext-hierarchy
 git checkout master
 cd -
 
-git clone	https://github.com/datagovuk/ckanext-os
+git clone   https://github.com/datagovuk/ckanext-os
 cd ckanext-os
+git checkout master
+cd -
+
+git clone   https://github.com/datagovuk/ckanext-packagezip
+cd ckanext-packagezip
 git checkout master
 cd -
 

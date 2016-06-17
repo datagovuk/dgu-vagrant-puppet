@@ -1,6 +1,6 @@
 # Configuration for librarian-puppet lists the modules we depend upon.
-# 
-forge "http://forge.puppetlabs.com"
+#
+forge "https://forge.puppetlabs.com"
 
 mod "puppetlabs/apt", '1.6.0'
 mod "puppetlabs/concat", '1.1.1'
