@@ -750,11 +750,11 @@ It is always worth trying running puppet again (either with `vagrant provision` 
 
 ### Pylons and Setuptools
 
-An error with these two fundamental python packages has been seen when doing "Option 2: Fresh machine preparation":
+Depending on the order which puppet installs the python packages, you may well get an error to do with installing Pylons, PasteScript and PasteDeploy. e.g.:
 
     err: /Stage[main]/Dgu_ckan/Dgu_ckan::Pip_package[Pylons==0.9.7]/Exec[pip_install_Pylons==0.9.7]/returns: change from notrun to 0 failed: /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi --log-file /home/co/ckan/pip.log Pylons==0.9.7 returned 1 instead of one of [0] at /etc/puppet/modules/dgu_ckan/manifests/pip_package.pp:23
 
-and it was solved by install these manually:
+It is a known problem and can usually be solved if you simple rerun the 'puppet apply' / 'vagrant provision' step. You can also solve it manually on the box:
 
     /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi PasteScript==1.7.5
     /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi Pylons==0.9.7

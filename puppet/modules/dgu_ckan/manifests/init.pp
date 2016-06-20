@@ -109,6 +109,7 @@ class dgu_ckan {
     'nose==1.3.0',
     'ofs==0.4.1',
     'passlib==1.6.2',
+    'pika==0.9.8',
     'openpyxl==1.5.7',
     'psycopg2==2.4.5',
     'pylibmc',
@@ -557,13 +558,6 @@ class dgu_ckan {
     enable    => true,
     ensure    => running,
     require   => Package['redis-server'],
-  }
-
-  # -----------
-  # Harvesting
-  # -----------
-  package {"rabbitmq-server":
-    ensure => present,
   }
 
   # -----------
