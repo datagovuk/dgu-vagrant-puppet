@@ -220,15 +220,15 @@ The Archiver and QA extensions are explained later on in this guide.
 
 ## 3. CKAN Database setup
 
-    **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
+**IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
-        source ~/ckan/bin/activate
+    source ~/ckan/bin/activate
 
-    And make sure you run paster commands as `co` user from the `/src/ckan` or `/vagrant/src/ckan` directory.
+And make sure you run paster commands as `co` user from the `/src/ckan` or `/vagrant/src/ckan` directory.
 
-    After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
+After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
 
-        createdb -O dgu ckan --template template_postgis
+    createdb -O dgu ckan --template template_postgis
 
 #### Option 1: Use test data
 
