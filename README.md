@@ -230,6 +230,11 @@ After running puppet, a fresh database is created for you. If you need to create
 
     createdb -O dgu ckan --template template_postgis
 
+Now you need to create the tables for the various extensions:
+
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-packagezip packagezip init --config=/var/ckan/ckan.ini
+    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-issues issues init_db --config=/var/ckan/ckan.ini
+
 #### Option 1: Use test data
 
 Sample data is provided to demonstrate CKAN. It comprises 5 sample datasets and is loaded like this:
@@ -402,33 +407,33 @@ For a live deployment it is important to change the passwords from the sample on
 
 * CKAN `admin` account. Change it with:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user setpass admin --config=/var/ckan/ckan.ini
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan user setpass admin --config=/var/ckan/ckan.ini
 
 * HTTP Basic Auth around Drupal services. Change the password CKAN uses to contact the Drupal services API by editing in `/var/ckan/ckan.ini` the value for `dgu.xmlrpc_password` to be a new password:
 
-    dgu.xmlrpc_password = newpassword
+        dgu.xmlrpc_password = newpassword
 
-And then set that same password to be the one accepted by the API using:
+    And then set that same password to be the one accepted by the API using:
 
-    sudo htpasswd /var/www/api_users ckan
+        sudo htpasswd /var/www/api_users ckan
 
-and reboot Apache:
+    and reboot Apache:
 
-    sudo apachectl restart
+        sudo apachectl restart
 
 * MySQL database for both the `root` and `co`. Use these commands:
 
-      mysql -u root --execute "SET PASSWORD = PASSWORD('new root password');"
-      mysql -u -p root --execute "SET PASSWORD FOR 'co'@'localhost' = PASSWORD('new co password');"
+        mysql -u root --execute "SET PASSWORD = PASSWORD('new root password');"
+        mysql -u -p root --execute "SET PASSWORD FOR 'co'@'localhost' = PASSWORD('new co password');"
 
-And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/settings.php` and reboot Apache:
+    And change password in your Drupal settings `/var/www/drupal/dgu/sites/default/settings.php` and reboot Apache:
 
-    sudo apachectl restart
+        sudo apachectl restart
 
 * Postgres database:
 
-      sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
-      sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
+        sudo -u postgres psql -c "ALTER USER Postgres WITH PASSWORD 'new postgres password';"
+        sudo -u postgres psql -c "ALTER USER co WITH PASSWORD 'new co password';"
 
 And change password in your CKAN sqlalchemy setting in `/var/ckan/ckan.ini`:
 
@@ -440,7 +445,7 @@ and reboot Apache:
 
 * SSH authentication. The install provides ssh access to the data.gov.uk team, and clearly this should be changed for other organizations. Remove the irrelevant people's lines from this file:
 
-    /home/co/.ssh/authorized_keys
+        /home/co/.ssh/authorized_keys
 
 
 ### Syncing publishers and datasets from CKAN to Drupal
@@ -722,7 +727,7 @@ and request the page again.
 
 ## Puppet warnings
 
-These messages will be seen during provisioning with Puppet, and are harmless:
+These messages may be seen during provisioning with Puppet, and are harmless:
 
     warning: Could not retrieve fact fqdn
     stdin: is not a tty
