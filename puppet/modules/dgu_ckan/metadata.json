@@ -1,0 +1,11 @@
+{
+  "name": "dgu-ckan",
+  "version": "0.1.0",
+  "author": "Tom Rees, David Read",
+  "summary": "Installs CKAN, customized for Data.gov.uk To Go",
+  "license": "AGPL",
+  "source": "https://github.com/datagovuk/dgu-vagrant-puppet/tree/master/puppet/modules/dgu_ckan",
+  "project_page": "https://github.com/datagovuk/dgu-vagrant-puppet",
+  "issues_url": "https://github.com/datagovuk/dgu-vagrant-puppet/issues",
+  "dependencies": []
+}
