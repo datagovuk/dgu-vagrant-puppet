@@ -186,7 +186,7 @@ For the auth-theming used by the harvesters you need to install this corpus:
 
 ### Harvesting
 
-Harvester needs a backend, and the default is RabbitMQ (installed by puppet).
+Harvester needs a backend, and the default is Redis (installed by puppet).
 
 You need to create the gather and fetch queues by running the consumers briefly:
 
@@ -205,30 +205,30 @@ To enable the resource cache, broken link checker and 5 star checker:
 
 1. Unless you're just testing the site locally, change the `ckan.cache_url_root` setting in /var/ckan/ckan.ini to reflect the domain where you will host your site. e.g. for data.gov.uk we have:
 
-       ckan.cache_url_root = http://data.gov.uk/data/resource_cache/
+        ckan.cache_url_root = http://data.gov.uk/data/resource_cache/
 
 2. Keep these two processes running in the background, using screen or ideally supervisord:
 
-       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
-       sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=bulk --config=/var/ckan/ckan.ini
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=1 --queue=priority --config=/var/ckan/ckan.ini
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckan celeryd run concurrency=4 --queue=bulk --config=/var/ckan/ckan.ini
 
 3. Trigger the weekly refreshes using this cron setting:
 
-       0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
+        0 22 * * 5  www-data  /home/co/ckan/bin/paster --plugin=ckanext-archiver archiver update --config=/var/ckan/ckan.ini
 
 The Archiver and QA extensions are explained later on in this guide.
 
 ## 3. CKAN Database setup
 
-**IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
+    **IMPORTANT** You must activate the CKAN virtual environment when working on the VM. Eg.:
 
-    source ~/ckan/bin/activate
+        source ~/ckan/bin/activate
 
-And make sure you run paster commands as `co` user from the `/src/ckan` or `/vagrant/src/ckan` directory.
+    And make sure you run paster commands as `co` user from the `/src/ckan` or `/vagrant/src/ckan` directory.
 
-After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
+    After running puppet, a fresh database is created for you. If you need to create it again then you can do it like this:
 
-    createdb -O dgu ckan --template template_postgis
+        createdb -O dgu ckan --template template_postgis
 
 #### Option 1: Use test data
 
@@ -296,7 +296,7 @@ For test purposes you can add a CKAN admin user. Remember to reset the password 
 ### Try CKAN
 
 You can test CKAN on the command-line:
-    
+
     curl http://localhost/data/search
 
 And try a browser to connect to the machine. If its running in Vagrant then the address (from the Vagrantfile) will be: http://192.168.11.11/data/search
@@ -515,30 +515,29 @@ To set this up, you need to:
 1. Setup Google Analytics account & tracking - see: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#setup-google-analytics
 
 2. Add the configuration to your ckan.ini, customizing the values for the first 2 options:
-```
-googleanalytics.id = UA-1010101-1
-googleanalytics.account = Account name (e.g. data.gov.uk, see top level item at https://www.google.com/analytics)
-googleanalytics.token.filepath = /var/ckan/ga_auth_token.dat
-ga-report.period = monthly
-ga-report.bounce_url = /data/search
-```
+
+        googleanalytics.id = UA-1010101-1
+        googleanalytics.account = Account name (e.g. data.gov.uk, see top level item at https://www.google.com/analytics)
+        googleanalytics.token.filepath = /var/ckan/ga_auth_token.dat
+        ga-report.period = monthly
+        ga-report.bounce_url = /data/search
 
 3. Create the database tables:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report initdb --config=/var/ckan/ckan.ini
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report initdb --config=/var/ckan/ckan.ini
 
 4. Enable the extension by adding it to the list of `ckan.plugins` in ckan.ini:
 
-    ckan.plugins = ... ga-report
+        ckan.plugins = ... ga-report
 
 5. Generate an OAUTH token using the instructions: https://github.com/datagovuk/ckanext-ga-report/blob/master/README.md#authorization The paster command is:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report getauthtoken --config=/var/ckan/ckan.ini
-    mv token.dat /var/ckan/ga_auth_token.dat
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report getauthtoken --config=/var/ckan/ckan.ini
+        mv token.dat /var/ckan/ga_auth_token.dat
 
 6. Now you can load the GA data into CKAN. Run it the first time on the command-line to check it works:
 
-    sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
+        sudo -u www-data /home/co/ckan/bin/paster --plugin=ckanext-ga-report loadanalytics latest --config=/var/ckan/ckan.ini
 
 Then you can add it as a cron job. e.g. add it to /etc/cron.d/ckan
 ```
