@@ -34,9 +34,6 @@ user { "co":
   groups     => ["sudo","adm","www-data"],
 }
 
-file { '/etc/fqdn':
-  content => $::fqdn
-}
 file { '/etc/motd':
   content => "Welcome to your Puppet-built virtual machine!
               $motd\n"

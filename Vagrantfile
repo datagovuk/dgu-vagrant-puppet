@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
       puppet.manifest_file  = "site.pp"
       puppet.facter = {
         "motd" => "Built by Vagrant using librarian-puppet.",
-        "fqdn" => "ckan.home",
+        # "fqdn" => "ckan.home",
         "pgpasswd" => "pass",
       }
   end
@@ -30,9 +30,10 @@ Vagrant.configure("2") do |config|
   #config.ssh.username = "co"
 
   config.vm.provider :virtualbox do |vb|
-    config.vm.box = "precise64"
-    config.vm.box_url = "http://files.vagrantup.com/precise64.box"
-    # This allows symlinks to be created within the /vagrant root directory, 
+    config.vm.box = "trusty64"
+    # Box from http://www.vagrantbox.es/
+    config.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vbox.box"
+    # This allows symlinks to be created within the /vagrant root directory,
     # which is something librarian-puppet needs to be able to do. This might
     # be enabled by default depending on what version of VirtualBox is used.
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
@@ -46,9 +47,9 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |vmware, override|
-    override.vm.box = "precise64_vmware"
-    override.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
-    # 4GB RAM and 4 (hyperthreaded virtual) CPU cores
+    override.vm.box = "trusty64_vmware"
+    override.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vmwarefusion.box"
+    # 8GB RAM and 8 (hyperthreaded virtual) CPU cores
     vmware.vmx["memsize"] = "8192"
     vmware.vmx["numvcpus"] = "8"
     vmware.vmx["displayName"] = "dgutg_vm"

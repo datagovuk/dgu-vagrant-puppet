@@ -34,12 +34,14 @@ fi
 
 # Install newer Ruby version
 # (Vagrant comes bundled with ruby 1.8.7 which is too old for librarian-puppet to access a https server that uses SNI - https://forge.puppetlabs.com)
-$(which ruby | grep vagrant_ruby > /dev/null 2>&1)
-FOUND_ACCEPTABLE_RUBY=$?
+function version_greater_than() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
+RUBY_VERSION=$(ruby -v | cut -f2 -d' ')
+echo "Ruby $RUBY_VERSION"
 # ruby 2.3.1 is latest, but 2.2 is the latest puppet supports
-if [ "$FOUND_ACCEPTABLE_RUBY" -ne '1' ]; then
+if version_greater_than 2.1 $RUBY_VERSION; then
+  # ruby version is too low or it is not installed
   if [ -a $HOME/.rbenv/bin ]; then
-    echo 'rbenv installed but not activated - probably because we are in the vagrant shell'
+    echo 'rbenv installed. Activating it for this shell.'
     export PATH="$HOME/.rbenv/bin:$PATH"
     eval "$(rbenv init -)"
     export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"
@@ -47,6 +49,8 @@ if [ "$FOUND_ACCEPTABLE_RUBY" -ne '1' ]; then
     echo 'rbenv activated'
   else
     echo 'Attempting to install ruby.'
+    echo 'Ruby ubuntu deps being installed'
+    sudo apt-get install -y libssl-dev libreadline-dev zlib1g-dev
     git clone https://github.com/rbenv/rbenv.git ~/.rbenv
     echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(rbenv init -)"' >> ~/.bashrc
