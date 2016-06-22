@@ -263,13 +263,14 @@ class dgu_ckan {
   # Postgres DB
   # -----------
   $pg_superuser_pass = 'pass'
-  $postgis_version = "9.1"
+  $postgres_version = "9.3"
+  $postgis_version = "2.1"
 
   class { "postgresql::server":
     listen_addresses  => '*',
     postgres_password => $pg_superuser_pass,
   }
-  package {"postgresql-${postgis_version}-postgis":
+  package {"postgresql-${postgres_version}-postgis-${postgis_version}":
     ensure => present,
     require => Class['postgresql::server'],
   }
@@ -402,7 +403,7 @@ class dgu_ckan {
     user    => co,
     require => [
       File["/tmp/create_postgis_template.sh"],
-      Package["postgresql-${postgis_version}-postgis"],
+      Package["postgresql-${postgres_version}-postgis-${postgis_version}"],
       Postgresql::Server::Role["co"],
     ]
   }

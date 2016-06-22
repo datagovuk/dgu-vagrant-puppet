@@ -22,6 +22,10 @@ PG_SPATIAL_REF="/usr/share/postgresql/9.0/contrib/postgis-1.5/spatial_ref_sys.sq
 PG_POSTGIS="/usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql"
 PG_SPATIAL_REF="/usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql"
 ;;
+'9.3')
+PG_POSTGIS="/usr/share/postgresql/9.3/contrib/postgis-2.1/postgis.sql"
+PG_SPATIAL_REF="/usr/share/postgresql/9.3/contrib/postgis-2.1/spatial_ref_sys.sql"
+;;
 *)
 echo "No support for $PG_VERSION in $0"
 exit 1
