@@ -510,6 +510,7 @@ class dgu_ckan {
   }
   apache::mod {'wsgi':}
   apache::mod {'php5':}
+  apache::mod {'authn_core':}
   include ::apache::mod::rewrite
   include ::apache::mod::proxy
   apache::listen {'80':}
@@ -533,6 +534,7 @@ class dgu_ckan {
       Class['apache'],
       Apache::Mod['wsgi'],
       Apache::Mod['php5'],
+      Apache::Mod['authn_core'],
       Class['apache::mod::rewrite'],
       Class['apache::mod::proxy'],
       Apache::Listen['80'],
