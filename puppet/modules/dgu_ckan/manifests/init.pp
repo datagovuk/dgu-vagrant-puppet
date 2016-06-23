@@ -73,7 +73,7 @@ class dgu_ckan {
     'PyMollom==0.1',
     'Routes==1.13',
     'SPARQLWrapper==1.6.4',
-    'SQLAlchemy==0.9.6',
+    'SQLAlchemy==0.9.8',
     'Shapely==1.2.17',
     'Tempita==0.5.1',
     'WebError==0.10.3',
@@ -490,7 +490,7 @@ class dgu_ckan {
       File["solr_schema_xml"],
       File["/etc/default/jetty"],
       File["/etc/init.d/jetty"],
-      File['/etc/solr/conf'], 
+      File['/etc/solr/conf'],
       File['/usr/share/solr/solr-4.3.1/example/solr/collection1/conf/solrconfig.xml'],
     ],
   }

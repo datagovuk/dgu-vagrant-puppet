@@ -767,6 +767,26 @@ It is a known problem and can usually be solved if you simple rerun the 'puppet 
     /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi PasteScript==1.7.5
     /home/co/ckan/bin/pip install --no-index --find-links=file:///vagrant/pypi Pylons==0.9.7
 
+## SOLR
+
+We've seen an issue where SOLR doesn't work properly the first time and when puppet tries to run 'paster db init' style commands you see this error:
+
+    WARNI [ckan.lib.search] Problems were found while connecting to the SOLR server
+    ERROR [ckan.lib.search.common] HTTP code=503, reason=Service Unavailable
+
+This can usually be fixed by restarting SOLR, via its java environment 'jetty':
+
+    sudo service jetty restart
+
+and check whether the start-up log:
+
+    less /usr/share/solr/solr-4.3.1/example/logs/solr.log
+
+is full of errors or succeeds with something like:
+
+    Started SocketConnector@0.0.0.0:8983
+
+
 ## Puppet apply
 
 When tinkering with the Puppet configuration and rerunning it, it can be frustrating the the `vagrant provision` takes several minutes to run. Much of the time there is no need to have librarian check the puppet module dependencies, and in this case there is a short cut.
