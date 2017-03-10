@@ -1,4 +1,10 @@
-# Data.gov.uk To Go
+# This repository is currently unmaintained
+
+This repository is currently unmaintained, and as a result we are unable to provide more than guidance in using it. It should be feasible to use [CKAN](https://ckan.org/) in combination with the [many available extensions](http://extensions.ckan.org/) to obtain the same result.
+
+--- 
+
+## Data.gov.uk To Go
 
 This repo provides scripts to install a copy of data.gov.uk's website to your own server. Rebrand it and you have a fully-featured government open data portal.
 
